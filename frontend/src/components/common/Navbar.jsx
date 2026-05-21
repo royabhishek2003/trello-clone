@@ -5,7 +5,7 @@ import { logoutUser } from '../../redux/slices/authSlice';
 import { Button } from '../ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Layout } from 'lucide-react';
+import { Layout, ChevronsUpDown } from 'lucide-react';
 import { setCurrentOrg } from '../../redux/slices/organizationSlice';
 
 export const Navbar = () => {
@@ -29,12 +29,25 @@ export const Navbar = () => {
           </Button>
         </div>
 
+      </div>
+
+      <div className="flex items-center gap-x-2">
         {/* Organization Switcher */}
         {organizations.length > 0 && (
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="hidden md:flex justify-between w-[200px]">
-                {currentOrg ? currentOrg.name : "Select Organization"}
+              <Button variant="ghost" size="sm" className="hidden md:flex items-center gap-x-2 h-auto py-1 px-2 border-none">
+                {currentOrg ? (
+                  <>
+                    <div className="w-7 h-7 bg-sky-700 rounded-sm flex items-center justify-center shrink-0">
+                      <span className="text-white text-xs font-bold uppercase">{currentOrg.name?.charAt(0)}</span>
+                    </div>
+                    <span className="font-medium text-sm text-neutral-700">{currentOrg.name}</span>
+                  </>
+                ) : (
+                  <span className="font-medium text-sm text-neutral-700">Select Workspace</span>
+                )}
+                <ChevronsUpDown className="w-4 h-4 text-neutral-500 ml-2" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
@@ -43,9 +56,12 @@ export const Navbar = () => {
                   <Button 
                     key={org._id} 
                     variant="ghost" 
-                    className="justify-start rounded-none"
+                    className="justify-start rounded-none h-auto py-2"
                     onClick={() => dispatch(setCurrentOrg(org))}
                   >
+                    <div className="w-6 h-6 bg-sky-700 rounded-sm flex items-center justify-center shrink-0 mr-2">
+                      <span className="text-white text-[10px] font-bold uppercase">{org.name?.charAt(0)}</span>
+                    </div>
                     {org.name}
                   </Button>
                 ))}
@@ -53,9 +69,6 @@ export const Navbar = () => {
             </PopoverContent>
           </Popover>
         )}
-      </div>
-
-      <div className="flex items-center gap-x-2">
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" className="rounded-full w-8 h-8 p-0">
