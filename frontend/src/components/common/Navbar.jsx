@@ -5,8 +5,9 @@ import { logoutUser } from '../../redux/slices/authSlice';
 import { Button } from '../ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Layout, ChevronsUpDown } from 'lucide-react';
+import { ChevronsUpDown } from 'lucide-react';
 import { setCurrentOrg } from '../../redux/slices/organizationSlice';
+import { CreateBoardPopover } from '../board/CreateBoardPopover';
 
 export const Navbar = () => {
   const dispatch = useDispatch();
@@ -22,11 +23,16 @@ export const Navbar = () => {
   return (
     <nav className="fixed top-0 w-full h-14 border-b shadow-sm bg-white flex items-center px-4 justify-between z-50">
       <div className="flex items-center gap-x-4">
-        <div className="hidden md:flex">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="hover:bg-slate-100 flex items-center gap-2">
-            <Layout className="w-5 h-5 text-sky-700" />
-            <span className="font-bold text-lg text-slate-700 pb-1">Taskify MERN</span>
+        <div className="hidden md:flex items-center gap-x-2">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="hover:bg-slate-100 flex items-center gap-2 px-2">
+            <img src="/logo.svg" alt="Logo" className="w-5 h-5" />
+            <span className="font-bold text-lg text-slate-700 pb-1">Taskify</span>
           </Button>
+          <CreateBoardPopover side="bottom" sideOffset={18}>
+            <Button variant="default" size="sm" className="hidden md:block bg-sky-700 hover:bg-sky-800 h-auto py-1.5 px-3">
+              Create
+            </Button>
+          </CreateBoardPopover>
         </div>
 
       </div>

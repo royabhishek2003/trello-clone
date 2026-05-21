@@ -11,6 +11,7 @@ import { checkSubscription } from '../../redux/slices/subscriptionSlice';
 import { openProModal } from '../../redux/slices/uiSlice';
 import { toast } from 'sonner';
 import { FormPicker } from '../form/FormPicker';
+import { CreateBoardPopover } from './CreateBoardPopover';
 
 export const BoardList = () => {
   const { boards, loading } = useSelector(state => state.boards);
@@ -22,35 +23,6 @@ export const BoardList = () => {
   const [selectedImage, setSelectedImage] = useState('');
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleCreateBoard = async (e) => {
-    e.preventDefault();
-    if (!boardTitle.trim()) return;
-    if (!selectedImage) {
-      toast.error('Please select an image');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    try {
-      const res = await dispatch(createBoard({ 
-        title: boardTitle, 
-        orgId: currentOrg._id,
-        image: selectedImage
-      })).unwrap();
-      
-      toast.success("Board created!");
-      setPopoverOpen(false);
-      setBoardTitle('');
-      setSelectedImage('');
-      dispatch(checkSubscription(currentOrg._id));
-      navigate(`/board/${res._id}`);
-    } catch (error) {
-      toast.error(error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className="space-y-4">
@@ -85,41 +57,18 @@ export const BoardList = () => {
             <HelpCircle className="h-[14px] w-[14px] absolute bottom-2 right-2 text-muted-foreground" />
           </div>
         ) : (
-          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-            <PopoverTrigger asChild>
-              <div
-                role="button"
-                className="aspect-video relative h-full w-full bg-muted rounded-sm flex flex-col gap-y-1 items-center justify-center hover:opacity-75 transition cursor-pointer"
-              >
-                <p className="text-sm">Create new board</p>
-                <span className="text-xs">
-                  {isPro ? "Unlimited" : `${5 - availableCount} remaining`}
-                </span>
-                <HelpCircle className="h-[14px] w-[14px] absolute bottom-2 right-2 text-muted-foreground" />
-              </div>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 pt-3" side="right" sideOffset={18}>
-            <div className="text-sm font-medium text-center text-neutral-600 pb-4">
-              Create board
+          <CreateBoardPopover side="right" sideOffset={18}>
+            <div
+              role="button"
+              className="aspect-video relative h-full w-full bg-muted rounded-sm flex flex-col gap-y-1 items-center justify-center hover:opacity-75 transition cursor-pointer"
+            >
+              <p className="text-sm">Create new board</p>
+              <span className="text-xs">
+                {isPro ? "Unlimited" : `${5 - availableCount} remaining`}
+              </span>
+              <HelpCircle className="h-[14px] w-[14px] absolute bottom-2 right-2 text-muted-foreground" />
             </div>
-            <form onSubmit={handleCreateBoard} className="space-y-4">
-              <FormPicker onSelect={setSelectedImage} />
-              <div className="space-y-2">
-                <Label htmlFor="title">Board title</Label>
-                <Input 
-                  id="title" 
-                  value={boardTitle}
-                  onChange={(e) => setBoardTitle(e.target.value)}
-                  placeholder="e.g. 'Project Alpha'"
-                  required
-                />
-              </div>
-              <Button type="submit" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? "Creating..." : "Create"}
-              </Button>
-            </form>
-          </PopoverContent>
-          </Popover>
+          </CreateBoardPopover>
         )}
       </div>
     </div>
