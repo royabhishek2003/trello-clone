@@ -24,7 +24,8 @@ const CardSchema = new mongoose.Schema(
     },
     labels: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Label'
+      ref: 'Label',
+      index: true
     }],
     startDate: {
       type: Date,
@@ -45,7 +46,8 @@ const CardSchema = new mongoose.Schema(
     },
     cardMembers: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+      ref: 'User',
+      index: true
     }],
     checklists: [{
       _id: { type: mongoose.Schema.Types.ObjectId, auto: true },

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createList, reorderLists, setListsLocally } from '../../redux/slices/listSlice';
+import { createList, reorderLists, setListsLocally, clearFilters } from '../../redux/slices/listSlice';
 import { reorderCards } from '../../redux/slices/cardSlice';
 import { ListCard } from './ListCard';
+import { matchesCardFilters } from '../../utils/filterUtils';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Plus, X } from 'lucide-react';
@@ -11,7 +12,8 @@ import { toast } from 'sonner';
 
 export const ListContainer = ({ boardId }) => {
   const dispatch = useDispatch();
-  const { lists } = useSelector(state => state.lists);
+  const { lists, filters } = useSelector(state => state.lists);
+  const { user } = useSelector(state => state.auth);
   const [isAdding, setIsAdding] = useState(false);
   const [title, setTitle] = useState('');
 
@@ -20,6 +22,16 @@ export const ListContainer = ({ boardId }) => {
   useEffect(() => {
     setOrderedLists(lists);
   }, [lists]);
+
+  const filteredLists = useMemo(() => {
+    return orderedLists.map(list => {
+      if (!list.cards) return list;
+      return {
+        ...list,
+        cards: list.cards.filter(card => matchesCardFilters(card, filters, user?._id))
+      };
+    });
+  }, [orderedLists, filters, user]);
 
   const handleAddList = async (e) => {
     e.preventDefault();
@@ -33,7 +45,7 @@ export const ListContainer = ({ boardId }) => {
   };
 
   const onDragEnd = (result) => {
-    const { destination, source, type } = result;
+    const { destination, source, type, draggableId } = result;
 
     if (!destination) return;
     if (destination.droppableId === source.droppableId && destination.index === source.index) return;
@@ -67,8 +79,28 @@ export const ListContainer = ({ boardId }) => {
 
       if (source.droppableId === destination.droppableId) {
         const reorderedCards = [...sourceList.cards];
-        const [movedCard] = reorderedCards.splice(source.index, 1);
-        reorderedCards.splice(destination.index, 0, movedCard);
+        
+        // Find exact item in unfiltered list
+        const sourceIndex = reorderedCards.findIndex(c => c._id === draggableId);
+        if (sourceIndex === -1) return;
+        
+        const [movedCard] = reorderedCards.splice(sourceIndex, 1);
+        
+        // Find insertion point using filtered list
+        const filteredSourceList = filteredLists.find(l => l._id === source.droppableId);
+        const targetCard = filteredSourceList.cards[destination.index];
+        
+        let destIndex = reorderedCards.length; // default to end
+        if (targetCard) {
+          const targetIndex = reorderedCards.findIndex(c => c._id === targetCard._id);
+          if (targetIndex !== -1) {
+            // If target card is before the source card in unfiltered list, we insert at targetIndex
+            // If it's after, we insert at targetIndex (since we already removed the source card)
+            destIndex = targetIndex;
+          }
+        }
+
+        reorderedCards.splice(destIndex, 0, movedCard);
 
         const updatedCards = reorderedCards.map((card, idx) => ({ ...card, order: idx }));
         
@@ -86,10 +118,22 @@ export const ListContainer = ({ boardId }) => {
         const sourceCards = [...sourceList.cards];
         const destCards = [...destList.cards];
 
-        const [movedCard] = sourceCards.splice(source.index, 1);
+        const sourceIndex = sourceCards.findIndex(c => c._id === draggableId);
+        if (sourceIndex === -1) return;
+
+        const [movedCard] = sourceCards.splice(sourceIndex, 1);
         const updatedMovedCard = { ...movedCard, listId: destination.droppableId };
         
-        destCards.splice(destination.index, 0, updatedMovedCard);
+        const filteredDestList = filteredLists.find(l => l._id === destination.droppableId);
+        const targetCard = filteredDestList.cards[destination.index];
+
+        let destIndex = destCards.length;
+        if (targetCard) {
+          const targetIndex = destCards.findIndex(c => c._id === targetCard._id);
+          if (targetIndex !== -1) destIndex = targetIndex;
+        }
+        
+        destCards.splice(destIndex, 0, updatedMovedCard);
 
         const updatedSourceCards = sourceCards.map((card, idx) => ({ ...card, order: idx }));
         const updatedDestCards = destCards.map((card, idx) => ({ ...card, order: idx }));
@@ -112,16 +156,29 @@ export const ListContainer = ({ boardId }) => {
     }
   };
 
+  const totalVisibleCards = filteredLists.reduce((acc, list) => acc + (list.cards?.length || 0), 0);
+  const totalCards = orderedLists.reduce((acc, list) => acc + (list.cards?.length || 0), 0);
+  const isFiltering = filters.labels.length > 0 || filters.members.length > 0 || filters.due.length > 0;
+
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="lists" type="list" direction="horizontal">
+    <div className="h-full flex flex-col">
+      {isFiltering && totalVisibleCards === 0 && totalCards > 0 && (
+        <div className="mb-4 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-md font-medium text-sm border border-white/30 flex items-center justify-between">
+          <span>No cards match your current filters.</span>
+          <Button variant="ghost" size="sm" onClick={() => dispatch(clearFilters())} className="h-auto py-1 px-2 text-white hover:bg-white/20">
+            Clear filters
+          </Button>
+        </div>
+      )}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="lists" type="list" direction="horizontal">
         {(provided) => (
           <ol
             {...provided.droppableProps}
             ref={provided.innerRef}
             className="flex gap-x-3 h-full"
           >
-            {orderedLists.map((list, index) => (
+            {filteredLists.map((list, index) => (
               <ListCard key={list._id} list={list} index={index} />
             ))}
             {provided.placeholder}
@@ -157,5 +214,6 @@ export const ListContainer = ({ boardId }) => {
         )}
       </Droppable>
     </DragDropContext>
+    </div>
   );
 };

@@ -319,20 +319,18 @@ const updateCardLabels = async (req, res) => {
   }
 };
 
-// @desc    Search cards by title
+// @desc    Search cards by title and filters
 // @route   GET /api/cards/search
 // @access  Private
 const searchCards = async (req, res) => {
   try {
-    const { q, boardId, orgId } = req.query;
+    const { q, boardId, orgId, labels, members, due } = req.query;
     
-    if (!q || q.trim().length < 2) {
+    const hasFilters = labels || members || due;
+    
+    if (!hasFilters && (!q || q.trim().length < 2)) {
       return res.json([]);
     }
-
-    // Escape regex characters to prevent injection
-    const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(escapedQuery, 'i');
 
     let listIds = [];
 
@@ -354,10 +352,56 @@ const searchCards = async (req, res) => {
       return res.json([]);
     }
 
-    const cards = await Card.find({
-      listId: { $in: listIds },
-      title: { $regex: regex }
-    })
+    const query = { listId: { $in: listIds } };
+
+    if (q && q.trim().length >= 2) {
+      const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.title = { $regex: new RegExp(escapedQuery, 'i') };
+    }
+
+    if (labels) {
+      query.labels = { $in: labels.split(',') };
+    }
+
+    if (members) {
+      query.cardMembers = { $in: members.split(',') };
+    }
+
+    if (due) {
+      const dueStatuses = due.split(',');
+      const dateConditions = [];
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const nextWeek = new Date(now);
+      nextWeek.setDate(nextWeek.getDate() + 7);
+
+      if (dueStatuses.includes('overdue')) {
+        dateConditions.push({ dueDate: { $lt: now, $ne: null }, isDateComplete: false });
+      }
+      if (dueStatuses.includes('today')) {
+        dateConditions.push({ dueDate: { $gte: now, $lt: tomorrow }, isDateComplete: false });
+      }
+      if (dueStatuses.includes('thisWeek')) {
+        dateConditions.push({ dueDate: { $gte: now, $lt: nextWeek }, isDateComplete: false });
+      }
+      if (dueStatuses.includes('noDate')) {
+        dateConditions.push({ dueDate: null });
+      }
+      if (dueStatuses.includes('completed')) {
+        dateConditions.push({ isDateComplete: true, dueDate: { $ne: null } });
+      }
+      if (dueStatuses.includes('notCompleted')) {
+        dateConditions.push({ isDateComplete: false, dueDate: { $ne: null } });
+      }
+
+      if (dateConditions.length > 0) {
+        // If query already has an $or, we need to $and it
+        query.$or = dateConditions;
+      }
+    }
+
+    const cards = await Card.find(query)
       .populate('labels')
       .populate('cardMembers', 'firstName lastName email imageUrl')
       .populate({
@@ -365,7 +409,7 @@ const searchCards = async (req, res) => {
         select: 'title boardId',
         populate: { path: 'boardId', select: 'title orgId' }
       })
-      .limit(20)
+      .limit(50) // Increased limit for filters
       .lean();
 
     res.json(cards);

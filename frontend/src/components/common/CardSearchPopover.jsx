@@ -120,10 +120,10 @@ export const CardSearchPopover = () => {
     if (currentBoard && currentBoard._id === cardBoardId) {
       // We are already on the correct board, just open the modal using Redux lists if possible
       // Or we can just use the query param approach consistently for simplicity
-      navigate(`/b/${cardBoardId}?cardId=${card._id}`);
+      navigate(`/board/${cardBoardId}?cardId=${card._id}`);
     } else {
       // Different board, navigate to it with cardId
-      navigate(`/b/${cardBoardId}?cardId=${card._id}`);
+      navigate(`/board/${cardBoardId}?cardId=${card._id}`);
     }
   };
 

@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchBoardById } from '../redux/slices/boardSlice';
 import { fetchLists } from '../redux/slices/listSlice';
+import { fetchLabels } from '../redux/slices/labelSlice';
 import { openCardModal } from '../redux/slices/uiSlice';
 import { Navbar } from '../components/common/Navbar';
 import { BoardHeader } from '../components/board/BoardHeader';
@@ -20,6 +21,7 @@ const BoardDetail = () => {
     if (id) {
       dispatch(fetchBoardById(id));
       dispatch(fetchLists(id));
+      dispatch(fetchLabels(id));
     }
   }, [id, dispatch]);
 

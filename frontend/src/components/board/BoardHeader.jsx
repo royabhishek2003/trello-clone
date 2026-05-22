@@ -7,6 +7,7 @@ import { Input } from '../ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { MoreHorizontal, Trash } from 'lucide-react';
 import { toast } from 'sonner';
+import { BoardFilterPopover } from './BoardFilterPopover';
 
 export const BoardHeader = ({ board }) => {
   const dispatch = useDispatch();
@@ -53,7 +54,8 @@ export const BoardHeader = ({ board }) => {
         />
       )}
 
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-x-2">
+        <BoardFilterPopover />
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="transparent" className="h-auto w-auto p-2">

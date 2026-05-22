@@ -5,6 +5,11 @@ const initialState = {
   lists: [],
   loading: false,
   error: null,
+  filters: {
+    labels: [],
+    members: [],
+    due: [],
+  }
 };
 
 export const fetchLists = createAsyncThunk(
@@ -85,6 +90,18 @@ const listSlice = createSlice({
   reducers: {
     setListsLocally: (state, action) => {
       state.lists = action.payload;
+    },
+    toggleFilter: (state, action) => {
+      const { type, id } = action.payload;
+      const index = state.filters[type].indexOf(id);
+      if (index === -1) {
+        state.filters[type].push(id);
+      } else {
+        state.filters[type].splice(index, 1);
+      }
+    },
+    clearFilters: (state) => {
+      state.filters = { labels: [], members: [], due: [] };
     }
   },
   extraReducers: (builder) => {
@@ -128,5 +145,5 @@ const listSlice = createSlice({
   },
 });
 
-export const { setListsLocally } = listSlice.actions;
+export const { setListsLocally, toggleFilter, clearFilters } = listSlice.actions;
 export default listSlice.reducer;
