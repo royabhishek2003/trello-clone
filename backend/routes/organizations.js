@@ -5,7 +5,11 @@ const {
   createOrganization,
   getOrganization,
   updateOrganization,
-  getActivityLogs
+  getActivityLogs,
+  inviteMembers,
+  revokeInvitation,
+  removeMember,
+  updateMemberRole
 } = require('../controllers/organizationController');
 const { validate } = require('../middleware/validation');
 const { protect } = require('../middleware/auth');
@@ -31,5 +35,10 @@ router.route('/:id')
   );
 
 router.get('/:id/activity', getActivityLogs);
+
+router.post('/:id/invitations', inviteMembers);
+router.delete('/:id/invitations/:email', revokeInvitation);
+router.delete('/:id/members/:userId', removeMember);
+router.patch('/:id/members/:userId', updateMemberRole);
 
 module.exports = router;

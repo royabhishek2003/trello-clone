@@ -125,10 +125,167 @@ const getActivityLogs = async (req, res) => {
   }
 };
 
+// @desc    Invite members
+// @route   POST /api/orgs/:id/invitations
+// @access  Private
+const inviteMembers = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { emails, role } = req.body;
+    
+    if (!emails) {
+      return res.status(400).json({ error: 'Emails are required' });
+    }
+
+    const org = await Organization.findById(id).populate('members.user');
+    if (!org) {
+      return res.status(404).json({ error: 'Organization not found' });
+    }
+
+    const isAdmin = org.members.some(m => m.user._id.toString() === req.user._id.toString() && m.role === 'admin');
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Only admins can invite members' });
+    }
+
+    const emailList = emails.split(',').map(e => e.trim().toLowerCase()).filter(e => e);
+    const addedInvitations = [];
+
+    for (const email of emailList) {
+      const isMember = org.members.some(m => m.user.email.toLowerCase() === email);
+      if (isMember) continue;
+
+      const isInvited = org.invitations.some(i => i.email.toLowerCase() === email);
+      if (isInvited) continue;
+
+      org.invitations.push({
+        email,
+        role: role || 'member'
+      });
+      addedInvitations.push(email);
+    }
+
+    await org.save();
+    res.json({ message: 'Invitations sent', added: addedInvitations });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// @desc    Revoke invitation
+// @route   DELETE /api/orgs/:id/invitations/:email
+// @access  Private
+const revokeInvitation = async (req, res) => {
+  try {
+    const { id, email } = req.params;
+
+    const org = await Organization.findById(id);
+    if (!org) {
+      return res.status(404).json({ error: 'Organization not found' });
+    }
+
+    const isAdmin = org.members.some(m => m.user.toString() === req.user._id.toString() && m.role === 'admin');
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Only admins can revoke invitations' });
+    }
+
+    org.invitations = org.invitations.filter(i => i.email.toLowerCase() !== email.toLowerCase());
+    await org.save();
+
+    res.json({ message: 'Invitation revoked' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// @desc    Remove member
+// @route   DELETE /api/orgs/:id/members/:userId
+// @access  Private
+const removeMember = async (req, res) => {
+  try {
+    const { id, userId } = req.params;
+
+    const org = await Organization.findById(id);
+    if (!org) {
+      return res.status(404).json({ error: 'Organization not found' });
+    }
+
+    const isAdmin = org.members.some(m => m.user.toString() === req.user._id.toString() && m.role === 'admin');
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Only admins can remove members' });
+    }
+
+    const targetMember = org.members.find(m => m.user.toString() === userId);
+    if (!targetMember) {
+      return res.status(404).json({ error: 'Member not found in organization' });
+    }
+
+    if (targetMember.role === 'admin') {
+      const adminCount = org.members.filter(m => m.role === 'admin').length;
+      if (adminCount <= 1) {
+        return res.status(400).json({ error: 'Cannot remove the last admin' });
+      }
+    }
+
+    org.members = org.members.filter(m => m.user.toString() !== userId);
+    await org.save();
+
+    res.json({ message: 'Member removed' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// @desc    Update member role
+// @route   PATCH /api/orgs/:id/members/:userId
+// @access  Private
+const updateMemberRole = async (req, res) => {
+  try {
+    const { id, userId } = req.params;
+    const { role } = req.body;
+
+    if (!['admin', 'member'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' });
+    }
+
+    const org = await Organization.findById(id);
+    if (!org) {
+      return res.status(404).json({ error: 'Organization not found' });
+    }
+
+    const isAdmin = org.members.some(m => m.user.toString() === req.user._id.toString() && m.role === 'admin');
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Only admins can change roles' });
+    }
+
+    const member = org.members.find(m => m.user.toString() === userId);
+    if (!member) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+
+    if (member.role === 'admin' && role === 'member') {
+      const adminCount = org.members.filter(m => m.role === 'admin').length;
+      if (adminCount <= 1) {
+        return res.status(400).json({ error: 'Cannot change role of the last admin' });
+      }
+    }
+
+    member.role = role;
+    await org.save();
+
+    res.json({ message: 'Role updated' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getOrganizations,
   createOrganization,
   getOrganization,
   updateOrganization,
-  getActivityLogs
+  getActivityLogs,
+  inviteMembers,
+  revokeInvitation,
+  removeMember,
+  updateMemberRole
 };

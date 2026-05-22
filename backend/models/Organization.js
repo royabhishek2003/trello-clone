@@ -29,6 +29,13 @@ const OrganizationSchema = new mongoose.Schema(
           default: 'member'
         }
       }
+    ],
+    invitations: [
+      {
+        email: { type: String, required: true },
+        role: { type: String, enum: ['admin', 'member'], default: 'member' },
+        invitedAt: { type: Date, default: Date.now }
+      }
     ]
   },
   {

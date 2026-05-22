@@ -12,6 +12,7 @@ injectStore(store);
 import Dashboard from './pages/Dashboard';
 import BoardDetail from './pages/BoardDetail';
 import OrgSettings from './pages/OrgSettings';
+import OrgActivity from './pages/OrgActivity';
 import { CardModal } from './components/card/CardModal';
 import { ProModal } from './components/subscription/ProModal';
 
@@ -53,6 +54,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/board/:id" element={<BoardDetail />} />
+          <Route path="/organization/:id/activity" element={<OrgActivity />} />
           <Route path="/organization/:id/settings" element={<OrgSettings />} />
           
           <Route path="*" element={<Navigate to="/" replace />} />
