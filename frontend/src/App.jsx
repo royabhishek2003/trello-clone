@@ -15,12 +15,15 @@ import OrgSettings from './pages/OrgSettings';
 import { CardModal } from './components/card/CardModal';
 import { ProModal } from './components/subscription/ProModal';
 
+import { fetchOrganizations } from './redux/slices/organizationSlice';
+
 function App() {
   const dispatch = useDispatch();
   const { loading, isAuthenticated } = useSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(fetchMe());
+    dispatch(fetchOrganizations());
   }, [dispatch]);
 
   if (loading) {

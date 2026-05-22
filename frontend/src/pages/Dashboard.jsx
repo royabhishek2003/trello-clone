@@ -17,8 +17,8 @@ const Dashboard = () => {
   const { isPro } = useSelector(state => state.subscription);
   
   useEffect(() => {
-    dispatch(fetchOrganizations());
-  }, [dispatch]);
+    // Organizations are now fetched globally in App.jsx
+  }, []);
 
   useEffect(() => {
     if (currentOrg) {
