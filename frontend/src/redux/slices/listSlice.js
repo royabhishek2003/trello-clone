@@ -55,6 +55,18 @@ export const deleteList = createAsyncThunk(
   }
 );
 
+export const copyList = createAsyncThunk(
+  'lists/copyList',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/api/lists/${id}/copy`);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to copy list');
+    }
+  }
+);
+
 export const reorderLists = createAsyncThunk(
   'lists/reorderLists',
   async ({ items, boardId }, { rejectWithValue }) => {

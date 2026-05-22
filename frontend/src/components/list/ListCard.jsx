@@ -3,12 +3,13 @@ import { useDispatch } from 'react-redux';
 import { Draggable, Droppable } from '@hello-pangea/dnd';
 import { CardItem } from '../card/CardItem';
 import { createCard } from '../../redux/slices/cardSlice';
-import { fetchLists, deleteList, updateList } from '../../redux/slices/listSlice';
+import { fetchLists, deleteList, updateList, copyList } from '../../redux/slices/listSlice';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Plus, X, MoreHorizontal, Trash } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from '../ui/popover';
+import { Separator } from '../ui/separator';
 import { toast } from 'sonner';
 
 export const ListCard = ({ list, index }) => {
@@ -46,6 +47,14 @@ export const ListCard = ({ list, index }) => {
       .catch((err) => toast.error(err || "Failed to delete list"));
   };
 
+  const handleCopyList = async () => {
+    await dispatch(copyList(list._id))
+      .unwrap()
+      .then((data) => toast.success(`List "${data.title}" copied`))
+      .catch((err) => toast.error(err || "Failed to copy list"));
+    dispatch(fetchLists(list.boardId));
+  };
+
   return (
     <Draggable draggableId={list._id} index={index}>
       {(provided) => (
@@ -76,11 +85,34 @@ export const ListCard = ({ list, index }) => {
                     <MoreHorizontal className="h-4 w-4 text-neutral-500" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-56" side="bottom" align="start">
-                  <div className="text-sm font-medium text-center text-neutral-600 pb-2">List actions</div>
-                  <Button variant="ghost" onClick={handleDeleteList} className="w-full justify-start text-red-600">
-                    <Trash className="h-4 w-4 mr-2" /> Delete list
-                  </Button>
+                <PopoverContent className="w-72 px-0 pt-3 pb-3" side="bottom" align="start">
+                  <div className="text-sm font-semibold text-center text-neutral-600 pb-2 relative">
+                    List actions
+                    <PopoverClose asChild>
+                      <Button variant="ghost" className="h-auto w-auto p-2 absolute top-[-4px] right-2 text-neutral-600">
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </PopoverClose>
+                  </div>
+                  <Separator />
+                  <div className="flex flex-col mt-2">
+                    <PopoverClose asChild>
+                      <Button variant="ghost" onClick={() => setIsAddingCard(true)} className="w-full justify-start rounded-none px-4 py-2 h-auto text-sm font-normal text-neutral-700 hover:bg-neutral-100">
+                        Add card...
+                      </Button>
+                    </PopoverClose>
+                    <PopoverClose asChild>
+                      <Button variant="ghost" onClick={handleCopyList} className="w-full justify-start rounded-none px-4 py-2 h-auto text-sm font-normal text-neutral-700 hover:bg-neutral-100">
+                        Copy list...
+                      </Button>
+                    </PopoverClose>
+                    <Separator className="my-2" />
+                    <PopoverClose asChild>
+                      <Button variant="ghost" onClick={handleDeleteList} className="w-full justify-start rounded-none px-4 py-2 h-auto text-sm font-normal text-neutral-700 hover:bg-neutral-100">
+                        Delete this list
+                      </Button>
+                    </PopoverClose>
+                  </div>
                 </PopoverContent>
               </Popover>
             </div>
