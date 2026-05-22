@@ -20,6 +20,18 @@ const BoardDetail = () => {
     }
   }, [id, dispatch]);
 
+  useEffect(() => {
+    if (currentBoard?.title) {
+      document.title = `${currentBoard.title} | Taskify`;
+    } else {
+      document.title = 'Taskify';
+    }
+    
+    return () => {
+      document.title = 'Taskify';
+    };
+  }, [currentBoard]);
+
   if (loading && !currentBoard) {
     return <div className="pt-20 text-center">Loading board...</div>;
   }
@@ -33,7 +45,7 @@ const BoardDetail = () => {
     >
       <Navbar />
       <div className="absolute inset-0 bg-black/10" />
-      <main className="relative pt-14 h-full flex flex-col">
+      <main className="relative pt-28 h-full flex flex-col">
         <BoardHeader board={currentBoard} />
         <div className="p-4 h-full overflow-x-auto">
           <ListContainer boardId={id} />

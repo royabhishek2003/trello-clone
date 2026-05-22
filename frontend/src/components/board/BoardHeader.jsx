@@ -19,7 +19,7 @@ export const BoardHeader = ({ board }) => {
     if (title === board.title) return;
     await dispatch(updateBoard({ id: board._id, data: { title } }))
       .unwrap()
-      .then(() => toast.success("Board updated"))
+      .then(() => toast.success(`Renamed board "${title}"`))
       .catch((err) => toast.error(err || "Failed to update board"));
   };
 
@@ -34,7 +34,7 @@ export const BoardHeader = ({ board }) => {
   };
 
   return (
-    <div className="w-full h-14 z-40 bg-black/50 flex items-center px-6 gap-x-4 text-white absolute top-0">
+    <div className="w-full h-14 z-40 bg-black/50 flex items-center px-6 gap-x-4 text-white absolute top-14">
       {!isEditing ? (
         <div 
           onClick={() => setIsEditing(true)} 

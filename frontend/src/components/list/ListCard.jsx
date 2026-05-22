@@ -35,7 +35,7 @@ export const ListCard = ({ list, index }) => {
     if (listTitle === list.title) return;
     await dispatch(updateList({ id: list._id, data: { title: listTitle, boardId: list.boardId } }))
       .unwrap()
-      .then((data) => toast.success(`List "${data.title}" updated`))
+      .then((data) => toast.success(`Renamed list "${data.title}"`))
       .catch((err) => toast.error(err || "Failed to update list"));
   };
 
