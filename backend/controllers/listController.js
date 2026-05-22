@@ -18,6 +18,7 @@ const getLists = async (req, res) => {
     
     const cards = await Card.find({ listId: { $in: listIds } })
       .populate('labels')
+      .populate('cardMembers', 'firstName lastName email')
       .sort({ order: 1 })
       .lean();
     

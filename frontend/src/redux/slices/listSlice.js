@@ -111,7 +111,20 @@ const listSlice = createSlice({
       })
       .addCase(deleteList.fulfilled, (state, action) => {
         state.lists = state.lists.filter(l => l._id !== action.payload);
-      });
+      })
+      .addMatcher(
+        (action) => action.type === 'cards/updateCard/fulfilled',
+        (state, action) => {
+          const updatedCard = action.payload;
+          for (const list of state.lists) {
+            const cardIndex = list.cards?.findIndex(c => c._id === updatedCard._id);
+            if (cardIndex !== undefined && cardIndex !== -1) {
+              list.cards[cardIndex] = { ...list.cards[cardIndex], ...updatedCard };
+              break;
+            }
+          }
+        }
+      );
   },
 });
 

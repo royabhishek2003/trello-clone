@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { X, ChevronDown } from 'lucide-react';
-import { updateCard } from '../../redux/slices/cardSlice';
-import { fetchLists } from '../../redux/slices/listSlice';
 import { Calendar } from '../ui/calendar';
-import { format, parse } from 'date-fns';
+import { format } from 'date-fns';
 
 const TIME_OPTIONS = [];
 for (let h = 0; h < 24; h++) {
@@ -17,20 +14,12 @@ for (let h = 0; h < 24; h++) {
   TIME_OPTIONS.push(`${displayH}:30 ${ampm}`);
 }
 
-export const DatePopover = ({ children }) => {
-  const dispatch = useDispatch();
-  const { cardData } = useSelector(state => state.ui);
-  const { currentBoard } = useSelector(state => state.boards);
-
+export const ItemDatePopover = ({ children, initialDueDate, initialHasTime, onSave, onRemove }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [startDate, setStartDate] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [dueTime, setDueTime] = useState('');
-  const [enableStartDate, setEnableStartDate] = useState(false);
   const [enableDueDate, setEnableDueDate] = useState(false);
   
-  // Track which field the calendar is currently editing
-  const [activeField, setActiveField] = useState('dueDate');
   const [isTimeDropdownOpen, setIsTimeDropdownOpen] = useState(false);
   const timeDropdownRef = useRef(null);
 
@@ -50,20 +39,12 @@ export const DatePopover = ({ children }) => {
   }, [isTimeDropdownOpen]);
 
   useEffect(() => {
-    if (isOpen && cardData) {
-      if (cardData.startDate) {
-        setStartDate(format(new Date(cardData.startDate), 'M/d/yyyy'));
-        setEnableStartDate(true);
-      } else {
-        setStartDate('');
-        setEnableStartDate(false);
-      }
-
-      if (cardData.dueDate) {
-        const d = new Date(cardData.dueDate);
+    if (isOpen) {
+      if (initialDueDate) {
+        const d = new Date(initialDueDate);
         setDueDate(format(d, 'M/d/yyyy'));
         setEnableDueDate(true);
-        if (cardData.hasDueTime) {
+        if (initialHasTime) {
           setDueTime(format(d, 'h:mm a'));
         } else {
           setDueTime('');
@@ -74,25 +55,14 @@ export const DatePopover = ({ children }) => {
         setEnableDueDate(false);
       }
     }
-  }, [isOpen, cardData]);
+  }, [isOpen, initialDueDate, initialHasTime]);
 
-  const handleSave = async () => {
-    const updatePayload = {};
-
-    if (enableStartDate && startDate) {
-      const parsedStart = new Date(startDate);
-      if (!isNaN(parsedStart)) {
-        updatePayload.startDate = parsedStart.toISOString();
-      }
-    } else {
-      updatePayload.startDate = null;
-    }
-
+  const handleSave = () => {
     if (enableDueDate && dueDate) {
       const parsedDue = new Date(dueDate);
       if (!isNaN(parsedDue)) {
+        let hasDueTime = false;
         if (dueTime) {
-          // simple parse for h:mm a
           const timeMatch = dueTime.match(/(\d+):(\d+)\s*(AM|PM)?/i);
           if (timeMatch) {
             let hours = parseInt(timeMatch[1], 10);
@@ -103,44 +73,32 @@ export const DatePopover = ({ children }) => {
             parsedDue.setHours(hours);
             parsedDue.setMinutes(mins);
           }
-          updatePayload.hasDueTime = true;
-        } else {
-          updatePayload.hasDueTime = false;
+          hasDueTime = true;
         }
-        updatePayload.dueDate = parsedDue.toISOString();
+        onSave(parsedDue.toISOString(), hasDueTime);
       }
     } else {
-      updatePayload.dueDate = null;
-      updatePayload.hasDueTime = false;
-      updatePayload.isDateComplete = false;
-    }
-
-    await dispatch(updateCard({ id: cardData._id, data: updatePayload }));
-    if (currentBoard?._id) {
-      dispatch(fetchLists(currentBoard._id));
+      onRemove();
     }
     setIsOpen(false);
   };
 
-  const handleRemove = async () => {
-    await dispatch(updateCard({ 
-      id: cardData._id, 
-      data: { startDate: null, dueDate: null, isDateComplete: false, hasDueTime: false } 
-    }));
-    if (currentBoard?._id) {
-      dispatch(fetchLists(currentBoard._id));
-    }
+  const handleRemove = () => {
+    onRemove();
     setIsOpen(false);
   };
 
   const handleCalendarSelect = (date) => {
-    const dateString = format(date, 'M/d/yyyy');
-    if (activeField === 'startDate') {
-      setStartDate(dateString);
-      setEnableStartDate(true);
-    } else {
-      setDueDate(dateString);
-      setEnableDueDate(true);
+    setDueDate(format(date, 'M/d/yyyy'));
+    setEnableDueDate(true);
+  };
+
+  // Keyboard accessibility
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      setIsOpen(false);
     }
   };
 
@@ -151,15 +109,15 @@ export const DatePopover = ({ children }) => {
       </PopoverTrigger>
       <PopoverContent 
         className="w-[320px] pt-3 px-4 pb-4 shadow-xl overflow-y-auto scrollbar-thin z-[60]" 
-        align="start" 
-        side="left" 
-        sideOffset={10}
+        align="end" 
+        side="bottom"
         collisionPadding={20}
         style={{ maxHeight: 'var(--radix-popover-content-available-height)' }}
+        onKeyDown={handleKeyDown}
       >
         <div className="relative flex items-center justify-center pb-2 mb-4 border-b border-neutral-200">
           <span className="font-semibold text-sm text-neutral-700">
-            Dates
+            Due date
           </span>
           <Button
             className="absolute right-0 top-0 h-auto w-auto p-1 text-neutral-600 hover:bg-neutral-200"
@@ -171,40 +129,12 @@ export const DatePopover = ({ children }) => {
         </div>
 
         <Calendar 
-          selectedDate={activeField === 'startDate' && startDate ? new Date(startDate) : (activeField === 'dueDate' && dueDate ? new Date(dueDate) : null)}
+          selectedDate={dueDate ? new Date(dueDate) : null}
           onSelect={handleCalendarSelect}
           className="mb-4"
         />
 
         <div className="flex flex-col gap-y-4">
-          <div className="flex flex-col gap-y-1.5">
-            <label className="text-xs font-bold text-neutral-700">Start date</label>
-            <div className="flex items-center gap-x-2">
-              <div 
-                className={`w-4 h-4 rounded-sm flex items-center justify-center cursor-pointer transition-colors ${enableStartDate ? 'bg-blue-500 text-white' : 'bg-neutral-100 border-2 border-neutral-300'}`}
-                onClick={() => {
-                  const newState = !enableStartDate;
-                  setEnableStartDate(newState);
-                  if (newState && !startDate) {
-                    setStartDate(format(new Date(), 'M/d/yyyy'));
-                  }
-                  setActiveField('startDate');
-                }}
-              >
-                {enableStartDate && <span className="text-[10px]">✓</span>}
-              </div>
-              <Input 
-                type="text" 
-                value={startDate}
-                onFocus={() => setActiveField('startDate')}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="M/D/YYYY"
-                className={`text-sm h-9 bg-neutral-100 transition-all ${!enableStartDate ? 'opacity-50 cursor-not-allowed border-transparent' : 'border-neutral-300 focus:border-blue-500'} ${activeField === 'startDate' ? 'border-blue-500 ring-1 ring-blue-500' : ''}`}
-                disabled={!enableStartDate}
-              />
-            </div>
-          </div>
-
           <div className="flex flex-col gap-y-1.5">
             <label className="text-xs font-bold text-neutral-700">Due date</label>
             <div className="flex items-center gap-x-2">
@@ -216,7 +146,6 @@ export const DatePopover = ({ children }) => {
                   if (newState && !dueDate) {
                     setDueDate(format(new Date(), 'M/d/yyyy'));
                   }
-                  setActiveField('dueDate');
                 }}
               >
                 {enableDueDate && <span className="text-[10px]">✓</span>}
@@ -224,10 +153,9 @@ export const DatePopover = ({ children }) => {
               <Input 
                 type="text" 
                 value={dueDate}
-                onFocus={() => setActiveField('dueDate')}
                 onChange={(e) => setDueDate(e.target.value)}
                 placeholder="M/D/YYYY"
-                className={`w-28 text-sm h-9 bg-neutral-100 transition-all ${!enableDueDate ? 'opacity-50 cursor-not-allowed border-transparent' : 'border-neutral-300 focus:border-blue-500'} ${activeField === 'dueDate' ? 'border-blue-500 ring-1 ring-blue-500' : ''}`}
+                className={`w-28 text-sm h-9 bg-neutral-100 transition-all ${!enableDueDate ? 'opacity-50 cursor-not-allowed border-transparent' : 'border-neutral-300 focus:border-blue-500 border-blue-500 ring-1 ring-blue-500'}`}
                 disabled={!enableDueDate}
               />
               <div className="relative flex-1" ref={timeDropdownRef}>
@@ -264,11 +192,7 @@ export const DatePopover = ({ children }) => {
             </div>
           </div>
 
-          <div className="bg-neutral-100 p-2 text-xs text-neutral-600 rounded-sm mb-1 mt-1 leading-relaxed">
-            Reminders will be sent to all members and watchers of this card.
-          </div>
-
-          <div className="flex flex-col gap-y-2">
+          <div className="flex flex-col gap-y-2 mt-2">
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold" onClick={handleSave}>
               Save
             </Button>

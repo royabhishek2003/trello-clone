@@ -14,22 +14,22 @@ export const CardDateBadge = ({ startDate, dueDate, hasDueTime, isDateComplete }
   const status = getCardDateStatus(dueDate, isDateComplete);
   
   // Trello applies specific styling for badges
-  let badgeColorClass = 'bg-transparent text-neutral-600 hover:bg-neutral-200'; // Default gray
-  let iconColor = 'text-neutral-600';
+  let badgeColorClass = 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300'; // Default gray pill
+  let iconColor = 'text-neutral-700';
 
   if (status === 'complete') {
-    badgeColorClass = 'bg-green-500 text-white hover:bg-green-600';
+    badgeColorClass = 'bg-green-600 text-white hover:bg-green-700';
     iconColor = 'text-white';
   } else if (status === 'overdue') {
-    badgeColorClass = 'bg-red-500 text-white hover:bg-red-600';
+    badgeColorClass = 'bg-[#ca3521] text-white hover:bg-red-700'; // Trello's distinctive overdue red
     iconColor = 'text-white';
   } else if (status === 'due_soon') {
-    badgeColorClass = 'bg-yellow-400 text-neutral-800 hover:bg-yellow-500';
+    badgeColorClass = 'bg-[#f5d232] text-neutral-800 hover:bg-yellow-500'; // Bright Trello yellow
     iconColor = 'text-neutral-800';
   }
 
   return (
-    <div className={`flex items-center gap-x-1 px-1.5 py-0.5 rounded-sm text-xs font-medium ${badgeColorClass}`}>
+    <div className={`flex items-center gap-x-1 px-2 py-0.5 rounded-[14px] text-[13px] font-semibold ${badgeColorClass} transition-colors`}>
       <Clock className={`h-3.5 w-3.5 ${iconColor}`} />
       <span>{dateString}</span>
     </div>

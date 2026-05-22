@@ -4,7 +4,7 @@ import { Dialog, DialogContent } from '../ui/dialog';
 import { closeCardModal } from '../../redux/slices/uiSlice';
 import { updateCard, deleteCard, copyCard } from '../../redux/slices/cardSlice';
 import { fetchLists } from '../../redux/slices/listSlice';
-import { Layout, AlignLeft, CreditCard, Trash, Copy, Activity, Tag, Clock, ChevronDown } from 'lucide-react';
+import { Layout, AlignLeft, CreditCard, Trash, Copy, Activity, Tag, Clock, ChevronDown, CheckSquare } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -15,6 +15,12 @@ import { LabelPopover, COLORS } from './LabelPopover';
 import { DatePopover } from './DatePopover';
 import { formatCardDate } from '../../utils/formatCardDate';
 import { getCardDateStatus, getBadgeColor } from '../../utils/dateStatus';
+import { DragDropContext } from '@hello-pangea/dnd';
+import { ChecklistPopover } from './ChecklistPopover';
+import { Checklist } from './Checklist';
+import { MembersPopover } from './MembersPopover';
+import { MemberAvatar } from '../ui/MemberAvatar';
+import { User } from 'lucide-react';
 
 export const CardModal = () => {
   const dispatch = useDispatch();
@@ -27,12 +33,16 @@ export const CardModal = () => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [logs, setLogs] = useState([]);
+  const [localChecklists, setLocalChecklists] = useState([]);
+  const [localMembers, setLocalMembers] = useState([]);
 
   // Fetch logs whenever card changes
   useEffect(() => {
     if (cardData && isCardModalOpen) {
       setTitle(cardData.title);
       setDescription(cardData.description || '');
+      setLocalChecklists(cardData.checklists || []);
+      setLocalMembers(cardData.cardMembers || []);
       api.get(`/api/cards/${cardData._id}/activity`)
         .then(res => setLogs(res.data))
         .catch(err => console.error("Failed to fetch logs", err));
@@ -59,6 +69,88 @@ export const CardModal = () => {
     if (currentBoard?._id) {
       dispatch(fetchLists(currentBoard._id));
       api.get(`/api/cards/${cardData._id}/activity`).then(res => setLogs(res.data));
+    }
+  };
+
+  const handleUpdateChecklists = async (newChecklists) => {
+    setLocalChecklists(newChecklists); // Optimistic UI
+    await dispatch(updateCard({ id: cardData._id, data: { checklists: newChecklists } }));
+  };
+
+  const handleToggleMember = async (userObj) => {
+    const userId = userObj._id;
+    const isAssigned = localMembers.some(m => m._id === userId || m === userId);
+    let newMembers;
+    if (isAssigned) {
+      newMembers = localMembers.filter(m => m._id !== userId && m !== userId);
+    } else {
+      // Optimistically push the full user object
+      newMembers = [...localMembers, userObj]; 
+    }
+    setLocalMembers(newMembers); // Optimistic
+    
+    // We only send array of IDs to the backend
+    const memberIds = newMembers.map(m => m._id || m);
+    await dispatch(updateCard({ id: cardData._id, data: { cardMembers: memberIds } }));
+    
+    // Refetch to ensure populated data is correct
+    if (currentBoard?._id) {
+      dispatch(fetchLists(currentBoard._id));
+    }
+  };
+
+  const handleAddChecklist = (checklistTitle) => {
+    const generateObjectId = () => [...Array(24)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+    const newChecklist = {
+      _id: generateObjectId(),
+      title: checklistTitle,
+      items: [],
+      position: localChecklists.length
+    };
+    handleUpdateChecklists([...localChecklists, newChecklist]);
+  };
+
+  const handleUpdateChecklist = (updatedChecklist) => {
+    const newChecklists = localChecklists.map(c => c._id === updatedChecklist._id ? updatedChecklist : c);
+    handleUpdateChecklists(newChecklists);
+  };
+
+  const handleDeleteChecklist = (checklistId) => {
+    const newChecklists = localChecklists.filter(c => c._id !== checklistId);
+    handleUpdateChecklists(newChecklists);
+  };
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    
+    const { source, destination } = result;
+    const sourceChecklistId = source.droppableId.replace('checklist-', '');
+    const destChecklistId = destination.droppableId.replace('checklist-', '');
+    
+    const newChecklists = [...localChecklists];
+    const sourceChecklist = newChecklists.find(c => c._id === sourceChecklistId);
+    const destChecklist = newChecklists.find(c => c._id === destChecklistId);
+    
+    if (!sourceChecklist || !destChecklist) return;
+
+    if (sourceChecklistId === destChecklistId) {
+      const newItems = Array.from(sourceChecklist.items || []);
+      const [movedItem] = newItems.splice(source.index, 1);
+      newItems.splice(destination.index, 0, movedItem);
+      
+      handleUpdateChecklist({ ...sourceChecklist, items: newItems });
+    } else {
+      const sourceItems = Array.from(sourceChecklist.items || []);
+      const destItems = Array.from(destChecklist.items || []);
+      const [movedItem] = sourceItems.splice(source.index, 1);
+      destItems.splice(destination.index, 0, movedItem);
+      
+      const updatedChecklists = newChecklists.map(c => {
+        if (c._id === sourceChecklistId) return { ...c, items: sourceItems };
+        if (c._id === destChecklistId) return { ...c, items: destItems };
+        return c;
+      });
+      handleUpdateChecklists(updatedChecklists);
     }
   };
 
@@ -131,6 +223,23 @@ export const CardModal = () => {
             </p>
             
             <div className="flex flex-wrap gap-6 mb-4 w-full">
+              {/* Members Section */}
+              {localMembers && localMembers.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-neutral-700 mb-2">Members</p>
+                  <div className="flex flex-wrap gap-1">
+                    {localMembers.map(m => (
+                      <MemberAvatar key={m._id || m} member={m} />
+                    ))}
+                    <MembersPopover cardMembers={localMembers} onMemberToggle={handleToggleMember}>
+                      <div role="button" className="w-7 h-7 bg-neutral-200/60 hover:bg-neutral-300 rounded-full flex items-center justify-center transition cursor-pointer text-neutral-600">
+                        <span className="font-medium text-sm">+</span>
+                      </div>
+                    </MembersPopover>
+                  </div>
+                </div>
+              )}
+
               {/* Labels Section */}
               {cardData.labels && cardData.labels.length > 0 && (
                 <div>
@@ -221,6 +330,22 @@ export const CardModal = () => {
               </div>
             </div>
 
+            {/* Checklists */}
+            {localChecklists.length > 0 && (
+              <div className="mb-4">
+                <DragDropContext onDragEnd={onDragEnd}>
+                  {localChecklists.map(checklist => (
+                    <Checklist 
+                      key={checklist._id} 
+                      checklist={checklist}
+                      onUpdate={handleUpdateChecklist}
+                      onDelete={() => handleDeleteChecklist(checklist._id)}
+                    />
+                  ))}
+                </DragDropContext>
+              </div>
+            )}
+
             {/* Activity */}
             <div className="flex items-start gap-x-3 w-full">
               <Activity className="h-5 w-5 mt-0.5 text-neutral-700" />
@@ -250,6 +375,12 @@ export const CardModal = () => {
           
           <div className="col-span-1">
             <p className="text-xs font-semibold text-neutral-700 mb-2">Actions</p>
+            <MembersPopover cardMembers={localMembers} onMemberToggle={handleToggleMember}>
+              <Button variant="gray" className="w-full justify-start mb-2">
+                <User className="h-4 w-4 mr-2" />
+                Members
+              </Button>
+            </MembersPopover>
             <LabelPopover>
               <Button variant="gray" className="w-full justify-start mb-2">
                 <Tag className="h-4 w-4 mr-2" />
@@ -262,6 +393,12 @@ export const CardModal = () => {
                 Dates
               </Button>
             </DatePopover>
+            <ChecklistPopover onAdd={handleAddChecklist}>
+              <Button variant="gray" className="w-full justify-start mb-2">
+                <CheckSquare className="h-4 w-4 mr-2" />
+                Checklist
+              </Button>
+            </ChecklistPopover>
             <Button variant="gray" className="w-full justify-start mb-2" onClick={handleCopy}>
               <Copy className="h-4 w-4 mr-2" />
               Copy

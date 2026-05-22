@@ -148,8 +148,18 @@ const OrgMembers = () => {
 
   return (
     <div className="w-full">
-      <h2 className="text-2xl font-bold text-neutral-700">Members</h2>
-      <p className="text-muted-foreground mt-1 mb-6">View and manage organization members</p>
+      <div className="flex flex-col md:flex-row md:items-start justify-between mb-6 gap-y-4">
+        <div>
+          <h2 className="text-2xl font-bold text-neutral-700">Members</h2>
+          <p className="text-muted-foreground mt-1">View and manage organization members</p>
+        </div>
+        {isAdmin && (
+          <Button variant="primary" className="bg-indigo-600 hover:bg-indigo-700 h-9 px-4 text-xs font-semibold" onClick={() => setIsInviting(true)}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
+            INVITE WORKSPACE MEMBERS
+          </Button>
+        )}
+      </div>
       
       <div className="flex items-center border-b border-neutral-200 mb-6">
         <button 
@@ -205,8 +215,8 @@ const OrgMembers = () => {
                       <select 
                         value={member.role} 
                         onChange={(e) => handleChangeRole(member.user._id, e.target.value)}
-                        disabled={!isAdmin}
-                        className="h-8 w-[100px] text-xs rounded-md border border-input bg-background px-2 py-1 disabled:opacity-50"
+                        disabled={!isAdmin || isYou}
+                        className="h-8 w-[100px] text-xs rounded-md border border-input bg-background px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <option value="admin">Admin</option>
                         <option value="member">Member</option>
@@ -257,14 +267,8 @@ const OrgMembers = () => {
           <div className="flex items-start justify-between mb-6">
             <div>
               <h3 className="text-sm font-semibold text-neutral-700">Individual invitations</h3>
-              <p className="text-sm text-muted-foreground mt-1">Manually invite members and manage existing invitations.</p>
+              <p className="text-sm text-muted-foreground mt-1">Manage pending invitations sent to users.</p>
             </div>
-            {isAdmin && (
-              <Button variant="primary" className="bg-indigo-600 hover:bg-indigo-700 h-9 px-4 text-xs font-semibold" onClick={() => setIsInviting(true)}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
-                INVITE
-              </Button>
-            )}
           </div>
           
           <div className="grid grid-cols-12 text-sm font-semibold text-neutral-500 pb-3 border-b mb-3">

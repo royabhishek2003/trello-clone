@@ -18,7 +18,8 @@ const getCard = async (req, res) => {
           path: 'boardId',
           select: 'orgId'
         }
-      });
+      })
+      .populate('cardMembers', 'firstName lastName email');
 
     if (!card) {
       return res.status(404).json({ error: 'Card not found' });
@@ -99,9 +100,9 @@ const createCard = async (req, res) => {
 const updateCard = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, startDate, dueDate, isDateComplete, hasDueTime } = req.body;
+    const { title, description, startDate, dueDate, isDateComplete, hasDueTime, checklists, cardMembers } = req.body;
 
-    const card = await Card.findById(id).populate('labels').populate({
+    const card = await Card.findById(id).populate('labels').populate('cardMembers', 'firstName lastName email').populate({
       path: 'listId',
       populate: { path: 'boardId' }
     });
@@ -130,6 +131,13 @@ const updateCard = async (req, res) => {
     if (hasDueTime !== undefined) {
       card.hasDueTime = hasDueTime;
     }
+    if (checklists !== undefined) {
+      card.checklists = checklists;
+    }
+    if (cardMembers !== undefined) {
+      // Ensure unique IDs
+      card.cardMembers = [...new Set(cardMembers)];
+    }
 
     await card.save();
 
@@ -145,7 +153,11 @@ const updateCard = async (req, res) => {
       orgId
     );
 
-    res.json(card);
+    const updatedCard = await Card.findById(id).populate('labels').populate('cardMembers', 'firstName lastName email').populate({
+      path: 'listId',
+      populate: { path: 'boardId' }
+    });
+    res.json(updatedCard);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -300,7 +312,7 @@ const updateCardLabels = async (req, res) => {
       orgId
     );
 
-    const updatedCard = await Card.findById(id).populate('labels');
+    const updatedCard = await Card.findById(id).populate('labels').populate('cardMembers', 'firstName lastName email');
     res.json(updatedCard);
   } catch (error) {
     res.status(500).json({ error: error.message });

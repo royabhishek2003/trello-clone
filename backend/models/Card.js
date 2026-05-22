@@ -41,7 +41,24 @@ const CardSchema = new mongoose.Schema(
     hasDueTime: {
       type: Boolean,
       default: false
-    }
+    },
+    cardMembers: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }],
+    checklists: [{
+      _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+      title: { type: String, required: true },
+      position: { type: Number, default: 0 },
+      items: [{
+        _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+        text: { type: String, required: true },
+        isCompleted: { type: Boolean, default: false },
+        position: { type: Number, default: 0 },
+        dueDate: { type: Date, default: null },
+        hasDueTime: { type: Boolean, default: false }
+      }]
+    }]
   },
   {
     timestamps: true

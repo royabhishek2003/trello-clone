@@ -42,6 +42,13 @@ const createOrganization = async (req, res) => {
       ]
     });
 
+    // Auto-add all other mock users to the workspace
+    const allUsers = await User.find({ _id: { $ne: req.user._id } });
+    for (const u of allUsers) {
+      const role = u.email.toLowerCase().includes('peter') ? 'admin' : 'member';
+      org.members.push({ user: u._id, role });
+    }
+
     await org.save();
 
     // Set as active org if user doesn't have one set
