@@ -204,11 +204,43 @@ const getMe = async (req, res) => {
   }
 };
 
+// @desc    Demo Login
+// @route   POST /api/auth/demo-login
+// @access  Public
+const demoLogin = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: 'tony@stark.com' });
+    if (!user) {
+      return res.status(404).json({ error: 'Demo user not found' });
+    }
+
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    setRefreshTokenCookie(res, refreshToken);
+
+    res.json({
+      token: accessToken,
+      user: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        imageUrl: user.imageUrl,
+        activeOrganization: user.activeOrganization
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
   refreshToken,
   logout,
   googleAuth,
-  getMe
+  getMe,
+  demoLogin
 };

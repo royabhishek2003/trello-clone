@@ -1,10 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import { Button } from '../components/ui/button';
+import { checkSubscription } from '../redux/slices/subscriptionSlice';
+import { format } from 'date-fns';
 
 const ManageSubscription = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
+  const { subscription, loading } = useSelector(state => state.subscription);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(checkSubscription(id));
+    }
+  }, [id, dispatch]);
+
+  const renewalDate = subscription?.currentPeriodEnd 
+    ? format(new Date(subscription.currentPeriodEnd), "d MMMM yyyy")
+    : 'Pending';
 
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row">
@@ -17,7 +33,7 @@ const ManageSubscription = () => {
         </div>
 
         <h1 className="text-2xl md:text-3xl font-semibold text-neutral-900 mb-8 max-w-[280px]">
-          trello-dev partners with Stripe for simplified billing.
+          trello-dev partners with Razorpay for simplified billing.
         </h1>
 
         <button 
@@ -28,7 +44,7 @@ const ManageSubscription = () => {
         </button>
 
         <div className="absolute bottom-6 left-8 md:left-12 lg:left-16 text-xs text-neutral-400 flex gap-x-4">
-          <span>Powered by <strong className="text-neutral-500 font-bold">stripe</strong></span>
+          <span>Powered by <strong className="text-neutral-500 font-bold italic">Razorpay</strong></span>
           <a href="#" className="hover:text-neutral-600">Terms</a>
           <a href="#" className="hover:text-neutral-600">Privacy</a>
         </div>
@@ -45,11 +61,11 @@ const ManageSubscription = () => {
               <div>
                 <h3 className="text-lg font-medium text-neutral-900 mb-2">Taskify Pro</h3>
                 <div className="flex items-end gap-x-2 mb-3">
-                  <span className="text-3xl font-bold text-neutral-900">US$20.00</span>
+                  <span className="text-3xl font-bold text-neutral-900">₹1,499</span>
                   <span className="text-neutral-500 mb-1">per month</span>
                 </div>
                 <p className="text-sm text-neutral-500">
-                  Your plan renews on 6 December 2023.
+                  Your plan renews on {renewalDate}.
                 </p>
               </div>
               <Button variant="outline" className="text-sm bg-white border border-neutral-300 text-neutral-700 hover:bg-neutral-50 rounded-md w-full sm:w-auto h-9">
@@ -60,7 +76,7 @@ const ManageSubscription = () => {
               <div className="w-8 h-5 bg-[#1434CB] rounded flex items-center justify-center shrink-0">
                 <span className="text-white text-[9px] font-bold italic">VISA</span>
               </div>
-              <span>Visa &bull;&bull;&bull;&bull; 4242</span>
+              <span>Visa &bull;&bull;&bull;&bull; 4111</span>
               <button className="text-neutral-400 hover:text-neutral-600">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
               </button>
@@ -78,10 +94,10 @@ const ManageSubscription = () => {
                   <div className="w-8 h-5 bg-[#1434CB] rounded flex items-center justify-center shrink-0">
                     <span className="text-white text-[9px] font-bold italic">VISA</span>
                   </div>
-                  <span>Visa &bull;&bull;&bull;&bull; 4242</span>
+                  <span>Visa &bull;&bull;&bull;&bull; 4111</span>
                 </div>
                 <div className="flex items-center gap-x-8 text-sm text-neutral-500">
-                  <span>Expires 05/2055</span>
+                  <span>Expires 12/2028</span>
                   <button className="text-neutral-400 hover:text-neutral-600">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
                   </button>
@@ -98,7 +114,7 @@ const ManageSubscription = () => {
             </div>
             <div className="border-t border-neutral-200 pt-6">
               <div className="flex flex-col gap-y-1 text-sm text-neutral-700">
-                <p>HR</p>
+                <p>IN</p>
               </div>
             </div>
           </section>

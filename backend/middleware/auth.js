@@ -32,18 +32,8 @@ const protect = async (req, res, next) => {
     }
   }
 
-  // Demo / Development Mode Fallback
-  // If no valid token is provided, default to Tony Stark
-  try {
-    const defaultUser = await User.findOne({ email: 'tony@stark.com' }).select('-password');
-    if (!defaultUser) {
-      return res.status(401).json({ error: 'Not authorized, and default demo user not found' });
-    }
-    req.user = defaultUser;
-    next();
-  } catch (error) {
-    return res.status(500).json({ error: 'Failed to assign default demo user' });
-  }
+  // If no token or verification failed, return 401
+  return res.status(401).json({ error: 'Not authorized, token missing or invalid' });
 };
 
 module.exports = { protect };

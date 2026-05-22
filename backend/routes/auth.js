@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { register, login, refreshToken, logout, googleAuth, getMe } = require('../controllers/authController');
+const { register, login, demoLogin, refreshToken, logout, googleAuth, getMe } = require('../controllers/authController');
 const { validate } = require('../middleware/validation');
 const { protect } = require('../middleware/auth');
 

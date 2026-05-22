@@ -15,6 +15,7 @@ import OrgSettings from './pages/OrgSettings';
 import OrgActivity from './pages/OrgActivity';
 import OrgBilling from './pages/OrgBilling';
 import ManageSubscription from './pages/ManageSubscription';
+import LandingPage from './pages/LandingPage';
 import { CardModal } from './components/card/CardModal';
 import { ProModal } from './components/subscription/ProModal';
 
@@ -39,33 +40,28 @@ function App() {
     );
   }
 
-  // Even if not authenticated technically, our demo backend guarantees an auth fallback.
-  // But just in case server is down:
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-slate-900">
-        <div className="text-xl font-semibold text-red-600 mb-2">Connection Error</div>
-        <div className="text-gray-600">Failed to connect to the backend server. Is it running?</div>
-      </div>
-    );
-  }
-
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-100 dark:bg-slate-900">
+      {!isAuthenticated ? (
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/board/:id" element={<BoardDetail />} />
-          <Route path="/organization/:id/activity" element={<OrgActivity />} />
-          <Route path="/organization/:id/settings" element={<OrgSettings />} />
-          <Route path="/organization/:id/billing" element={<OrgBilling />} />
-          <Route path="/organization/:id/manage-subscription" element={<ManageSubscription />} />
-          
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<LandingPage />} />
         </Routes>
-        <CardModal />
-        <ProModal />
-      </div>
+      ) : (
+        <div className="min-h-screen bg-gray-100 dark:bg-slate-900">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/board/:id" element={<BoardDetail />} />
+            <Route path="/organization/:id/activity" element={<OrgActivity />} />
+            <Route path="/organization/:id/settings" element={<OrgSettings />} />
+            <Route path="/organization/:id/billing" element={<OrgBilling />} />
+            <Route path="/organization/:id/manage-subscription" element={<ManageSubscription />} />
+            
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+          <CardModal />
+          <ProModal />
+        </div>
+      )}
     </BrowserRouter>
   );
 }

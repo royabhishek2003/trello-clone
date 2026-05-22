@@ -35,6 +35,18 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const demoLogin = createAsyncThunk(
+  'auth/demoLogin',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/api/auth/demo-login');
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Demo login failed');
+    }
+  }
+);
+
 export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async (userData, { rejectWithValue }) => {
@@ -100,7 +112,6 @@ const authSlice = createSlice({
       })
       .addCase(fetchMe.rejected, (state, action) => {
         state.loading = false;
-        // In demo mode this shouldn't happen unless server is down
         state.error = action.payload;
         state.isAuthenticated = false;
       })
@@ -116,6 +127,21 @@ const authSlice = createSlice({
         state.token = action.payload.token;
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Demo Login
+      .addCase(demoLogin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(demoLogin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+      })
+      .addCase(demoLogin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
