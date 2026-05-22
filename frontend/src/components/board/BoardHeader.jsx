@@ -19,7 +19,7 @@ export const BoardHeader = ({ board }) => {
     if (title === board.title) return;
     await dispatch(updateBoard({ id: board._id, data: { title } }))
       .unwrap()
-      .then(() => toast.success(`Renamed board "${title}"`))
+      .then(() => toast.success(`Board "${title}" updated`))
       .catch((err) => toast.error(err || "Failed to update board"));
   };
 
