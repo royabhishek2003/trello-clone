@@ -68,6 +68,18 @@ export const updateBoard = createAsyncThunk(
   }
 );
 
+export const reorderBoards = createAsyncThunk(
+  'boards/reorderBoards',
+  async ({ items, orgId }, { rejectWithValue }) => {
+    try {
+      const response = await api.put('/api/boards/reorder', { items, orgId });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to reorder boards');
+    }
+  }
+);
+
 const boardSlice = createSlice({
   name: 'boards',
   initialState,
@@ -77,6 +89,9 @@ const boardSlice = createSlice({
     },
     setCurrentBoard: (state, action) => {
       state.currentBoard = action.payload;
+    },
+    setBoardsLocally: (state, action) => {
+      state.boards = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -120,9 +135,12 @@ const boardSlice = createSlice({
         if (state.currentBoard?._id === action.payload._id) {
           state.currentBoard = { ...state.currentBoard, ...action.payload };
         }
+      })
+      .addCase(reorderBoards.rejected, (state, action) => {
+        state.error = action.payload;
       });
   },
 });
 
-export const { clearBoardError, setCurrentBoard } = boardSlice.actions;
+export const { clearBoardError, setCurrentBoard, setBoardsLocally } = boardSlice.actions;
 export default boardSlice.reducer;

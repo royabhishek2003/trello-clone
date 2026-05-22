@@ -42,6 +42,18 @@ export const deleteCard = createAsyncThunk(
   }
 );
 
+export const copyCard = createAsyncThunk(
+  'cards/copyCard',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/api/cards/${id}/copy`);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to copy card');
+    }
+  }
+);
+
 export const reorderCards = createAsyncThunk(
   'cards/reorderCards',
   async (reorderData, { rejectWithValue }) => {

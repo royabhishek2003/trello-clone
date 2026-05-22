@@ -184,10 +184,31 @@ const googleAuth = async (req, res) => {
   }
 };
 
+// @desc    Get current user (Demo/Fallback included)
+// @route   GET /api/auth/me
+// @access  Private
+const getMe = async (req, res) => {
+  try {
+    res.json({
+      user: {
+        _id: req.user._id,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        email: req.user.email,
+        imageUrl: req.user.imageUrl,
+        activeOrganization: req.user.activeOrganization
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
   refreshToken,
   logout,
-  googleAuth
+  googleAuth,
+  getMe
 };

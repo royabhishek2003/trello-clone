@@ -25,13 +25,24 @@ const protect = async (req, res, next) => {
         return res.status(401).json({ error: 'User not found' });
       }
 
-      next();
+      return next();
     } catch (error) {
       console.error('Access token verification failed:', error.message);
-      return res.status(401).json({ error: 'Not authorized, token failed' });
+      // Fall through to demo mode instead of failing
     }
-  } else {
-    return res.status(401).json({ error: 'Not authorized, no token' });
+  }
+
+  // Demo / Development Mode Fallback
+  // If no valid token is provided, default to Tony Stark
+  try {
+    const defaultUser = await User.findOne({ email: 'tony@stark.com' }).select('-password');
+    if (!defaultUser) {
+      return res.status(401).json({ error: 'Not authorized, and default demo user not found' });
+    }
+    req.user = defaultUser;
+    next();
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to assign default demo user' });
   }
 };
 

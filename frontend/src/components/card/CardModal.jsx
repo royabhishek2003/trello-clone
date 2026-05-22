@@ -1,45 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dialog, DialogContent } from '../ui/dialog';
 import { closeCardModal } from '../../redux/slices/uiSlice';
-import { updateCard, deleteCard } from '../../redux/slices/cardSlice';
+import { updateCard, deleteCard, copyCard } from '../../redux/slices/cardSlice';
 import { fetchLists } from '../../redux/slices/listSlice';
-import { Layout, AlignLeft, CreditCard, Trash } from 'lucide-react';
+import { Layout, AlignLeft, CreditCard, Trash, Copy, Activity } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
+import { toast } from 'sonner';
+import api from '../../services/api';
+import { format } from 'date-fns';
 
 export const CardModal = () => {
   const dispatch = useDispatch();
   const { isCardModalOpen, cardData } = useSelector(state => state.ui);
   const { currentBoard } = useSelector(state => state.boards);
+  const { lists } = useSelector(state => state.lists);
   
-  const [title, setTitle] = useState(cardData?.title || '');
-  const [description, setDescription] = useState(cardData?.description || '');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
+  const [logs, setLogs] = useState([]);
 
-  // Update local state when cardData changes
-  React.useEffect(() => {
-    if (cardData) {
+  // Fetch logs whenever card changes
+  useEffect(() => {
+    if (cardData && isCardModalOpen) {
       setTitle(cardData.title);
       setDescription(cardData.description || '');
+      api.get(`/api/cards/${cardData._id}/activity`)
+        .then(res => setLogs(res.data))
+        .catch(err => console.error("Failed to fetch logs", err));
     }
-  }, [cardData]);
+  }, [cardData, isCardModalOpen]);
 
   if (!cardData) return null;
 
+  // Find the list this card belongs to
+  const listName = lists.find(l => l._id === cardData.listId)?.title || '...';
+
   const handleUpdate = async (field, value) => {
     if (cardData[field] === value) return;
-    await dispatch(updateCard({ id: cardData._id, data: { [field]: value } }));
+    await dispatch(updateCard({ id: cardData._id, data: { [field]: value } }))
+      .unwrap()
+      .then(() => toast.success(`Card "${value}" updated`))
+      .catch((err) => toast.error(err || "Failed to update card"));
+    if (currentBoard?._id) {
+      dispatch(fetchLists(currentBoard._id));
+      api.get(`/api/cards/${cardData._id}/activity`).then(res => setLogs(res.data));
+    }
+  };
+
+  const handleDelete = async () => {
+    await dispatch(deleteCard(cardData._id))
+      .unwrap()
+      .then(() => toast.success(`Card "${cardData.title}" deleted`))
+      .catch((err) => toast.error(err || "Failed to delete card"));
+    dispatch(closeCardModal());
     if (currentBoard?._id) {
       dispatch(fetchLists(currentBoard._id));
     }
   };
 
-  const handleDelete = async () => {
-    await dispatch(deleteCard(cardData._id));
-    dispatch(closeCardModal());
+  const handleCopy = async () => {
+    await dispatch(copyCard(cardData._id))
+      .unwrap()
+      .then((data) => {
+        toast.success(`Card "${data.title}" copied`);
+        dispatch(closeCardModal());
+      })
+      .catch((err) => toast.error(err || "Failed to copy card"));
     if (currentBoard?._id) {
       dispatch(fetchLists(currentBoard._id));
     }
@@ -78,7 +109,7 @@ export const CardModal = () => {
               />
             )}
             <p className="text-sm text-muted-foreground">
-              in list <span className="underline">...</span>
+              in list <span className="underline">{listName}</span>
             </p>
           </div>
         </div>
@@ -86,7 +117,7 @@ export const CardModal = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 md:gap-4">
           <div className="col-span-3">
             {/* Description */}
-            <div className="flex items-start gap-x-3 w-full">
+            <div className="flex items-start gap-x-3 w-full mb-8">
               <AlignLeft className="h-5 w-5 mt-0.5 text-neutral-700" />
               <div className="w-full">
                 <p className="font-semibold text-neutral-700 mb-2">Description</p>
@@ -117,17 +148,43 @@ export const CardModal = () => {
                 )}
               </div>
             </div>
+
+            {/* Activity */}
+            <div className="flex items-start gap-x-3 w-full">
+              <Activity className="h-5 w-5 mt-0.5 text-neutral-700" />
+              <div className="w-full">
+                <p className="font-semibold text-neutral-700 mb-4">Activity</p>
+                <ol className="mt-2 space-y-4">
+                  {logs.map((log) => (
+                    <li key={log._id} className="flex items-center gap-x-2">
+                      <div className="w-8 h-8 bg-purple-700 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                        {log.userName.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex flex-col space-y-0.5">
+                        <p className="text-sm text-muted-foreground">
+                          <span className="font-semibold lowercase text-neutral-700 mr-1">{log.userName}</span>
+                          {log.action.toLowerCase()}d card "{log.entityTitle}"
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(log.createdAt), "MMM d, yyyy 'at' h:mm a")}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
           </div>
           
           <div className="col-span-1">
             <p className="text-xs font-semibold text-neutral-700 mb-2">Actions</p>
+            <Button variant="gray" className="w-full justify-start mb-2" onClick={handleCopy}>
+              <Copy className="h-4 w-4 mr-2" />
+              Copy
+            </Button>
             <Button variant="gray" className="w-full justify-start mb-2 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleDelete}>
               <Trash className="h-4 w-4 mr-2" />
               Delete
-            </Button>
-            <Button variant="gray" className="w-full justify-start">
-              <CreditCard className="h-4 w-4 mr-2" />
-              Payment
             </Button>
           </div>
         </div>

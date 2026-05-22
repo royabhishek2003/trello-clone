@@ -31,6 +31,10 @@ const BoardSchema = new mongoose.Schema(
     imageLinkHTML: {
       type: String,
       required: true
+    },
+    order: {
+      type: Number,
+      default: 0
     }
   },
   {

@@ -1,12 +1,14 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { getBoards, getBoardById, createBoard, updateBoard, deleteBoard } = require('../controllers/boardController');
+const { getBoards, getBoardById, createBoard, updateBoard, deleteBoard, reorderBoards } = require('../controllers/boardController');
 const { validate } = require('../middleware/validation');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
 router.use(protect);
+
+router.put('/reorder', reorderBoards);
 
 router.route('/')
   .get(getBoards)

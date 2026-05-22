@@ -6,11 +6,23 @@ const initialState = {
   user: null,
   token: null,
   isAuthenticated: false,
-  loading: false,
+  loading: true, // start true so app waits for fetchMe
   error: null,
 };
 
 // Async thunks
+export const fetchMe = createAsyncThunk(
+  'auth/fetchMe',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get('/api/auth/me');
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch user');
+    }
+  }
+);
+
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async (credentials, { rejectWithValue }) => {
@@ -77,6 +89,21 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Fetch Me
+      .addCase(fetchMe.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchMe.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+      })
+      .addCase(fetchMe.rejected, (state, action) => {
+        state.loading = false;
+        // In demo mode this shouldn't happen unless server is down
+        state.error = action.payload;
+        state.isAuthenticated = false;
+      })
       // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;

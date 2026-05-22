@@ -7,6 +7,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Plus, X } from 'lucide-react';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
+import { toast } from 'sonner';
 
 export const ListContainer = ({ boardId }) => {
   const dispatch = useDispatch();
@@ -23,7 +24,10 @@ export const ListContainer = ({ boardId }) => {
   const handleAddList = async (e) => {
     e.preventDefault();
     if (!title.trim()) return;
-    await dispatch(createList({ title, boardId }));
+    await dispatch(createList({ title, boardId }))
+      .unwrap()
+      .then((data) => toast.success(`List "${data.title}" created`))
+      .catch((err) => toast.error(err || "Failed to create list"));
     setTitle('');
     setIsAdding(false);
   };
@@ -42,7 +46,10 @@ export const ListContainer = ({ boardId }) => {
       const updatedItems = items.map((item, index) => ({ ...item, order: index }));
       setOrderedLists(updatedItems);
       dispatch(setListsLocally(updatedItems));
-      dispatch(reorderLists({ items: updatedItems, boardId }));
+      dispatch(reorderLists({ items: updatedItems, boardId }))
+        .unwrap()
+        .then(() => toast.success("List reordered"))
+        .catch((err) => toast.error(err || "Failed to reorder list"));
     }
 
     if (type === 'card') {
@@ -71,7 +78,10 @@ export const ListContainer = ({ boardId }) => {
         };
 
         setOrderedLists(newOrderedLists);
-        dispatch(reorderCards({ items: updatedCards, boardId }));
+        dispatch(reorderCards({ items: updatedCards, boardId }))
+          .unwrap()
+          .then(() => toast.success("Card reordered"))
+          .catch((err) => toast.error(err || "Failed to reorder cards"));
       } else {
         const sourceCards = [...sourceList.cards];
         const destCards = [...destList.cards];
@@ -94,7 +104,10 @@ export const ListContainer = ({ boardId }) => {
         };
 
         setOrderedLists(newOrderedLists);
-        dispatch(reorderCards({ items: [...updatedSourceCards, ...updatedDestCards], boardId }));
+        dispatch(reorderCards({ items: [...updatedSourceCards, ...updatedDestCards], boardId }))
+          .unwrap()
+          .then(() => toast.success("Card reordered"))
+          .catch((err) => toast.error(err || "Failed to reorder cards"));
       }
     }
   };

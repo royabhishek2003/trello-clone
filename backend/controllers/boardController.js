@@ -19,7 +19,7 @@ const getBoards = async (req, res) => {
       return res.status(400).json({ error: 'Organization ID is required' });
     }
 
-    const boards = await Board.find({ orgId }).sort({ createdAt: -1 });
+    const boards = await Board.find({ orgId }).sort({ order: 1, createdAt: -1 });
     res.json(boards);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -195,10 +195,40 @@ const deleteBoard = async (req, res) => {
   }
 };
 
+// @desc    Reorder boards
+// @route   PUT /api/boards/reorder
+// @access  Private
+const reorderBoards = async (req, res) => {
+  try {
+    const { items, orgId } = req.body;
+
+    if (!items || !Array.isArray(items) || !orgId) {
+      return res.status(400).json({ error: 'Items array and Organization ID are required' });
+    }
+
+    // Update each board's order
+    const updates = items.map((item) => ({
+      updateOne: {
+        filter: { _id: item._id, orgId },
+        update: { $set: { order: item.order } }
+      }
+    }));
+
+    if (updates.length > 0) {
+      await Board.bulkWrite(updates);
+    }
+
+    res.json({ message: 'Boards reordered successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getBoards,
   getBoardById,
   createBoard,
   updateBoard,
-  deleteBoard
+  deleteBoard,
+  reorderBoards
 };

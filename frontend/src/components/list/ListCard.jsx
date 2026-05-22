@@ -9,6 +9,7 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Plus, X, MoreHorizontal, Trash } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { toast } from 'sonner';
 
 export const ListCard = ({ list, index }) => {
   const dispatch = useDispatch();
@@ -20,7 +21,10 @@ export const ListCard = ({ list, index }) => {
   const handleAddCard = async (e) => {
     e.preventDefault();
     if (!cardTitle.trim()) return;
-    await dispatch(createCard({ title: cardTitle, listId: list._id, boardId: list.boardId }));
+    await dispatch(createCard({ title: cardTitle, listId: list._id, boardId: list.boardId }))
+      .unwrap()
+      .then((data) => toast.success(`Card "${data.title}" created`))
+      .catch((err) => toast.error(err || "Failed to create card"));
     setCardTitle('');
     setIsAddingCard(false);
     dispatch(fetchLists(list.boardId));
@@ -29,11 +33,17 @@ export const ListCard = ({ list, index }) => {
   const handleUpdateListTitle = async () => {
     setIsEditingTitle(false);
     if (listTitle === list.title) return;
-    await dispatch(updateList({ id: list._id, data: { title: listTitle, boardId: list.boardId } }));
+    await dispatch(updateList({ id: list._id, data: { title: listTitle, boardId: list.boardId } }))
+      .unwrap()
+      .then((data) => toast.success(`List "${data.title}" updated`))
+      .catch((err) => toast.error(err || "Failed to update list"));
   };
 
   const handleDeleteList = async () => {
-    await dispatch(deleteList(list._id));
+    await dispatch(deleteList(list._id))
+      .unwrap()
+      .then(() => toast.success(`List "${list.title}" deleted`))
+      .catch((err) => toast.error(err || "Failed to delete list"));
   };
 
   return (

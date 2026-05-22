@@ -6,6 +6,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { MoreHorizontal, Trash } from 'lucide-react';
+import { toast } from 'sonner';
 
 export const BoardHeader = ({ board }) => {
   const dispatch = useDispatch();
@@ -16,12 +17,20 @@ export const BoardHeader = ({ board }) => {
   const handleUpdate = async () => {
     setIsEditing(false);
     if (title === board.title) return;
-    await dispatch(updateBoard({ id: board._id, data: { title } }));
+    await dispatch(updateBoard({ id: board._id, data: { title } }))
+      .unwrap()
+      .then(() => toast.success("Board updated"))
+      .catch((err) => toast.error(err || "Failed to update board"));
   };
 
   const handleDelete = async () => {
-    await dispatch(deleteBoard(board._id));
-    navigate('/');
+    await dispatch(deleteBoard(board._id))
+      .unwrap()
+      .then(() => {
+        toast.success("Board deleted");
+        navigate('/');
+      })
+      .catch((err) => toast.error(err || "Failed to delete board"));
   };
 
   return (
