@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { demoLogin } from '../redux/slices/authSlice';
+import { fetchOrganizations } from '../redux/slices/organizationSlice';
 
 const LandingPage = () => {
   const dispatch = useDispatch();
@@ -10,6 +11,7 @@ const LandingPage = () => {
     setIsLoading(true);
     try {
       await dispatch(demoLogin()).unwrap();
+      await dispatch(fetchOrganizations()).unwrap();
       // App.jsx will automatically render Dashboard upon isAuthenticated = true
     } catch (error) {
       console.error("Demo login failed:", error);

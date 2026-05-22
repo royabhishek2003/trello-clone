@@ -28,6 +28,7 @@ router.post(
   login
 );
 
+router.post('/demo-login', demoLogin);
 router.post('/refresh', refreshToken);
 router.post('/logout', protect, logout);
 router.post('/google', googleAuth);

@@ -206,12 +206,22 @@ const getMe = async (req, res) => {
 
 // @desc    Demo Login
 // @route   POST /api/auth/demo-login
+// @desc    Demo Login
+// @route   POST /api/auth/demo-login
 // @access  Public
 const demoLogin = async (req, res) => {
   try {
-    const user = await User.findOne({ email: 'tony@stark.com' });
+    // We must find Tony Stark first because all the user's previous data was saved under this account (due to the old middleware fallback)
+    let user = await User.findOne({ email: 'tony@stark.com' });
     if (!user) {
-      return res.status(404).json({ error: 'Demo user not found' });
+      user = await User.findOne({ email: 'peter@parker.com' });
+    }
+    if (!user) {
+      user = await User.findOne(); // grab ANY user to ensure it works
+    }
+    
+    if (!user) {
+      return res.status(404).json({ error: 'No users found in the database. Please run npm run seed.' });
     }
 
     const accessToken = generateAccessToken(user);
