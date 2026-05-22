@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { User2, HelpCircle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -102,7 +103,16 @@ export const BoardList = () => {
             >
               <p className="text-sm">Create new board</p>
               <span className="text-xs">0 remaining</span>
-              <HelpCircle className="h-[14px] w-[14px] absolute bottom-2 right-2 text-muted-foreground" />
+              <TooltipProvider>
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-[14px] w-[14px] absolute bottom-2 right-2 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="w-[280px] p-3 text-sm">
+                    Free Workspaces can have up to 5 open boards. For unlimited boards, upgrade this Workspace.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           ) : (
             <CreateBoardPopover side="right" sideOffset={18}>
@@ -114,7 +124,16 @@ export const BoardList = () => {
                 <span className="text-xs">
                   {isPro ? "Unlimited" : `${5 - availableCount} remaining`}
                 </span>
-                <HelpCircle className="h-[14px] w-[14px] absolute bottom-2 right-2 text-muted-foreground" />
+                <TooltipProvider>
+                  <Tooltip delayDuration={0}>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-[14px] w-[14px] absolute bottom-2 right-2 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="w-[280px] p-3 text-sm">
+                      Free Workspaces can have up to 5 open boards. For unlimited boards, upgrade this Workspace.
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </CreateBoardPopover>
           )}

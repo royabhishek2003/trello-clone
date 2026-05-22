@@ -80,7 +80,7 @@ export const Sidebar = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="justify-start font-normal"
+                  className={`justify-start font-normal ${location.pathname.includes('billing') && currentOrg?._id === org._id ? 'bg-sky-50 text-sky-700' : ''}`}
                   onClick={() => handleNavigation(org, `/organization/${org._id}/billing`)}
                 >
                   <CreditCard className="w-4 h-4 mr-2" /> Billing

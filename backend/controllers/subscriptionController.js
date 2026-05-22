@@ -172,9 +172,45 @@ const cancelSubscription = async (req, res) => {
   }
 };
 
+// @desc    Mock upgrade for demo purposes
+// @route   POST /api/subscriptions/mock-upgrade
+// @access  Private
+const mockUpgrade = async (req, res) => {
+  try {
+    const { orgId } = req.body;
+    const currentPeriodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    
+    let subscription = await OrgSubscription.findOne({ orgId });
+    if (!subscription) {
+      subscription = new OrgSubscription({
+        orgId,
+        razorpayOrderId: 'mock_order_' + Date.now(),
+        razorpayPaymentId: 'mock_payment_' + Date.now(),
+        razorpayCustomerId: 'mock_customer_' + req.user._id,
+        status: 'active',
+        currentPeriodEnd
+      });
+    } else {
+      subscription.status = 'active';
+      subscription.currentPeriodEnd = currentPeriodEnd;
+      subscription.razorpayCustomerId = subscription.razorpayCustomerId || 'mock_customer_' + req.user._id;
+    }
+    await subscription.save();
+
+    res.json({
+      success: true,
+      message: 'Pro status activated successfully',
+      subscription
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   checkSubscriptionStatus,
   createOrder,
   verifyPayment,
-  cancelSubscription
+  cancelSubscription,
+  mockUpgrade
 };

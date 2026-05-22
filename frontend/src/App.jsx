@@ -13,6 +13,8 @@ import Dashboard from './pages/Dashboard';
 import BoardDetail from './pages/BoardDetail';
 import OrgSettings from './pages/OrgSettings';
 import OrgActivity from './pages/OrgActivity';
+import OrgBilling from './pages/OrgBilling';
+import ManageSubscription from './pages/ManageSubscription';
 import { CardModal } from './components/card/CardModal';
 import { ProModal } from './components/subscription/ProModal';
 
@@ -56,6 +58,8 @@ function App() {
           <Route path="/board/:id" element={<BoardDetail />} />
           <Route path="/organization/:id/activity" element={<OrgActivity />} />
           <Route path="/organization/:id/settings" element={<OrgSettings />} />
+          <Route path="/organization/:id/billing" element={<OrgBilling />} />
+          <Route path="/organization/:id/manage-subscription" element={<ManageSubscription />} />
           
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

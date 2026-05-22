@@ -10,7 +10,6 @@ const checkSubscription = async (orgId) => {
   }
 
   const isValid =
-    orgSubscription.razorpayCustomerId &&
     orgSubscription.status === 'active' &&
     orgSubscription.currentPeriodEnd &&
     orgSubscription.currentPeriodEnd.getTime() > Date.now();

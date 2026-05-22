@@ -39,7 +39,7 @@ export const createBoard = createAsyncThunk(
       const response = await api.post('/api/boards', boardData);
       return response.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to create board');
+      return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to create board');
     }
   }
 );

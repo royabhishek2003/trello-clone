@@ -4,7 +4,8 @@ const {
   checkSubscriptionStatus,
   createOrder,
   verifyPayment,
-  cancelSubscription
+  cancelSubscription,
+  mockUpgrade
 } = require('../controllers/subscriptionController');
 const { validate } = require('../middleware/validation');
 const { protect } = require('../middleware/auth');
@@ -39,6 +40,13 @@ router.post(
   [body('orgId', 'Organization ID is required').notEmpty()],
   validate,
   cancelSubscription
+);
+
+router.post(
+  '/mock-upgrade',
+  [body('orgId', 'Organization ID is required').notEmpty()],
+  validate,
+  mockUpgrade
 );
 
 module.exports = router;
