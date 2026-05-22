@@ -44,6 +44,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/boards', require('./routes/boards'));
 app.use('/api/lists', require('./routes/lists'));
 app.use('/api/cards', require('./routes/cards'));
+app.use('/api/labels', require('./routes/labels'));
 app.use('/api/orgs', require('./routes/organizations'));
 app.use('/api/subscriptions', require('./routes/subscriptions'));
 

@@ -28,6 +28,17 @@ const uiSlice = createSlice({
     closeProModal: (state) => {
       state.isProModalOpen = false;
     }
+  },
+  extraReducers: (builder) => {
+    // Listen to card updates to sync the modal UI
+    builder.addMatcher(
+      (action) => action.type === 'cards/updateCard/fulfilled' || action.type === 'cards/updateCardLabels/fulfilled',
+      (state, action) => {
+        if (state.cardData && state.cardData._id === action.payload._id) {
+          state.cardData = action.payload;
+        }
+      }
+    );
   }
 });
 

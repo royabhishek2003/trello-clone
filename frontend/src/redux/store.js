@@ -8,6 +8,7 @@ import cardReducer from './slices/cardSlice';
 import orgReducer from './slices/organizationSlice';
 import uiReducer from './slices/uiSlice';
 import subscriptionReducer from './slices/subscriptionSlice';
+import labelReducer from './slices/labelSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,6 @@ export const store = configureStore({
     organizations: orgReducer,
     subscription: subscriptionReducer,
     ui: uiReducer,
+    labels: labelReducer,
   },
 });
-

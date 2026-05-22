@@ -49,7 +49,19 @@ export const copyCard = createAsyncThunk(
       const response = await api.post(`/api/cards/${id}/copy`);
       return response.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to copy card');
+      return rejectWithValue(err.response?.data?.error || 'Failed to copy card');
+    }
+  }
+);
+
+export const updateCardLabels = createAsyncThunk(
+  'cards/updateCardLabels',
+  async ({ id, labels }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(`/api/cards/${id}/labels`, { labels });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.error || 'Failed to update card labels');
     }
   }
 );
@@ -81,6 +93,13 @@ const cardSlice = createSlice({
       .addCase(createCard.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(updateCardLabels.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.cards.findIndex((c) => c._id === action.payload._id);
+        if (index !== -1) {
+          state.cards[index] = action.payload;
+        }
       });
   },
 });

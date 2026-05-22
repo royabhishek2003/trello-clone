@@ -7,7 +7,8 @@ const {
   updateCard,
   deleteCard,
   copyCard,
-  reorderCards
+  reorderCards,
+  updateCardLabels
 } = require('../controllers/cardController');
 const { validate } = require('../middleware/validation');
 const { protect } = require('../middleware/auth');
@@ -37,6 +38,8 @@ router.route('/:id')
   .get(getCard)
   .patch(updateCard)
   .delete(deleteCard);
+
+router.patch('/:id/labels', updateCardLabels);
 
 router.get('/:id/activity', getCardLogs);
 router.post('/:id/copy', copyCard);

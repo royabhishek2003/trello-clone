@@ -1,6 +1,7 @@
 const express = require('express');
 const { body } = require('express-validator');
 const { getBoards, getBoardById, createBoard, updateBoard, deleteBoard, reorderBoards } = require('../controllers/boardController');
+const { getLabelsByBoard, createLabel } = require('../controllers/labelController');
 const { validate } = require('../middleware/validation');
 const { protect } = require('../middleware/auth');
 
@@ -30,5 +31,9 @@ router.route('/:id')
     updateBoard
   )
   .delete(deleteBoard);
+
+router.route('/:id/labels')
+  .get(getLabelsByBoard)
+  .post(createLabel);
 
 module.exports = router;

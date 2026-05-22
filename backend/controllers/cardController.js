@@ -9,14 +9,16 @@ const { createAuditLog } = require('../services/auditLogService');
 const getCard = async (req, res) => {
   try {
     const { id } = req.params;
-    const card = await Card.findById(id).populate({
-      path: 'listId',
-      select: 'title boardId',
-      populate: {
-        path: 'boardId',
-        select: 'orgId'
-      }
-    });
+    const card = await Card.findById(id)
+      .populate('labels')
+      .populate({
+        path: 'listId',
+        select: 'title boardId',
+        populate: {
+          path: 'boardId',
+          select: 'orgId'
+        }
+      });
 
     if (!card) {
       return res.status(404).json({ error: 'Card not found' });
@@ -252,6 +254,47 @@ const reorderCards = async (req, res) => {
   }
 };
 
+// @desc    Update card labels
+// @route   PATCH /api/cards/:id/labels
+// @access  Private
+const updateCardLabels = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { labels } = req.body; // array of label ObjectIds
+
+    const card = await Card.findById(id).populate({
+      path: 'listId',
+      populate: { path: 'boardId' }
+    });
+
+    if (!card) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+
+    const orgId = card.listId.boardId.orgId;
+
+    card.labels = labels;
+    await card.save();
+
+    // Create Audit Log
+    await createAuditLog(
+      {
+        entityId: card._id.toString(),
+        entityType: 'CARD',
+        entityTitle: card.title,
+        action: 'UPDATE'
+      },
+      req.user,
+      orgId
+    );
+
+    const updatedCard = await Card.findById(id).populate('labels');
+    res.json(updatedCard);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getCard,
   getCardLogs,
@@ -259,5 +302,6 @@ module.exports = {
   updateCard,
   deleteCard,
   copyCard,
-  reorderCards
+  reorderCards,
+  updateCardLabels
 };

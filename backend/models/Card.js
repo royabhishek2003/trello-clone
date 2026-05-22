@@ -20,7 +20,11 @@ const CardSchema = new mongoose.Schema(
       ref: 'List',
       required: true,
       index: true
-    }
+    },
+    labels: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Label'
+    }]
   },
   {
     timestamps: true
