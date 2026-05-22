@@ -5,7 +5,8 @@ const CardSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
+      index: true
     },
     order: {
       type: Number,

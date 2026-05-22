@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { ChevronsUpDown } from 'lucide-react';
 import { setCurrentOrg } from '../../redux/slices/organizationSlice';
 import { CreateBoardPopover } from '../board/CreateBoardPopover';
+import { CardSearchPopover } from './CardSearchPopover';
 
 export const Navbar = () => {
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ export const Navbar = () => {
       </div>
 
       <div className="flex items-center gap-x-2">
+        <CardSearchPopover />
         {/* Organization Switcher */}
         {organizations.length > 0 && (
           <Popover>

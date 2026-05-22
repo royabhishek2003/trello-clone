@@ -319,6 +319,61 @@ const updateCardLabels = async (req, res) => {
   }
 };
 
+// @desc    Search cards by title
+// @route   GET /api/cards/search
+// @access  Private
+const searchCards = async (req, res) => {
+  try {
+    const { q, boardId, orgId } = req.query;
+    
+    if (!q || q.trim().length < 2) {
+      return res.json([]);
+    }
+
+    // Escape regex characters to prevent injection
+    const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedQuery, 'i');
+
+    let listIds = [];
+
+    // Filter by board if provided (prioritize), else org
+    if (boardId) {
+      const lists = await List.find({ boardId }).lean();
+      listIds = lists.map(l => l._id);
+    } else if (orgId) {
+      const BoardModel = require('../models/Board'); // lazy load
+      const boards = await BoardModel.find({ orgId }).lean();
+      const boardIds = boards.map(b => b._id);
+      const lists = await List.find({ boardId: { $in: boardIds } }).lean();
+      listIds = lists.map(l => l._id);
+    } else {
+      return res.status(400).json({ error: 'boardId or orgId is required' });
+    }
+
+    if (listIds.length === 0) {
+      return res.json([]);
+    }
+
+    const cards = await Card.find({
+      listId: { $in: listIds },
+      title: { $regex: regex }
+    })
+      .populate('labels')
+      .populate('cardMembers', 'firstName lastName email imageUrl')
+      .populate({
+        path: 'listId',
+        select: 'title boardId',
+        populate: { path: 'boardId', select: 'title orgId' }
+      })
+      .limit(20)
+      .lean();
+
+    res.json(cards);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getCard,
   getCardLogs,
@@ -327,5 +382,6 @@ module.exports = {
   deleteCard,
   copyCard,
   reorderCards,
-  updateCardLabels
+  updateCardLabels,
+  searchCards
 };
