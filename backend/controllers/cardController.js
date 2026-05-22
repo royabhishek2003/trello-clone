@@ -99,7 +99,7 @@ const createCard = async (req, res) => {
 const updateCard = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description } = req.body;
+    const { title, description, startDate, dueDate, isDateComplete, hasDueTime } = req.body;
 
     const card = await Card.findById(id).populate({
       path: 'listId',
@@ -117,6 +117,18 @@ const updateCard = async (req, res) => {
     }
     if (description !== undefined) {
       card.description = description;
+    }
+    if (startDate !== undefined) {
+      card.startDate = startDate;
+    }
+    if (dueDate !== undefined) {
+      card.dueDate = dueDate;
+    }
+    if (isDateComplete !== undefined) {
+      card.isDateComplete = isDateComplete;
+    }
+    if (hasDueTime !== undefined) {
+      card.hasDueTime = hasDueTime;
     }
 
     await card.save();

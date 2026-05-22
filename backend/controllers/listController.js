@@ -16,7 +16,10 @@ const getLists = async (req, res) => {
     const lists = await List.find({ boardId }).sort({ order: 1 }).lean();
     const listIds = lists.map(l => l._id);
     
-    const cards = await Card.find({ listId: { $in: listIds } }).sort({ order: 1 }).lean();
+    const cards = await Card.find({ listId: { $in: listIds } })
+      .populate('labels')
+      .sort({ order: 1 })
+      .lean();
     
     lists.forEach(list => {
       list.cards = cards.filter(card => card.listId.toString() === list._id.toString());

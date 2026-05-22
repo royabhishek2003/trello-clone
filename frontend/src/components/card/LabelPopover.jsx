@@ -6,6 +6,7 @@ import { Input } from '../ui/input';
 import { X, ChevronLeft, Edit2 } from 'lucide-react';
 import { fetchLabels, createLabel, updateLabel, deleteLabel } from '../../redux/slices/labelSlice';
 import { updateCardLabels } from '../../redux/slices/cardSlice';
+import { fetchLists } from '../../redux/slices/listSlice';
 
 export const COLORS = [
   { id: 'green', color: 'bg-green-600 hover:bg-green-700' },
@@ -46,10 +47,20 @@ export const LabelPopover = ({ children }) => {
   };
 
   const handleCreate = async () => {
-    await dispatch(createLabel({
+    const action = await dispatch(createLabel({
       boardId: currentBoard._id,
       data: { title, color: selectedColor }
     }));
+    
+    // Automatically apply newly created label to the card
+    if (action.payload && action.payload._id && cardData) {
+      const currentLabels = cardData.labels || [];
+      const currentLabelIds = currentLabels.map(l => l._id || l);
+      const newLabelIds = [...currentLabelIds, action.payload._id];
+      await dispatch(updateCardLabels({ id: cardData._id, labels: newLabelIds }));
+      if (currentBoard?._id) dispatch(fetchLists(currentBoard._id));
+    }
+    
     setView('list');
   };
 
@@ -59,6 +70,7 @@ export const LabelPopover = ({ children }) => {
       id: editingLabel._id,
       data: { title, color: selectedColor }
     }));
+    if (currentBoard?._id) dispatch(fetchLists(currentBoard._id));
     setView('list');
   };
 
@@ -68,9 +80,8 @@ export const LabelPopover = ({ children }) => {
     // Optimistically update cardData labels by removing the deleted label id
     if (cardData.labels) {
        const newLabels = cardData.labels.filter(l => (l._id || l) !== editingLabel._id);
-       // we dispatch updateCardLabels but since deleteLabel on backend also cleans it up, 
-       // we might just need to refresh card or local state
        await dispatch(updateCardLabels({ id: cardData._id, labels: newLabels.map(l => l._id || l) }));
+       if (currentBoard?._id) dispatch(fetchLists(currentBoard._id));
     }
     setView('list');
   };
@@ -88,6 +99,7 @@ export const LabelPopover = ({ children }) => {
       newLabelIds = [...currentLabelIds, labelId];
     }
     await dispatch(updateCardLabels({ id: cardData._id, labels: newLabelIds }));
+    if (currentBoard?._id) dispatch(fetchLists(currentBoard._id));
   };
 
   const isLabelActive = (labelId) => {
@@ -96,14 +108,14 @@ export const LabelPopover = ({ children }) => {
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={(open) => {
+    <Popover modal={true} open={isOpen} onOpenChange={(open) => {
       setIsOpen(open);
       if (!open) setView('list');
     }}>
       <PopoverTrigger asChild>
         {children}
       </PopoverTrigger>
-      <PopoverContent className="w-80 pt-3" align="start" side="bottom">
+      <PopoverContent className="w-80 pt-3 max-h-[300px] overflow-y-auto" align="start" side="bottom">
         <div className="relative flex items-center justify-center pb-2 mb-4 border-b">
           {view !== 'list' && (
             <Button

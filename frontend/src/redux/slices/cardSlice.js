@@ -96,10 +96,7 @@ const cardSlice = createSlice({
       })
       .addCase(updateCardLabels.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.cards.findIndex((c) => c._id === action.payload._id);
-        if (index !== -1) {
-          state.cards[index] = action.payload;
-        }
+        // Cards are managed by listSlice on the dashboard, so we don't need to update a local cards array here.
       });
   },
 });

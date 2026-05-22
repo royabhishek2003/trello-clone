@@ -24,7 +24,24 @@ const CardSchema = new mongoose.Schema(
     labels: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Label'
-    }]
+    }],
+    startDate: {
+      type: Date,
+      default: null
+    },
+    dueDate: {
+      type: Date,
+      default: null,
+      index: true
+    },
+    isDateComplete: {
+      type: Boolean,
+      default: false
+    },
+    hasDueTime: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true

@@ -4,7 +4,7 @@ import { Dialog, DialogContent } from '../ui/dialog';
 import { closeCardModal } from '../../redux/slices/uiSlice';
 import { updateCard, deleteCard, copyCard } from '../../redux/slices/cardSlice';
 import { fetchLists } from '../../redux/slices/listSlice';
-import { Layout, AlignLeft, CreditCard, Trash, Copy, Activity, Tag } from 'lucide-react';
+import { Layout, AlignLeft, CreditCard, Trash, Copy, Activity, Tag, Clock, ChevronDown } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -12,6 +12,9 @@ import { toast } from 'sonner';
 import api from '../../services/api';
 import { format } from 'date-fns';
 import { LabelPopover, COLORS } from './LabelPopover';
+import { DatePopover } from './DatePopover';
+import { formatCardDate } from '../../utils/formatCardDate';
+import { getCardDateStatus, getBadgeColor } from '../../utils/dateStatus';
 
 export const CardModal = () => {
   const dispatch = useDispatch();
@@ -83,9 +86,17 @@ export const CardModal = () => {
     }
   };
 
+  const toggleDateComplete = () => {
+    handleUpdate('isDateComplete', !cardData.isDateComplete);
+  };
+
+  const hasDates = cardData.startDate || cardData.dueDate;
+  const dateStatus = getCardDateStatus(cardData.dueDate, cardData.isDateComplete);
+  const badgeColor = getBadgeColor(dateStatus);
+
   return (
     <Dialog open={isCardModalOpen} onOpenChange={(open) => !open && dispatch(closeCardModal())}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-start gap-x-3 mb-6 w-full">
           <Layout className="h-5 w-5 mt-1 text-neutral-700" />
@@ -118,28 +129,60 @@ export const CardModal = () => {
             <p className="text-sm text-muted-foreground mb-4">
               in list <span className="underline">{listName}</span>
             </p>
-            {cardData.labels && cardData.labels.length > 0 && (
-              <div className="mb-4">
-                <p className="text-xs font-semibold text-neutral-700 mb-2">Labels</p>
-                <div className="flex flex-wrap gap-2">
-                  {cardData.labels.map(label => {
-                    const l = typeof label === 'object' ? label : labels.find(x => x._id === label);
-                    if (!l) return null;
-                    const colorObj = COLORS.find(c => c.id === l.color) || COLORS[0];
-                    return (
-                      <div key={l._id} className={`h-8 px-3 rounded-sm flex items-center text-white font-semibold text-sm ${colorObj.color.split(' ')[0]}`}>
-                        {l.title}
+            
+            <div className="flex flex-wrap gap-6 mb-4 w-full">
+              {/* Labels Section */}
+              {cardData.labels && cardData.labels.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-neutral-700 mb-2">Labels</p>
+                  <div className="flex flex-wrap gap-2">
+                    {cardData.labels.map(label => {
+                      const l = typeof label === 'object' ? label : labels?.find(x => x._id === label);
+                      if (!l) return null;
+                      const colorObj = COLORS.find(c => c.id === l.color) || COLORS[0];
+                      return (
+                        <div key={l._id} className={`h-8 px-3 rounded-sm flex items-center justify-center text-white font-semibold text-sm min-w-[48px] ${colorObj.color.split(' ')[0]}`}>
+                          {l.title}
+                        </div>
+                      );
+                    })}
+                    <LabelPopover>
+                      <div role="button" className="h-8 w-10 bg-neutral-200/60 hover:bg-neutral-300 rounded-sm flex items-center justify-center transition cursor-pointer text-neutral-600">
+                        <span className="font-medium text-lg mb-0.5">+</span>
                       </div>
-                    );
-                  })}
-                  <LabelPopover>
-                    <div role="button" className="h-8 w-8 bg-neutral-200 rounded-sm flex items-center justify-center hover:bg-neutral-300 transition cursor-pointer">
-                      <span className="text-neutral-500 font-bold">+</span>
-                    </div>
-                  </LabelPopover>
+                    </LabelPopover>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {/* Dates Section */}
+              {hasDates && (
+                <div>
+                  <p className="text-xs font-semibold text-neutral-700 mb-2">Dates</p>
+                  <div className="flex items-center gap-x-2">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                      checked={cardData.isDateComplete || false}
+                      onChange={toggleDateComplete}
+                    />
+                    <DatePopover>
+                      <div role="button" className="h-8 px-3 bg-neutral-200/60 hover:bg-neutral-300 rounded-sm flex items-center justify-center transition cursor-pointer text-neutral-800 text-sm font-semibold">
+                        {formatCardDate(cardData.startDate, cardData.dueDate, cardData.hasDueTime)}
+                        {cardData.dueDate && (
+                          <span className={`ml-2 px-1.5 py-0.5 rounded-sm text-xs ${badgeColor} flex items-center gap-x-1`}>
+                            {dateStatus === 'complete' && 'complete'}
+                            {dateStatus === 'overdue' && 'overdue'}
+                            {dateStatus === 'due_soon' && 'due soon'}
+                            <ChevronDown className="h-3 w-3" />
+                          </span>
+                        )}
+                      </div>
+                    </DatePopover>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -213,6 +256,12 @@ export const CardModal = () => {
                 Labels
               </Button>
             </LabelPopover>
+            <DatePopover>
+              <Button variant="gray" className="w-full justify-start mb-2">
+                <Clock className="h-4 w-4 mr-2" />
+                Dates
+              </Button>
+            </DatePopover>
             <Button variant="gray" className="w-full justify-start mb-2" onClick={handleCopy}>
               <Copy className="h-4 w-4 mr-2" />
               Copy
