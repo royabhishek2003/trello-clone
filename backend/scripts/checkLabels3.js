@@ -1,8 +1,9 @@
+require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
-const Card = require('./backend/models/Card');
-const Label = require('./backend/models/Label');
+const Card = require('../models/Card');
+const Label = require('../models/Label');
 
-mongoose.connect('mongodb+srv://kishanabhishek2003_db_user:UQd5ObQkuSmICl7f@cluster0.5usyeea.mongodb.net/trello-clone', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGO_URI)
   .then(async () => {
     const cards = await Card.find({ labels: { $exists: true, $not: {$size: 0} } }).populate('labels');
     console.log('Cards with labels: ' + cards.length);
@@ -10,7 +11,6 @@ mongoose.connect('mongodb+srv://kishanabhishek2003_db_user:UQd5ObQkuSmICl7f@clus
        console.log('Sample card labels: ', cards[0].title, cards[0].labels);
     }
     
-    // Explicitly check 'home page' card
     const home = await Card.findOne({ title: 'home page' });
     console.log('Home page card labels: ', home ? home.labels : 'Card not found');
     

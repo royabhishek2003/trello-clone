@@ -101,7 +101,7 @@ const updateCard = async (req, res) => {
     const { id } = req.params;
     const { title, description, startDate, dueDate, isDateComplete, hasDueTime } = req.body;
 
-    const card = await Card.findById(id).populate({
+    const card = await Card.findById(id).populate('labels').populate({
       path: 'listId',
       populate: { path: 'boardId' }
     });

@@ -137,7 +137,7 @@ export const CardModal = () => {
                   <p className="text-xs font-semibold text-neutral-700 mb-2">Labels</p>
                   <div className="flex flex-wrap gap-2">
                     {cardData.labels.map(label => {
-                      const l = typeof label === 'object' ? label : labels?.find(x => x._id === label);
+                      const l = typeof label === 'object' ? label : null;
                       if (!l) return null;
                       const colorObj = COLORS.find(c => c.id === l.color) || COLORS[0];
                       return (
