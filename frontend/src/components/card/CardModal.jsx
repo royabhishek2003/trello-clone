@@ -44,7 +44,7 @@ export const CardModal = () => {
     if (cardData[field] === value) return;
     await dispatch(updateCard({ id: cardData._id, data: { [field]: value } }))
       .unwrap()
-      .then(() => toast.success(`Card "${value}" updated`))
+      .then(() => toast.success(`Card "${cardData.title}" updated`))
       .catch((err) => toast.error(err || "Failed to update card"));
     if (currentBoard?._id) {
       dispatch(fetchLists(currentBoard._id));
