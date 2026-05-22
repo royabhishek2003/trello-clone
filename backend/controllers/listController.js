@@ -183,7 +183,41 @@ const copyList = async (req, res) => {
         listId: copiedList._id
       }));
 
-      await Card.insertMany(duplicatedCards);
+      const insertedCards = await Card.insertMany(duplicatedCards);
+
+      // Fetch and duplicate all audit logs for the original cards
+      const AuditLog = require('../models/AuditLog');
+      const originalCardIds = cards.map(c => c._id.toString());
+      const auditLogs = await AuditLog.find({ entityId: { $in: originalCardIds }, entityType: 'CARD' });
+
+      if (auditLogs && auditLogs.length > 0) {
+        const duplicatedLogs = [];
+        
+        for (let i = 0; i < cards.length; i++) {
+          const originalId = cards[i]._id.toString();
+          const newId = insertedCards[i]._id.toString();
+          
+          const logsForThisCard = auditLogs.filter(log => log.entityId === originalId);
+          logsForThisCard.forEach(log => {
+            duplicatedLogs.push({
+              orgId: log.orgId,
+              action: log.action,
+              entityId: newId,
+              entityType: 'CARD',
+              entityTitle: log.entityTitle,
+              userId: log.userId,
+              userImage: log.userImage,
+              userName: log.userName,
+              createdAt: log.createdAt,
+              updatedAt: log.updatedAt
+            });
+          });
+        }
+        
+        if (duplicatedLogs.length > 0) {
+          await AuditLog.insertMany(duplicatedLogs);
+        }
+      }
     }
 
     // Create Audit Log
