@@ -35,11 +35,11 @@ export const BoardHeader = ({ board }) => {
   };
 
   return (
-    <div className="w-full h-14 z-40 bg-black/50 flex items-center px-6 gap-x-4 text-white absolute top-14">
+    <div className="w-full h-14 z-40 bg-black/50 flex items-center px-6 gap-x-4 text-white">
       {!isEditing ? (
         <div 
           onClick={() => setIsEditing(true)} 
-          className="font-bold text-lg px-2 py-1 cursor-pointer hover:bg-white/20 rounded-sm transition"
+          className="font-bold text-lg px-2 py-1 cursor-pointer hover:bg-white/20 rounded-sm transition truncate max-w-[150px] sm:max-w-[300px] md:max-w-[500px]"
         >
           {board.title}
         </div>
