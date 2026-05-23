@@ -87,16 +87,21 @@ export const ListContainer = ({ boardId }) => {
         
         const [movedCard] = reorderedCards.splice(sourceIndex, 1);
         
-        // Find insertion point using filtered list
+        // Simulate move in filtered list to find the item that should come AFTER the moved card
         const filteredSourceList = filteredLists.find(l => l._id === source.droppableId);
-        const targetCard = filteredSourceList.cards[destination.index];
+        const filteredCards = [...(filteredSourceList.cards || [])];
+        const filteredSourceIndex = source.index;
+        const filteredDestIndex = destination.index;
+        
+        const [filteredMovedCard] = filteredCards.splice(filteredSourceIndex, 1);
+        filteredCards.splice(filteredDestIndex, 0, filteredMovedCard);
+        
+        const itemAfter = filteredCards[filteredDestIndex + 1];
         
         let destIndex = reorderedCards.length; // default to end
-        if (targetCard) {
-          const targetIndex = reorderedCards.findIndex(c => c._id === targetCard._id);
+        if (itemAfter) {
+          const targetIndex = reorderedCards.findIndex(c => c._id === itemAfter._id);
           if (targetIndex !== -1) {
-            // If target card is before the source card in unfiltered list, we insert at targetIndex
-            // If it's after, we insert at targetIndex (since we already removed the source card)
             destIndex = targetIndex;
           }
         }
