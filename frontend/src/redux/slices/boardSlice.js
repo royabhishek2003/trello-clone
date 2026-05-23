@@ -154,8 +154,11 @@ const boardSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      .addCase(fetchBoardById.pending, (state) => {
+      .addCase(fetchBoardById.pending, (state, action) => {
         state.loading = true;
+        if (state.currentBoard && state.currentBoard._id !== action.meta.arg) {
+          state.currentBoard = null;
+        }
       })
       .addCase(fetchBoardById.fulfilled, (state, action) => {
         state.loading = false;

@@ -172,40 +172,42 @@ const updateCard = async (req, res) => {
     let details = '';
     if (title !== undefined && title !== card.title) {
       card.title = title;
-      details = 'renamed the card';
-    } else if (description !== undefined && description !== card.description) {
+      details = details || 'renamed the card';
+    }
+    if (description !== undefined && description !== card.description) {
       card.description = description;
-      details = 'updated the description of card';
-    } else if (dueDate !== undefined && dueDate !== card.dueDate) {
+      details = details || 'updated the description of card';
+    }
+    if (startDate !== undefined && startDate !== card.startDate) {
+      card.startDate = startDate;
+      details = details || 'changed the start date of card';
+    }
+    if (dueDate !== undefined && dueDate !== card.dueDate) {
       card.dueDate = dueDate;
-      details = 'changed the due date of card';
-    } else if (isDateComplete !== undefined && isDateComplete !== card.isDateComplete) {
+      details = details || 'changed the due date of card';
+    }
+    if (isDateComplete !== undefined && isDateComplete !== card.isDateComplete) {
       card.isDateComplete = isDateComplete;
-      details = isDateComplete ? 'marked the due date complete on card' : 'marked the due date incomplete on card';
-    } else if (checklists !== undefined) {
+      details = details || (isDateComplete ? 'marked the due date complete on card' : 'marked the due date incomplete on card');
+    }
+    if (hasDueTime !== undefined && hasDueTime !== card.hasDueTime) {
+      card.hasDueTime = hasDueTime;
+    }
+    if (checklists !== undefined) {
       card.checklists = checklists;
-      details = 'updated checklists on card';
-    } else if (cardMembers !== undefined) {
+      details = details || 'updated checklists on card';
+    }
+    if (cardMembers !== undefined) {
       card.cardMembers = [...new Set(cardMembers)];
-      details = 'updated members on card';
-    } else if (coverImage !== undefined && coverImage !== card.coverImage) {
+      details = details || 'updated members on card';
+    }
+    if (coverImage !== undefined && coverImage !== card.coverImage) {
       card.coverImage = coverImage;
-      details = coverImage ? 'added a cover to card' : 'removed the cover from card';
-    } else if (coverColor !== undefined && coverColor !== card.coverColor) {
+      details = details || (coverImage ? 'added a cover to card' : 'removed the cover from card');
+    }
+    if (coverColor !== undefined && coverColor !== card.coverColor) {
       card.coverColor = coverColor;
-      details = coverColor ? 'added a cover color to card' : 'removed the cover color from card';
-    } else {
-      // In case we don't match, fallback
-      if (title !== undefined) card.title = title;
-      if (description !== undefined) card.description = description;
-      if (startDate !== undefined) card.startDate = startDate;
-      if (dueDate !== undefined) card.dueDate = dueDate;
-      if (isDateComplete !== undefined) card.isDateComplete = isDateComplete;
-      if (hasDueTime !== undefined) card.hasDueTime = hasDueTime;
-      if (checklists !== undefined) card.checklists = checklists;
-      if (cardMembers !== undefined) card.cardMembers = [...new Set(cardMembers)];
-      if (coverImage !== undefined) card.coverImage = coverImage;
-      if (coverColor !== undefined) card.coverColor = coverColor;
+      details = details || (coverColor ? 'added a cover color to card' : 'removed the cover color from card');
     }
 
     await card.save();

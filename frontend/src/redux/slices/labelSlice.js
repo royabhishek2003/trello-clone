@@ -61,9 +61,15 @@ const labelSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchLabels.pending, (state) => {
+      .addCase(fetchLabels.pending, (state, action) => {
         state.loading = true;
         state.error = null;
+        if (state.labels.length > 0) {
+          const currentBoardId = typeof state.labels[0].boardId === 'object' ? state.labels[0].boardId._id : state.labels[0].boardId;
+          if (currentBoardId !== action.meta.arg) {
+            state.labels = [];
+          }
+        }
       })
       .addCase(fetchLabels.fulfilled, (state, action) => {
         state.loading = false;

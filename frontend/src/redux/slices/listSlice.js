@@ -106,8 +106,14 @@ const listSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchLists.pending, (state) => {
+      .addCase(fetchLists.pending, (state, action) => {
         state.loading = true;
+        if (state.lists.length > 0) {
+          const currentBoardId = typeof state.lists[0].boardId === 'object' ? state.lists[0].boardId._id : state.lists[0].boardId;
+          if (currentBoardId !== action.meta.arg) {
+            state.lists = [];
+          }
+        }
       })
       .addCase(fetchLists.fulfilled, (state, action) => {
         state.loading = false;
