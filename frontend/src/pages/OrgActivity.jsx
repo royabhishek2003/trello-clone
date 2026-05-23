@@ -64,7 +64,11 @@ const OrgActivity = () => {
                       <div className="flex flex-col space-y-0.5">
                         <p className="text-sm text-muted-foreground">
                           <span className="font-semibold lowercase text-neutral-700 mr-1">{log.userName}</span>
-                          {log.action.toLowerCase()}d {log.entityType.toLowerCase()} "{log.entityTitle}"
+                          {log.details ? (
+                            <>{log.details} "{log.entityTitle}"</>
+                          ) : (
+                            <>{log.action.toLowerCase()}d {log.entityType.toLowerCase()} "{log.entityTitle}"</>
+                          )}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {format(new Date(log.createdAt), "MMM d, yyyy 'at' h:mm a")}
