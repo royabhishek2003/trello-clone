@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Dialog, DialogContent } from '../ui/dialog';
+import { ResponsiveModal } from '../common/ResponsiveModal';
 import { closeCardModal } from '../../redux/slices/uiSlice';
 import { updateCard, deleteCard, copyCard } from '../../redux/slices/cardSlice';
 import { fetchLists } from '../../redux/slices/listSlice';
@@ -187,229 +187,239 @@ export const CardModal = () => {
   const badgeColor = getBadgeColor(dateStatus);
 
   return (
-    <Dialog open={isCardModalOpen} onOpenChange={(open) => !open && dispatch(closeCardModal())}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-start gap-x-3 mb-6 w-full">
-          <Layout className="h-5 w-5 mt-1 text-neutral-700" />
-          <div className="w-full">
-            {!isEditingTitle ? (
-              <div 
-                onClick={() => setIsEditingTitle(true)}
-                className="font-semibold text-xl mb-1 cursor-pointer"
-              >
-                {title}
-              </div>
-            ) : (
-              <Input
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                onBlur={() => {
-                  setIsEditingTitle(false);
-                  handleUpdate('title', title);
-                }}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') {
+    <ResponsiveModal 
+      isOpen={isCardModalOpen} 
+      onClose={() => dispatch(closeCardModal())}
+      className="max-h-[100dvh] md:max-h-[85vh]"
+    >
+      <div className="flex flex-col md:grid md:grid-cols-4 md:gap-4 h-full md:h-auto overflow-hidden">
+        {/* Header content moved inside to flow better on mobile */}
+        <div className="col-span-3 overflow-y-auto pr-2 pb-20 md:pb-0 touch-pan-y">
+          <div className="flex items-start gap-x-3 mb-6 w-full">
+            <Layout className="h-5 w-5 mt-1 text-neutral-700" />
+            <div className="w-full">
+              {!isEditingTitle ? (
+                <div 
+                  onClick={() => setIsEditingTitle(true)}
+                  className="font-semibold text-xl mb-1 cursor-pointer"
+                >
+                  {title}
+                </div>
+              ) : (
+                <Input
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  onBlur={() => {
                     setIsEditingTitle(false);
                     handleUpdate('title', title);
-                  }
-                }}
-                autoFocus
-                className="font-semibold text-xl px-1 text-neutral-700 mb-0.5 border-transparent focus-visible:bg-white focus-visible:border-input"
-              />
-            )}
-            <p className="text-sm text-muted-foreground mb-4">
-              in list <span className="underline">{listName}</span>
-            </p>
-            
-            <div className="flex flex-wrap gap-6 mb-4 w-full">
-              {/* Members Section */}
-              {localMembers && localMembers.length > 0 && (
-                <div>
-                  <p className="text-xs font-semibold text-neutral-700 mb-2">Members</p>
-                  <div className="flex flex-wrap gap-1">
-                    {localMembers.map(m => (
-                      <MemberAvatar key={m._id || m} member={m} />
-                    ))}
-                    <MembersPopover cardMembers={localMembers} onMemberToggle={handleToggleMember}>
-                      <div role="button" className="w-7 h-7 bg-neutral-200/60 hover:bg-neutral-300 rounded-full flex items-center justify-center transition cursor-pointer text-neutral-600">
-                        <span className="font-medium text-sm">+</span>
-                      </div>
-                    </MembersPopover>
-                  </div>
-                </div>
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      setIsEditingTitle(false);
+                      handleUpdate('title', title);
+                    }
+                  }}
+                  autoFocus
+                  className="font-semibold text-xl px-1 text-neutral-700 mb-0.5 border-transparent focus-visible:bg-white focus-visible:border-input"
+                />
               )}
-
-              {/* Labels Section */}
-              {cardData.labels && cardData.labels.length > 0 && (
-                <div>
-                  <p className="text-xs font-semibold text-neutral-700 mb-2">Labels</p>
-                  <div className="flex flex-wrap gap-2">
-                    {cardData.labels.map(label => {
-                      const l = typeof label === 'object' ? label : null;
-                      if (!l) return null;
-                      const colorObj = COLORS.find(c => c.id === l.color) || COLORS[0];
-                      return (
-                        <div key={l._id} className={`h-8 px-3 rounded-sm flex items-center justify-center text-white font-semibold text-sm min-w-[48px] ${colorObj.color.split(' ')[0]}`}>
-                          {l.title}
+              <p className="text-sm text-muted-foreground mb-4">
+                in list <span className="underline">{listName}</span>
+              </p>
+              
+              <div className="flex flex-wrap gap-6 mb-4 w-full">
+                {/* Members Section */}
+                {localMembers && localMembers.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-neutral-700 mb-2">Members</p>
+                    <div className="flex flex-wrap gap-1">
+                      {localMembers.map(m => (
+                        <MemberAvatar key={m._id || m} member={m} />
+                      ))}
+                      <MembersPopover cardMembers={localMembers} onMemberToggle={handleToggleMember}>
+                        <div role="button" className="w-7 h-7 bg-neutral-200/60 hover:bg-neutral-300 rounded-full flex items-center justify-center transition cursor-pointer text-neutral-600">
+                          <span className="font-medium text-sm">+</span>
                         </div>
-                      );
-                    })}
-                    <LabelPopover>
-                      <div role="button" className="h-8 w-10 bg-neutral-200/60 hover:bg-neutral-300 rounded-sm flex items-center justify-center transition cursor-pointer text-neutral-600">
-                        <span className="font-medium text-lg mb-0.5">+</span>
-                      </div>
-                    </LabelPopover>
+                      </MembersPopover>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Dates Section */}
-              {hasDates && (
-                <div>
-                  <p className="text-xs font-semibold text-neutral-700 mb-2">Dates</p>
-                  <div className="flex items-center gap-x-2">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                      checked={cardData.isDateComplete || false}
-                      onChange={toggleDateComplete}
-                    />
-                    <DatePopover>
-                      <div role="button" className="h-8 px-3 bg-neutral-200/60 hover:bg-neutral-300 rounded-sm flex items-center justify-center transition cursor-pointer text-neutral-800 text-sm font-semibold">
-                        {formatCardDate(cardData.startDate, cardData.dueDate, cardData.hasDueTime)}
-                        {cardData.dueDate && (
-                          <span className={`ml-2 px-1.5 py-0.5 rounded-sm text-xs ${badgeColor} flex items-center gap-x-1`}>
-                            {dateStatus === 'complete' && 'complete'}
-                            {dateStatus === 'overdue' && 'overdue'}
-                            {dateStatus === 'due_soon' && 'due soon'}
-                            <ChevronDown className="h-3 w-3" />
-                          </span>
-                        )}
-                      </div>
-                    </DatePopover>
+                {/* Labels Section */}
+                {cardData.labels && cardData.labels.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-neutral-700 mb-2">Labels</p>
+                    <div className="flex flex-wrap gap-2">
+                      {cardData.labels.map(label => {
+                        const l = typeof label === 'object' ? label : null;
+                        if (!l) return null;
+                        const colorObj = COLORS.find(c => c.id === l.color) || COLORS[0];
+                        return (
+                          <div key={l._id} className={`h-8 px-3 rounded-sm flex items-center justify-center text-white font-semibold text-sm min-w-[48px] ${colorObj.color.split(' ')[0]}`}>
+                            {l.title}
+                          </div>
+                        );
+                      })}
+                      <LabelPopover>
+                        <div role="button" className="h-8 w-10 bg-neutral-200/60 hover:bg-neutral-300 rounded-sm flex items-center justify-center transition cursor-pointer text-neutral-600">
+                          <span className="font-medium text-lg mb-0.5">+</span>
+                        </div>
+                      </LabelPopover>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+                )}
 
-        <div className="grid grid-cols-1 md:grid-cols-4 md:gap-4">
-          <div className="col-span-3">
-            {/* Description */}
-            <div className="flex items-start gap-x-3 w-full mb-8">
-              <AlignLeft className="h-5 w-5 mt-0.5 text-neutral-700" />
-              <div className="w-full">
-                <p className="font-semibold text-neutral-700 mb-2">Description</p>
-                {!isEditingDesc ? (
-                  <div
-                    onClick={() => setIsEditingDesc(true)}
-                    role="button"
-                    className="min-h-[78px] bg-neutral-200 text-sm font-medium py-3 px-3.5 rounded-md"
-                  >
-                    {description || "Add a more detailed description..."}
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-y-2">
-                    <Textarea
-                      value={description}
-                      onChange={e => setDescription(e.target.value)}
-                      className="w-full mt-2"
-                      placeholder="Add a more detailed description..."
-                    />
+                {/* Dates Section */}
+                {hasDates && (
+                  <div>
+                    <p className="text-xs font-semibold text-neutral-700 mb-2">Dates</p>
                     <div className="flex items-center gap-x-2">
-                      <Button onClick={() => {
-                        setIsEditingDesc(false);
-                        handleUpdate('description', description);
-                      }}>Save</Button>
-                      <Button variant="ghost" onClick={() => setIsEditingDesc(false)}>Cancel</Button>
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        checked={cardData.isDateComplete || false}
+                        onChange={toggleDateComplete}
+                      />
+                      <DatePopover>
+                        <div role="button" className="h-8 px-3 bg-neutral-200/60 hover:bg-neutral-300 rounded-sm flex items-center justify-center transition cursor-pointer text-neutral-800 text-sm font-semibold">
+                          {formatCardDate(cardData.startDate, cardData.dueDate, cardData.hasDueTime)}
+                          {cardData.dueDate && (
+                            <span className={`ml-2 px-1.5 py-0.5 rounded-sm text-xs ${badgeColor} flex items-center gap-x-1`}>
+                              {dateStatus === 'complete' && 'complete'}
+                              {dateStatus === 'overdue' && 'overdue'}
+                              {dateStatus === 'due_soon' && 'due soon'}
+                              <ChevronDown className="h-3 w-3" />
+                            </span>
+                          )}
+                        </div>
+                      </DatePopover>
                     </div>
                   </div>
                 )}
               </div>
             </div>
+          </div>
 
-            {/* Checklists */}
-            {localChecklists.length > 0 && (
-              <div className="mb-4">
-                <DragDropContext onDragEnd={onDragEnd}>
-                  {localChecklists.map(checklist => (
-                    <Checklist 
-                      key={checklist._id} 
-                      checklist={checklist}
-                      onUpdate={handleUpdateChecklist}
-                      onDelete={() => handleDeleteChecklist(checklist._id)}
-                    />
-                  ))}
-                </DragDropContext>
-              </div>
-            )}
-
-            {/* Activity */}
-            <div className="flex items-start gap-x-3 w-full">
-              <Activity className="h-5 w-5 mt-0.5 text-neutral-700" />
-              <div className="w-full">
-                <p className="font-semibold text-neutral-700 mb-4">Activity</p>
-                <ol className="mt-2 space-y-4">
-                  {logs.map((log) => (
-                    <li key={log._id} className="flex items-center gap-x-2">
-                      <div className="w-8 h-8 bg-purple-700 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                        {log.userName.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="flex flex-col space-y-0.5">
-                        <p className="text-sm text-muted-foreground">
-                          <span className="font-semibold lowercase text-neutral-700 mr-1">{log.userName}</span>
-                          {log.action.toLowerCase()}d card "{log.entityTitle}"
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(log.createdAt), "MMM d, yyyy 'at' h:mm a")}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </div>
+          {/* Description */}
+          <div className="flex items-start gap-x-3 w-full mb-8">
+            <AlignLeft className="h-5 w-5 mt-0.5 text-neutral-700" />
+            <div className="w-full">
+              <p className="font-semibold text-neutral-700 mb-2">Description</p>
+              {!isEditingDesc ? (
+                <div
+                  onClick={() => setIsEditingDesc(true)}
+                  role="button"
+                  className="min-h-[78px] bg-neutral-200 text-sm font-medium py-3 px-3.5 rounded-md"
+                >
+                  {description || "Add a more detailed description..."}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-y-2">
+                  <Textarea
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                    className="w-full mt-2"
+                    placeholder="Add a more detailed description..."
+                  />
+                  <div className="flex items-center gap-x-2">
+                    <Button onClick={() => {
+                      setIsEditingDesc(false);
+                      handleUpdate('description', description);
+                    }}>Save</Button>
+                    <Button variant="ghost" onClick={() => setIsEditingDesc(false)}>Cancel</Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-          
-          <div className="col-span-1">
-            <p className="text-xs font-semibold text-neutral-700 mb-2">Actions</p>
+
+          {/* Checklists */}
+          {localChecklists.length > 0 && (
+            <div className="mb-4">
+              <DragDropContext onDragEnd={onDragEnd}>
+                {localChecklists.map(checklist => (
+                  <Checklist 
+                    key={checklist._id} 
+                    checklist={checklist}
+                    onUpdate={handleUpdateChecklist}
+                    onDelete={() => handleDeleteChecklist(checklist._id)}
+                  />
+                ))}
+              </DragDropContext>
+            </div>
+          )}
+
+          {/* Activity */}
+          <div className="flex items-start gap-x-3 w-full">
+            <Activity className="h-5 w-5 mt-0.5 text-neutral-700" />
+            <div className="w-full">
+              <p className="font-semibold text-neutral-700 mb-4">Activity</p>
+              <ol className="mt-2 space-y-4">
+                {logs.map((log) => (
+                  <li key={log._id} className="flex items-center gap-x-2">
+                    <div className="w-8 h-8 bg-purple-700 text-white rounded-full flex items-center justify-center text-sm font-semibold shrink-0">
+                      {log.userName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex flex-col space-y-0.5">
+                      <p className="text-sm text-muted-foreground">
+                        <span className="font-semibold lowercase text-neutral-700 mr-1">{log.userName}</span>
+                        {log.action.toLowerCase()}d card "{log.entityTitle}"
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(log.createdAt), "MMM d, yyyy 'at' h:mm a")}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </div>
+        
+        <div className="col-span-1 mt-6 md:mt-0 pb-10 md:pb-0">
+          <p className="text-xs font-semibold text-neutral-700 mb-2">Actions</p>
+          <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
             <MembersPopover cardMembers={localMembers} onMemberToggle={handleToggleMember}>
-              <Button variant="gray" className="w-full justify-start mb-2">
+              <Button variant="gray" className="w-full justify-start">
                 <User className="h-4 w-4 mr-2" />
-                Members
+                <span className="hidden sm:inline">Members</span>
+                <span className="sm:hidden text-xs">Members</span>
               </Button>
             </MembersPopover>
             <LabelPopover>
-              <Button variant="gray" className="w-full justify-start mb-2">
+              <Button variant="gray" className="w-full justify-start">
                 <Tag className="h-4 w-4 mr-2" />
-                Labels
+                <span className="hidden sm:inline">Labels</span>
+                <span className="sm:hidden text-xs">Labels</span>
               </Button>
             </LabelPopover>
             <DatePopover>
-              <Button variant="gray" className="w-full justify-start mb-2">
+              <Button variant="gray" className="w-full justify-start">
                 <Clock className="h-4 w-4 mr-2" />
-                Dates
+                <span className="hidden sm:inline">Dates</span>
+                <span className="sm:hidden text-xs">Dates</span>
               </Button>
             </DatePopover>
             <ChecklistPopover onAdd={handleAddChecklist}>
-              <Button variant="gray" className="w-full justify-start mb-2">
+              <Button variant="gray" className="w-full justify-start">
                 <CheckSquare className="h-4 w-4 mr-2" />
-                Checklist
+                <span className="hidden sm:inline">Checklist</span>
+                <span className="sm:hidden text-xs">Checklist</span>
               </Button>
             </ChecklistPopover>
-            <Button variant="gray" className="w-full justify-start mb-2" onClick={handleCopy}>
+            <Button variant="gray" className="w-full justify-start" onClick={handleCopy}>
               <Copy className="h-4 w-4 mr-2" />
-              Copy
+              <span className="hidden sm:inline">Copy</span>
+              <span className="sm:hidden text-xs">Copy</span>
             </Button>
-            <Button variant="gray" className="w-full justify-start mb-2 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleDelete}>
+            <Button variant="gray" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleDelete}>
               <Trash className="h-4 w-4 mr-2" />
-              Delete
+              <span className="hidden sm:inline">Delete</span>
+              <span className="sm:hidden text-xs">Delete</span>
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </ResponsiveModal>
   );
 };

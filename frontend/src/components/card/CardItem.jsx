@@ -27,7 +27,7 @@ export const CardItem = ({ card, index }) => {
           ref={provided.innerRef}
           onClick={() => dispatch(openCardModal(card))}
           role="button"
-          className="border-2 border-transparent hover:border-black py-2 px-3 text-sm bg-white rounded-md shadow-sm"
+          className="border-2 border-transparent hover:border-sky-600 focus:border-sky-600 py-2 px-3 sm:py-2.5 sm:px-3 text-sm bg-white rounded-md shadow-sm active:scale-[0.98] transition-all touch-manipulation"
         >
           {card.labels && card.labels.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-1.5">

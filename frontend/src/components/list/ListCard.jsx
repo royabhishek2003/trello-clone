@@ -61,10 +61,10 @@ export const ListCard = ({ list, index }) => {
         <li 
           {...provided.draggableProps}
           ref={provided.innerRef}
-          className="shrink-0 h-full w-[272px] select-none"
+          className="shrink-0 h-full w-[280px] sm:w-[300px] md:w-[320px] select-none"
         >
-          <div {...provided.dragHandleProps} className="w-full rounded-md bg-[#f1f2f4] shadow-md pb-2">
-            <div className="flex justify-between items-start pt-2 px-2 pb-1">
+          <div {...provided.dragHandleProps} className="w-full rounded-md bg-[#f1f2f4] shadow-md pb-2 max-h-full flex flex-col">
+            <div className="flex justify-between items-start pt-2 px-2 pb-1 sticky top-0 bg-[#f1f2f4] z-10 rounded-t-md">
               {!isEditingTitle ? (
                 <div onClick={() => setIsEditingTitle(true)} className="w-full text-sm font-semibold px-2.5 py-1 h-7 border-transparent cursor-pointer">
                   {list.title}
@@ -122,7 +122,7 @@ export const ListCard = ({ list, index }) => {
                 <ol
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="mx-1 px-1 py-0.5 flex flex-col gap-y-2 min-h-[2px]"
+                  className="mx-1 px-1 py-0.5 flex flex-col gap-y-2 min-h-[2px] overflow-y-auto flex-1 touch-pan-y"
                 >
                   {list.cards?.map((card, idx) => (
                     <CardItem key={card._id} card={card} index={idx} />

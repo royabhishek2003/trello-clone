@@ -9,6 +9,7 @@ import { Input } from '../ui/input';
 import { Plus, X } from 'lucide-react';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import { toast } from 'sonner';
+import { FloatingActionButton } from '../common/FloatingActionButton';
 
 export const ListContainer = ({ boardId }) => {
   const dispatch = useDispatch();
@@ -176,18 +177,20 @@ export const ListContainer = ({ boardId }) => {
           <ol
             {...provided.droppableProps}
             ref={provided.innerRef}
-            className="flex gap-x-3 h-full"
+            className="flex gap-x-3 h-full pb-4 items-start"
           >
             {filteredLists.map((list, index) => (
-              <ListCard key={list._id} list={list} index={index} />
+              <div key={list._id} className="snap-center h-full shrink-0">
+                <ListCard list={list} index={index} />
+              </div>
             ))}
             {provided.placeholder}
             
-            <li className="shrink-0 h-full w-[272px] select-none">
+            <li className="shrink-0 h-full w-[280px] sm:w-[300px] md:w-[320px] select-none snap-center">
               {!isAdding ? (
                 <button
                   onClick={() => setIsAdding(true)}
-                  className="w-full rounded-md bg-white/80 hover:bg-white/50 transition p-3 flex items-center font-medium text-sm text-neutral-800"
+                  className="w-full rounded-md bg-white/80 hover:bg-white/50 transition p-3 flex items-center font-medium text-sm text-neutral-800 backdrop-blur-sm"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add a list
@@ -214,6 +217,20 @@ export const ListContainer = ({ boardId }) => {
         )}
       </Droppable>
     </DragDropContext>
+    {!isAdding && (
+      <FloatingActionButton 
+        onClick={() => {
+          setIsAdding(true);
+          // Scroll to right if needed, though adding a new list is best handled by simply toggling the form
+          setTimeout(() => {
+            const listContainer = document.querySelector('.snap-x-mandatory');
+            if (listContainer) {
+              listContainer.scrollTo({ left: listContainer.scrollWidth, behavior: 'smooth' });
+            }
+          }, 100);
+        }} 
+      />
+    )}
     </div>
   );
 };

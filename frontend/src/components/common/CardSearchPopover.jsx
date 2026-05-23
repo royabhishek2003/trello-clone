@@ -172,7 +172,7 @@ export const CardSearchPopover = () => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <div className="relative group w-full md:w-64 max-w-sm">
+        <div className="relative group w-28 sm:w-48 md:w-64 max-w-sm shrink-0">
           <Search className="absolute left-2.5 top-[9px] h-4 w-4 text-slate-400 group-hover:text-slate-500 transition" />
           <Input 
             ref={inputRef}

@@ -21,7 +21,7 @@ export const Sidebar = () => {
   };
 
   return (
-    <div className="w-64 shrink-0 hidden md:block">
+    <div className="w-full">
       <div className="font-medium text-xs flex items-center mb-1 justify-between text-neutral-500">
         <span className="pl-4">Workspaces</span>
         <CreateOrgModal trigger={
