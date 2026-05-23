@@ -61,6 +61,10 @@ const CardSchema = new mongoose.Schema(
         dueDate: { type: Date, default: null },
         hasDueTime: { type: Boolean, default: false }
       }]
+    }],
+    attachments: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Attachment'
     }]
   },
   {

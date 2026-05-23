@@ -47,6 +47,7 @@ app.use('/api/cards', require('./routes/cards'));
 app.use('/api/labels', require('./routes/labels'));
 app.use('/api/orgs', require('./routes/organizations'));
 app.use('/api/subscriptions', require('./routes/subscriptions'));
+app.use('/api/attachments', require('./routes/attachmentRoutes'));
 
 // Global Error Handler
 app.use(errorHandler);

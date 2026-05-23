@@ -20,7 +20,9 @@ import { ChecklistPopover } from './ChecklistPopover';
 import { Checklist } from './Checklist';
 import { MembersPopover } from './MembersPopover';
 import { MemberAvatar } from '../ui/MemberAvatar';
-import { User } from 'lucide-react';
+import { User, Paperclip } from 'lucide-react';
+import { AttachmentSection } from '../attachment/AttachmentSection';
+import { ImagePreviewModal } from '../attachment/ImagePreviewModal';
 
 export const CardModal = () => {
   const dispatch = useDispatch();
@@ -35,6 +37,8 @@ export const CardModal = () => {
   const [logs, setLogs] = useState([]);
   const [localChecklists, setLocalChecklists] = useState([]);
   const [localMembers, setLocalMembers] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
+  const attachmentRef = React.useRef(null);
 
   // Fetch logs whenever card changes
   useEffect(() => {
@@ -190,11 +194,11 @@ export const CardModal = () => {
     <ResponsiveModal 
       isOpen={isCardModalOpen} 
       onClose={() => dispatch(closeCardModal())}
-      className="max-h-[100dvh] md:max-h-[85vh]"
+      className="max-h-[100dvh] md:max-h-[85vh] md:h-[85vh] flex flex-col p-4 md:p-6"
     >
-      <div className="flex flex-col md:grid md:grid-cols-4 md:gap-4 h-full md:h-auto overflow-hidden">
+      <div className="flex flex-col md:grid md:grid-cols-4 md:gap-4 flex-1 min-h-0 overflow-hidden">
         {/* Header content moved inside to flow better on mobile */}
-        <div className="col-span-3 overflow-y-auto pr-2 pb-20 md:pb-0 touch-pan-y">
+        <div className="col-span-3 overflow-y-auto pr-2 pb-20 md:pb-0 touch-pan-y min-h-0 h-full">
           <div className="flex items-start gap-x-3 mb-6 w-full">
             <Layout className="h-5 w-5 mt-1 text-neutral-700" />
             <div className="w-full">
@@ -333,6 +337,13 @@ export const CardModal = () => {
             </div>
           </div>
 
+          {/* Attachments */}
+          <AttachmentSection 
+            ref={attachmentRef}
+            cardId={cardData._id} 
+            onPreviewImage={(url) => setPreviewImage(url)} 
+          />
+
           {/* Checklists */}
           {localChecklists.length > 0 && (
             <div className="mb-4">
@@ -407,6 +418,15 @@ export const CardModal = () => {
                 <span className="sm:hidden text-xs">Checklist</span>
               </Button>
             </ChecklistPopover>
+            <Button 
+              variant="gray" 
+              className="w-full justify-start"
+              onClick={() => attachmentRef.current?.openDropzone()}
+            >
+              <Paperclip className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Attachment</span>
+              <span className="sm:hidden text-xs">Attachment</span>
+            </Button>
             <Button variant="gray" className="w-full justify-start" onClick={handleCopy}>
               <Copy className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Copy</span>
@@ -420,6 +440,12 @@ export const CardModal = () => {
           </div>
         </div>
       </div>
+
+      <ImagePreviewModal 
+        isOpen={!!previewImage} 
+        imageUrl={previewImage} 
+        onClose={() => setPreviewImage(null)} 
+      />
     </ResponsiveModal>
   );
 };

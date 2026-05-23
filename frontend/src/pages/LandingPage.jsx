@@ -32,6 +32,7 @@ const LandingPage = () => {
         </div>
         <div className="flex items-center gap-x-4">
           <button 
+            type="button"
             onClick={handleDemoLogin} 
             disabled={isLoading}
             className="text-sm font-medium text-slate-700 hover:text-slate-900 border border-slate-300 rounded px-4 py-2 hover:bg-slate-50 transition"
@@ -39,6 +40,7 @@ const LandingPage = () => {
             {isLoading ? 'Loading...' : 'Login'}
           </button>
           <button 
+            type="button"
             onClick={handleDemoLogin}
             disabled={isLoading}
             className="text-sm font-semibold text-white bg-neutral-900 hover:bg-neutral-800 rounded px-4 py-2 transition"
@@ -72,6 +74,7 @@ const LandingPage = () => {
         </p>
 
         <button 
+          type="button"
           onClick={handleDemoLogin}
           disabled={isLoading}
           className="text-lg font-semibold text-white bg-neutral-900 hover:bg-neutral-800 rounded px-8 py-3 transition shadow-sm"
