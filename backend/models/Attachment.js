@@ -33,16 +33,14 @@ const AttachmentSchema = new mongoose.Schema(
       required: true // 'image', 'pdf', 'zip', 'video', 'document', 'other'
     },
     mimeType: {
-      type: String,
-      required: true
+      type: String
     },
     fileSize: {
       type: Number,
-      required: true // in bytes
+      default: 0
     },
     storageKey: {
-      type: String,
-      required: true // S3 object key for deletion
+      type: String
     },
     isImage: {
       type: Boolean,

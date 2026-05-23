@@ -12,10 +12,29 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage }, ref) =>
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showDropzone, setShowDropzone] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkTitle, setLinkTitle] = useState('');
+  const [linkUploading, setLinkUploading] = useState(false);
 
   useImperativeHandle(ref, () => ({
     openDropzone: () => setShowDropzone(true)
   }));
+
+  const handleAddLink = async () => {
+    try {
+      setLinkUploading(true);
+      const newAttachment = await attachmentService.addLinkAttachment(cardId, linkUrl, linkTitle);
+      setAttachments(prev => [newAttachment, ...prev]);
+      toast.success('Link attached');
+      setLinkUrl('');
+      setLinkTitle('');
+      setShowDropzone(false);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to attach link');
+    } finally {
+      setLinkUploading(false);
+    }
+  };
 
   const fetchAttachments = useCallback(async () => {
     try {
@@ -74,6 +93,9 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage }, ref) =>
     }
   };
 
+  const links = attachments.filter(a => a.fileType === 'link');
+  const files = attachments.filter(a => a.fileType !== 'link');
+
   if (loading && attachments.length === 0) {
     return (
       <div className="flex items-start gap-x-3 w-full mb-8">
@@ -106,16 +128,59 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage }, ref) =>
         </div>
 
         {showDropzone && (
-          <AttachmentDropzone 
-            onUpload={handleUpload} 
-            isUploading={uploading} 
-            progress={uploadProgress} 
-          />
+          <div className="mb-4 bg-neutral-50 p-3 border border-neutral-200 rounded-md shadow-sm">
+            <div className="mb-3">
+              <label className="text-xs font-semibold text-neutral-700 mb-1 block">Search or paste a link*</label>
+              <input 
+                value={linkUrl} 
+                onChange={(e) => setLinkUrl(e.target.value)} 
+                placeholder="Find recent links or paste a new link" 
+                className="w-full h-8 px-2 text-sm border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              />
+            </div>
+            <div className="mb-4">
+              <label className="text-xs font-semibold text-neutral-700 mb-1 block">Display text (optional)</label>
+              <input 
+                value={linkTitle} 
+                onChange={(e) => setLinkTitle(e.target.value)} 
+                placeholder="Text to display" 
+                className="w-full h-8 px-2 text-sm border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              />
+            </div>
+            <div className="flex items-center gap-x-2 mb-4">
+              <Button onClick={handleAddLink} disabled={!linkUrl || linkUploading}>Insert</Button>
+              <Button variant="ghost" onClick={() => setShowDropzone(false)}>Cancel</Button>
+            </div>
+            
+            <hr className="mb-4 border-neutral-200" />
+            <p className="text-xs font-semibold text-neutral-700 mb-2">Or choose a file</p>
+            <AttachmentDropzone 
+              onUpload={handleUpload} 
+              isUploading={uploading} 
+              progress={uploadProgress} 
+            />
+          </div>
         )}
 
-        {attachments.length > 0 && (
+        {links.length > 0 && (
+          <div className="mb-6">
+            <p className="text-sm font-semibold text-neutral-700 mb-2">Links</p>
+            {links.map(attachment => (
+              <AttachmentItem 
+                key={attachment._id} 
+                attachment={attachment}
+                onDelete={handleDelete}
+                onRename={handleRename}
+                onPreview={onPreviewImage}
+              />
+            ))}
+          </div>
+        )}
+
+        {files.length > 0 && (
           <div className="mt-2">
-            {attachments.map(attachment => (
+            <p className="text-sm font-semibold text-neutral-700 mb-2">Files</p>
+            {files.map(attachment => (
               <AttachmentItem 
                 key={attachment._id} 
                 attachment={attachment}

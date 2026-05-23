@@ -14,12 +14,16 @@ const bucketName = process.env.AWS_S3_BUCKET_NAME;
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const { GetObjectCommand } = require('@aws-sdk/client-s3');
 
-exports.getFileUrl = async (key) => {
+exports.getFileUrl = async (key, download = false, fileName = '') => {
   if (!bucketName) return '';
-  const command = new GetObjectCommand({
+  const params = {
     Bucket: bucketName,
     Key: key
-  });
+  };
+  if (download && fileName) {
+    params.ResponseContentDisposition = `attachment; filename="${fileName}"`;
+  }
+  const command = new GetObjectCommand(params);
   // URL expires in 1 hour
   return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
 };

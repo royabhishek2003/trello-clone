@@ -21,13 +21,20 @@ const attachmentService = {
     return response.data;
   },
 
+  addLinkAttachment: async (cardId, url, title) => {
+    const response = await api.post(`/api/attachments/${cardId}/link`, { url, title });
+    return response.data;
+  },
+
   deleteAttachment: async (attachmentId) => {
     const response = await api.delete(`/api/attachments/${attachmentId}`);
     return response.data;
   },
 
-  renameAttachment: async (attachmentId, newName) => {
-    const response = await api.patch(`/api/attachments/${attachmentId}`, { fileName: newName });
+  renameAttachment: async (attachmentId, newName, newUrl = null) => {
+    const payload = { fileName: newName };
+    if (newUrl) payload.fileUrl = newUrl;
+    const response = await api.patch(`/api/attachments/${attachmentId}`, payload);
     return response.data;
   }
 };

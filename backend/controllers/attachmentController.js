@@ -78,14 +78,81 @@ const uploadAttachments = async (req, res) => {
     );
 
     // Populate uploader info before sending back
-    const populatedAttachments = await Attachment.find({ _id: { $in: uploadedAttachments.map(a => a._id) } })
+    let populatedAttachments = await Attachment.find({ _id: { $in: uploadedAttachments.map(a => a._id) } })
       .populate('uploader', 'firstName lastName email imageUrl')
       .sort({ createdAt: -1 });
+
+    populatedAttachments = await Promise.all(populatedAttachments.map(async (attachment) => {
+      const downloadUrl = await getFileUrl(attachment.storageKey, true, attachment.fileName);
+      const doc = attachment.toObject();
+      doc.downloadUrl = downloadUrl;
+      return doc;
+    }));
 
     res.status(201).json(populatedAttachments);
   } catch (error) {
     console.error('Attachment upload error:', error);
     res.status(500).json({ error: error.message || 'Failed to upload attachments' });
+  }
+};
+
+// @desc    Add a link attachment to a card
+// @route   POST /api/attachments/:cardId/link
+// @access  Private
+const addLinkAttachment = async (req, res) => {
+  try {
+    const { cardId } = req.params;
+    const { url, title } = req.body;
+
+    if (!url) {
+      return res.status(400).json({ error: 'URL is required' });
+    }
+
+    const card = await Card.findById(cardId).populate({
+      path: 'listId',
+      populate: { path: 'boardId' }
+    });
+
+    if (!card) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+
+    const orgId = card.listId.boardId.orgId;
+
+    // Create the attachment
+    const attachment = new Attachment({
+      cardId,
+      uploader: req.user._id,
+      fileName: title || url,
+      originalName: url,
+      fileUrl: url,
+      fileType: 'link',
+      isImage: false,
+      mimeType: 'text/uri-list',
+      storageKey: ''
+    });
+
+    await attachment.save();
+    card.attachments.push(attachment._id);
+    await card.save();
+
+    await createAuditLog(
+      {
+        entityId: card._id.toString(),
+        entityType: 'CARD',
+        entityTitle: card.title,
+        action: 'UPDATE'
+      },
+      req.user,
+      orgId
+    );
+
+    const populatedAttachment = await Attachment.findById(attachment._id)
+      .populate('uploader', 'firstName lastName email imageUrl');
+
+    res.status(201).json(populatedAttachment);
+  } catch (error) {
+    res.status(500).json({ error: error.message || 'Failed to add link' });
   }
 };
 
@@ -104,12 +171,14 @@ const getCardAttachments = async (req, res) => {
     // Generate fresh presigned URLs for all attachments
     attachments = await Promise.all(attachments.map(async (attachment) => {
       const freshUrl = await getFileUrl(attachment.storageKey);
+      const downloadUrl = await getFileUrl(attachment.storageKey, true, attachment.fileName);
       
       // Update DB asynchronously in background so we don't block the response
       Attachment.updateOne({ _id: attachment._id }, { fileUrl: freshUrl }).catch(err => console.error("Failed to update attachment url", err));
       
       const doc = attachment.toObject();
       doc.fileUrl = freshUrl;
+      doc.downloadUrl = downloadUrl;
       return doc;
     }));
 
@@ -177,7 +246,7 @@ const deleteAttachment = async (req, res) => {
 const renameAttachment = async (req, res) => {
   try {
     const { attachmentId } = req.params;
-    const { fileName } = req.body;
+    const { fileName, fileUrl } = req.body;
 
     if (!fileName || fileName.trim() === '') {
       return res.status(400).json({ error: 'File name is required' });
@@ -189,6 +258,11 @@ const renameAttachment = async (req, res) => {
     }
 
     attachment.fileName = fileName.trim();
+    if (attachment.fileType === 'link' && fileUrl) {
+      attachment.fileUrl = fileUrl.trim();
+      attachment.originalName = fileUrl.trim();
+    }
+    
     await attachment.save();
 
     const populatedAttachment = await Attachment.findById(attachmentId)
@@ -202,6 +276,7 @@ const renameAttachment = async (req, res) => {
 
 module.exports = {
   uploadAttachments,
+  addLinkAttachment,
   getCardAttachments,
   deleteAttachment,
   renameAttachment
