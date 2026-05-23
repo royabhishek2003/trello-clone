@@ -20,7 +20,7 @@ export const ResponsiveModal = ({ isOpen, onClose, title, children, className = 
   if (!isMobile) {
     return (
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className={`max-w-3xl ${className}`}>
+        <DialogContent className={`max-w-5xl w-[95vw] [&>button:last-child]:hidden ${className}`}>
           {title && (
             <DialogHeader>
               <DialogTitle>{title}</DialogTitle>

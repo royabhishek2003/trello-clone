@@ -216,6 +216,11 @@ const removeMember = async (req, res) => {
       return res.status(404).json({ error: 'Organization not found' });
     }
 
+    // Prevent removing the workspace owner
+    if (org.owner.toString() === userId) {
+      return res.status(400).json({ error: 'Cannot remove the workspace owner' });
+    }
+
     const isAdmin = org.members.some(m => m.user.toString() === req.user._id.toString() && m.role === 'admin');
     if (!isAdmin) {
       return res.status(403).json({ error: 'Only admins can remove members' });

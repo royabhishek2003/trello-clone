@@ -115,6 +115,33 @@ body,
     touch-action: pan-x;
   }
   
+  /* Custom Trello-like scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(9, 30, 66, 0.08);
+    border-radius: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(9, 30, 66, 0.14);
+    border-radius: 8px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(9, 30, 66, 0.31);
+  }
+  
+  .dark ::-webkit-scrollbar-track {
+    background: rgba(166, 197, 226, 0.08);
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgba(166, 197, 226, 0.16);
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(166, 197, 226, 0.32);
+  }
+  
   /* Skeleton loading animation */
   .skeleton {
     @apply animate-pulse bg-neutral-200 rounded-md;

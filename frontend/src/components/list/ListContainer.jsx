@@ -180,13 +180,13 @@ export const ListContainer = ({ boardId }) => {
             className="flex gap-x-3 h-full pb-4 items-start"
           >
             {filteredLists.map((list, index) => (
-              <div key={list._id} className="snap-center h-full shrink-0">
+              <div key={list._id} className="h-full shrink-0">
                 <ListCard list={list} index={index} />
               </div>
             ))}
             {provided.placeholder}
             
-            <li className="shrink-0 h-full w-[280px] sm:w-[300px] md:w-[320px] select-none snap-center">
+            <li className="shrink-0 h-full w-[280px] sm:w-[300px] md:w-[320px] select-none">
               {!isAdding ? (
                 <button
                   onClick={() => setIsAdding(true)}

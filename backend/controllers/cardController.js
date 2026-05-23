@@ -25,24 +25,80 @@ const getCard = async (req, res) => {
       return res.status(404).json({ error: 'Card not found' });
     }
 
-    res.json(card);
+    const doc = card.toObject();
+    if (doc.coverImage) {
+      if (doc.coverImage.startsWith('http://') || doc.coverImage.startsWith('https://')) {
+        doc.coverUrl = doc.coverImage;
+      } else {
+        const { getFileUrl } = require('../services/s3Service');
+        doc.coverUrl = await getFileUrl(doc.coverImage);
+      }
+    }
+
+    res.json(doc);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// @desc    Get activity logs for a card
+// @desc    Get activity logs and comments for a card
 // @route   GET /api/cards/:id/activity
 // @access  Private
 const getCardLogs = async (req, res) => {
   try {
     const { id } = req.params;
-    const logs = await AuditLog.find({
-      entityId: id,
-      entityType: 'CARD'
-    }).sort({ createdAt: -1 }).limit(100);
 
-    res.json(logs);
+    // Fetch pagination params
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+
+    const [logs, comments] = await Promise.all([
+      AuditLog.find({
+        entityId: id,
+        entityType: 'CARD'
+      }).lean(),
+      require('../models/Comment').find({
+        cardId: id,
+        isDeleted: false
+      })
+        .populate('userId', 'firstName lastName email imageUrl')
+        .populate('mentions', 'firstName lastName email imageUrl')
+        .lean()
+    ]);
+
+    // Normalize comments to look similar to logs, or just keep them as comments
+    const normalizedComments = comments.map(c => ({
+      ...c,
+      isComment: true,
+      action: 'COMMENT',
+      userName: c.userId ? `${c.userId.firstName} ${c.userId.lastName}` : 'Unknown User',
+      userImage: c.userId ? c.userId.imageUrl : ''
+    }));
+
+    const normalizedLogs = logs.map(l => ({
+      ...l,
+      isComment: false
+    }));
+
+    // Merge and sort descending by date
+    let merged = [...normalizedLogs, ...normalizedComments].sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+
+    // Pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const paginatedResults = merged.slice(startIndex, endIndex);
+
+    res.json({
+      data: paginatedResults,
+      pagination: {
+        page,
+        limit,
+        totalCount: merged.length,
+        totalPages: Math.ceil(merged.length / limit)
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -100,7 +156,7 @@ const createCard = async (req, res) => {
 const updateCard = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, startDate, dueDate, isDateComplete, hasDueTime, checklists, cardMembers } = req.body;
+    const { title, description, startDate, dueDate, isDateComplete, hasDueTime, checklists, cardMembers, coverImage, coverColor } = req.body;
 
     const card = await Card.findById(id).populate('labels').populate('cardMembers', 'firstName lastName email').populate({
       path: 'listId',
@@ -138,6 +194,12 @@ const updateCard = async (req, res) => {
       // Ensure unique IDs
       card.cardMembers = [...new Set(cardMembers)];
     }
+    if (coverImage !== undefined) {
+      card.coverImage = coverImage;
+    }
+    if (coverColor !== undefined) {
+      card.coverColor = coverColor;
+    }
 
     await card.save();
 
@@ -157,7 +219,18 @@ const updateCard = async (req, res) => {
       path: 'listId',
       populate: { path: 'boardId' }
     });
-    res.json(updatedCard);
+    
+    const doc = updatedCard.toObject();
+    if (doc.coverImage) {
+      if (doc.coverImage.startsWith('http://') || doc.coverImage.startsWith('https://')) {
+        doc.coverUrl = doc.coverImage;
+      } else {
+        const { getFileUrl } = require('../services/s3Service');
+        doc.coverUrl = await getFileUrl(doc.coverImage);
+      }
+    }
+    
+    res.json(doc);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -27,7 +27,7 @@ const formatBytes = (bytes, decimals = 2) => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 };
 
-export const AttachmentItem = memo(({ attachment, onDelete, onRename, onPreview }) => {
+export const AttachmentItem = memo(({ attachment, onDelete, onRename, onPreview, isCover, onSetCover, onRemoveCover }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(attachment.fileName);
   const [newUrl, setNewUrl] = useState(attachment.fileUrl || '');
@@ -81,7 +81,11 @@ export const AttachmentItem = memo(({ attachment, onDelete, onRename, onPreview 
         handleDownload();
         break;
       case 'cover':
-        toast.info('Make cover feature coming soon!');
+        if (isCover) {
+          onRemoveCover();
+        } else {
+          onSetCover();
+        }
         break;
       case 'remove':
         onDelete(attachment._id);
@@ -196,9 +200,11 @@ export const AttachmentItem = memo(({ attachment, onDelete, onRename, onPreview 
                       <Button variant="ghost" className="justify-start h-8 px-2 hover:bg-[#A6C5E229] hover:text-[#B6C2CF] rounded-sm text-sm font-normal" onClick={() => handleAction('download')}>
                         Download
                       </Button>
-                      <Button variant="ghost" className="justify-start h-8 px-2 hover:bg-[#A6C5E229] hover:text-[#B6C2CF] rounded-sm text-sm font-normal" onClick={() => handleAction('cover')}>
-                        Make cover
-                      </Button>
+                      {attachment.isImage && (
+                        <Button variant="ghost" className="justify-start h-8 px-2 hover:bg-[#A6C5E229] hover:text-[#B6C2CF] rounded-sm text-sm font-normal" onClick={() => handleAction('cover')}>
+                          {isCover ? 'Remove cover' : 'Make cover'}
+                        </Button>
+                      )}
                     </>
                   )}
                   <Button variant="ghost" className="justify-start h-8 px-2 text-[#EF5C48] hover:bg-[#A6C5E229] hover:text-[#EF5C48] rounded-sm text-sm font-normal" onClick={() => handleAction('remove')}>

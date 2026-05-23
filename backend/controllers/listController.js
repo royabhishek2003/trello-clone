@@ -16,11 +16,23 @@ const getLists = async (req, res) => {
     const lists = await List.find({ boardId }).sort({ order: 1 }).lean();
     const listIds = lists.map(l => l._id);
     
-    const cards = await Card.find({ listId: { $in: listIds } })
+    let cards = await Card.find({ listId: { $in: listIds } })
       .populate('labels')
       .populate('cardMembers', 'firstName lastName email')
       .sort({ order: 1 })
       .lean();
+    
+    const { getFileUrl } = require('../services/s3Service');
+    cards = await Promise.all(cards.map(async (card) => {
+      if (card.coverImage) {
+        if (card.coverImage.startsWith('http://') || card.coverImage.startsWith('https://')) {
+          card.coverUrl = card.coverImage;
+        } else {
+          card.coverUrl = await getFileUrl(card.coverImage);
+        }
+      }
+      return card;
+    }));
     
     lists.forEach(list => {
       list.cards = cards.filter(card => card.listId.toString() === list._id.toString());

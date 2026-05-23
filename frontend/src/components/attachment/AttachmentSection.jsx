@@ -6,7 +6,7 @@ import { AttachmentDropzone } from './AttachmentDropzone';
 import attachmentService from '../../services/attachmentService';
 import { Button } from '../ui/button';
 
-export const AttachmentSection = forwardRef(({ cardId, onPreviewImage }, ref) => {
+export const AttachmentSection = forwardRef(({ cardId, onPreviewImage, coverImageKey, onSetCover }, ref) => {
   const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -41,7 +41,7 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage }, ref) =>
       setLoading(true);
       const data = await attachmentService.getAttachments(cardId);
       setAttachments(data);
-    } catch (err) {
+    } catch (error) {
       toast.error('Failed to load attachments');
     } finally {
       setLoading(false);
@@ -52,21 +52,21 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage }, ref) =>
     fetchAttachments();
   }, [fetchAttachments]);
 
-  const handleUpload = async (files) => {
+  const handleUpload = async (acceptedFiles) => {
     try {
       setUploading(true);
       setUploadProgress(0);
       
-      const newAttachments = await attachmentService.uploadAttachments(cardId, files, (progressEvent) => {
+      const newAttachments = await attachmentService.uploadAttachments(cardId, acceptedFiles, (progressEvent) => {
         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         setUploadProgress(percentCompleted);
       });
       
       setAttachments(prev => [...newAttachments, ...prev]);
-      toast.success(`${files.length} file(s) uploaded`);
+      toast.success(`${acceptedFiles.length} file(s) attached`);
       setShowDropzone(false);
-    } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to upload files');
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Upload failed');
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -75,20 +75,24 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage }, ref) =>
 
   const handleDelete = async (attachmentId) => {
     try {
+      const attachment = attachments.find(a => a._id === attachmentId);
       await attachmentService.deleteAttachment(attachmentId);
       setAttachments(prev => prev.filter(a => a._id !== attachmentId));
       toast.success('Attachment deleted');
-    } catch (err) {
+      if (attachment && attachment.storageKey === coverImageKey) {
+        onSetCover(null);
+      }
+    } catch (error) {
       toast.error('Failed to delete attachment');
     }
   };
 
-  const handleRename = async (attachmentId, newName) => {
+  const handleRename = async (attachmentId, newName, newUrl = null) => {
     try {
-      const updated = await attachmentService.renameAttachment(attachmentId, newName);
+      const updated = await attachmentService.renameAttachment(attachmentId, newName, newUrl);
       setAttachments(prev => prev.map(a => a._id === attachmentId ? updated : a));
-      toast.success('Attachment renamed');
-    } catch (err) {
+      toast.success('Attachment updated');
+    } catch (error) {
       toast.error('Failed to rename attachment');
     }
   };
@@ -187,6 +191,9 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage }, ref) =>
                 onDelete={handleDelete}
                 onRename={handleRename}
                 onPreview={onPreviewImage}
+                isCover={attachment.storageKey === coverImageKey}
+                onSetCover={() => onSetCover(attachment.storageKey)}
+                onRemoveCover={() => onSetCover(null)}
               />
             ))}
           </div>

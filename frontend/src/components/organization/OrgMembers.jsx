@@ -187,6 +187,7 @@ const OrgMembers = () => {
           <div className="space-y-1">
             {orgData.members.map((member, index) => {
               const isYou = member.user._id === user._id;
+              const isOwner = orgData.owner?._id === member.user._id || orgData.owner === member.user._id;
               
               return (
                 <div key={member.user._id} className="grid grid-cols-12 items-center py-3 border-b border-neutral-100 last:border-0">
@@ -215,7 +216,7 @@ const OrgMembers = () => {
                       <select 
                         value={member.role} 
                         onChange={(e) => handleChangeRole(member.user._id, e.target.value)}
-                        disabled={!isAdmin || isYou}
+                        disabled={!isAdmin || isYou || isOwner}
                         className="h-8 w-[100px] text-xs rounded-md border border-input bg-background px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <option value="admin">Admin</option>
@@ -225,7 +226,7 @@ const OrgMembers = () => {
                       <span className="text-sm text-neutral-600 capitalize">{member.role}</span>
                     )}
                     
-                    {isAdmin && (
+                    {isAdmin && !isOwner && (
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0 text-neutral-500 hover:text-neutral-700">
@@ -244,6 +245,11 @@ const OrgMembers = () => {
                           </PopoverClose>
                         </PopoverContent>
                       </Popover>
+                    )}
+                    {isAdmin && isOwner && (
+                      <Button variant="ghost" className="h-8 w-8 p-0 text-neutral-300 cursor-not-allowed" disabled>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
                     )}
                   </div>
                 </div>

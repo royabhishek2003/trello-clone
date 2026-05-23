@@ -4,7 +4,7 @@ import { ResponsiveModal } from '../common/ResponsiveModal';
 import { closeCardModal } from '../../redux/slices/uiSlice';
 import { updateCard, deleteCard, copyCard } from '../../redux/slices/cardSlice';
 import { fetchLists } from '../../redux/slices/listSlice';
-import { Layout, AlignLeft, CreditCard, Trash, Copy, Activity, Tag, Clock, ChevronDown, CheckSquare } from 'lucide-react';
+import { Layout, AlignLeft, CreditCard, Trash, Copy, Activity, Tag, Clock, ChevronDown, CheckSquare, Plus, Image as ImageIcon, MoreHorizontal, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -23,32 +23,49 @@ import { MemberAvatar } from '../ui/MemberAvatar';
 import { User, Paperclip } from 'lucide-react';
 import { AttachmentSection } from '../attachment/AttachmentSection';
 import { ImagePreviewModal } from '../attachment/ImagePreviewModal';
+import { CommentInput } from './CommentInput';
+import { ActivityItem } from './ActivityItem';
+import { CoverPopover } from './CoverPopover';
 
 export const CardModal = () => {
   const dispatch = useDispatch();
   const { isCardModalOpen, cardData } = useSelector(state => state.ui);
   const { currentBoard } = useSelector(state => state.boards);
+  const { currentOrg } = useSelector(state => state.organizations);
   const { lists } = useSelector(state => state.lists);
   
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
+  const [showDetails, setShowDetails] = useState(true);
   const [logs, setLogs] = useState([]);
+  const [orgMembers, setOrgMembers] = useState([]);
   const [localChecklists, setLocalChecklists] = useState([]);
   const [localMembers, setLocalMembers] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
   const attachmentRef = React.useRef(null);
+
+  // Fetch org members for mentions
+  useEffect(() => {
+    if (currentOrg?._id) {
+      api.get(`/api/orgs/${currentOrg._id}`)
+        .then(res => setOrgMembers(res.data?.members?.map(m => m.user) || []))
+        .catch(err => console.error("Failed to fetch org details", err));
+    }
+  }, [currentOrg]);
 
   // Fetch logs whenever card changes
   useEffect(() => {
     if (cardData && isCardModalOpen) {
       setTitle(cardData.title);
       setDescription(cardData.description || '');
+      setIsEditingTitle(false);
+      setIsEditingDesc(false);
       setLocalChecklists(cardData.checklists || []);
       setLocalMembers(cardData.cardMembers || []);
       api.get(`/api/cards/${cardData._id}/activity`)
-        .then(res => setLogs(res.data))
+        .then(res => setLogs(res.data.data || res.data))
         .catch(err => console.error("Failed to fetch logs", err));
     }
   }, [cardData, isCardModalOpen]);
@@ -72,7 +89,18 @@ export const CardModal = () => {
       .catch((err) => toast.error(err || "Failed to update card"));
     if (currentBoard?._id) {
       dispatch(fetchLists(currentBoard._id));
-      api.get(`/api/cards/${cardData._id}/activity`).then(res => setLogs(res.data));
+      api.get(`/api/cards/${cardData._id}/activity`).then(res => setLogs(res.data.data || res.data));
+    }
+  };
+
+  const handleRemoveCover = async () => {
+    await dispatch(updateCard({ id: cardData._id, data: { coverImage: null, coverColor: null } }))
+      .unwrap()
+      .then(() => toast.success("Cover removed"))
+      .catch((err) => toast.error(err || "Failed to remove cover"));
+    if (currentBoard?._id) {
+      dispatch(fetchLists(currentBoard._id));
+      api.get(`/api/cards/${cardData._id}/activity`).then(res => setLogs(res.data.data || res.data));
     }
   };
 
@@ -182,6 +210,54 @@ export const CardModal = () => {
     }
   };
 
+  const handleAddComment = async (optimisticComment, rawText) => {
+    // Optimistic UI
+    setLogs(prev => [optimisticComment, ...prev]);
+
+    const mentionRegex = /@(\w+)/g;
+    const matches = rawText.match(mentionRegex) || [];
+    
+    const mentions = matches.map(m => {
+      const username = m.slice(1).toLowerCase();
+      const user = orgMembers.find(b => 
+        (b.firstName + b.lastName).toLowerCase() === username
+      );
+      return user ? user._id : null;
+    }).filter(Boolean);
+
+    try {
+      const { data } = await api.post(`/api/cards/${cardData._id}/comments`, {
+        text: rawText,
+        mentions
+      });
+      // Ensure backend returns normalized comment structure for ActivityItem
+      const normalizedComment = {
+        ...data,
+        isComment: true,
+        action: 'COMMENT',
+        userName: data.userId ? `${data.userId.firstName} ${data.userId.lastName}` : 'Unknown',
+        userImage: data.userId ? data.userId.imageUrl : ''
+      };
+      setLogs(prev => prev.map(log => log._id === optimisticComment._id ? normalizedComment : log));
+    } catch (err) {
+      toast.error('Failed to post comment');
+      setLogs(prev => prev.filter(log => log._id !== optimisticComment._id));
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    // Optimistic UI delete
+    const previousLogs = [...logs];
+    setLogs(prev => prev.filter(log => log._id !== commentId));
+    try {
+      await api.delete(`/api/comments/${commentId}`);
+      toast.success('Comment deleted');
+    } catch (err) {
+      toast.error('Failed to delete comment');
+      setLogs(previousLogs);
+    }
+  };
+
   const toggleDateComplete = () => {
     handleUpdate('isDateComplete', !cardData.isDateComplete);
   };
@@ -190,22 +266,62 @@ export const CardModal = () => {
   const dateStatus = getCardDateStatus(cardData.dueDate, cardData.isDateComplete);
   const badgeColor = getBadgeColor(dateStatus);
 
+  const filteredLogs = showDetails ? logs : logs.filter(log => log.isComment);
+
+  const hasCover = cardData?.coverUrl || cardData?.coverColor;
+  const topButtonStyle = hasCover 
+    ? "bg-black/30 text-white hover:bg-black/50 border-none"
+    : "bg-transparent text-neutral-600 hover:bg-neutral-200 border-none";
+  const coverColorClass = cardData?.coverColor ? COLORS.find(c => c.id === cardData.coverColor)?.color.split(' ')[0] : '';
+
   return (
     <ResponsiveModal 
       isOpen={isCardModalOpen} 
       onClose={() => dispatch(closeCardModal())}
-      className="max-h-[100dvh] md:max-h-[85vh] md:h-[85vh] flex flex-col p-4 md:p-6"
+      className="max-h-[100dvh] md:max-h-[85vh] md:h-[85vh] flex flex-col overflow-hidden p-4 md:p-6"
     >
-      <div className="flex flex-col md:grid md:grid-cols-4 md:gap-4 flex-1 min-h-0 overflow-hidden">
-        {/* Header content moved inside to flow better on mobile */}
-        <div className="col-span-3 overflow-y-auto pr-2 pb-20 md:pb-0 touch-pan-y min-h-0 h-full">
-          <div className="flex items-start gap-x-3 mb-6 w-full">
+      {/* Top Right Action Buttons */}
+      <div className="absolute top-4 right-4 z-[60] flex items-center gap-x-2">
+        <CoverPopover onUploadClick={() => attachmentRef.current?.openDropzone()}>
+          <Button variant="outline" size="icon" className={`h-8 w-8 rounded-full ${topButtonStyle}`}>
+            <ImageIcon className="h-4 w-4" />
+          </Button>
+        </CoverPopover>
+        <Button variant="outline" size="icon" className={`h-8 w-8 rounded-full ${topButtonStyle}`}>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon" className={`h-8 w-8 rounded-full ${topButtonStyle}`} onClick={() => dispatch(closeCardModal())}>
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {hasCover && (
+        <div className={`w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] -mx-4 md:-mx-6 -mt-4 md:-mt-6 mb-4 h-[160px] shrink-0 relative group ${coverColorClass || 'bg-neutral-200'}`}>
+          {cardData.coverUrl && (
+            <img 
+              src={cardData.coverUrl} 
+              alt="Cover" 
+              className="w-full h-full object-cover rounded-t-lg" 
+            />
+          )}
+          <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button variant="gray" size="sm" onClick={handleRemoveCover}>
+              <Layout className="h-4 w-4 mr-2" />
+              Remove cover
+            </Button>
+          </div>
+        </div>
+      )}
+      <div className={`flex flex-col lg:grid lg:grid-cols-5 lg:gap-6 flex-1 min-h-0 overflow-hidden ${!hasCover ? 'pt-8' : ''}`}>
+        {/* Left Column */}
+        <div className="lg:col-span-3 pb-8 lg:pb-0 overflow-y-auto pr-2 custom-scrollbar min-h-0 h-full">
+          <div className="flex items-start gap-x-3 mb-4 w-full">
             <Layout className="h-5 w-5 mt-1 text-neutral-700" />
             <div className="w-full">
               {!isEditingTitle ? (
                 <div 
                   onClick={() => setIsEditingTitle(true)}
-                  className="font-semibold text-xl mb-1 cursor-pointer"
+                  className="font-semibold text-xl mb-1 cursor-pointer text-neutral-800"
                 >
                   {title}
                 </div>
@@ -224,12 +340,61 @@ export const CardModal = () => {
                     }
                   }}
                   autoFocus
-                  className="font-semibold text-xl px-1 text-neutral-700 mb-0.5 border-transparent focus-visible:bg-white focus-visible:border-input"
+                  className="font-semibold text-xl px-1 text-neutral-800 mb-0.5 border-transparent focus-visible:bg-white focus-visible:border-input"
                 />
               )}
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-neutral-500 mb-4">
                 in list <span className="underline">{listName}</span>
               </p>
+
+              {/* Action Buttons Row */}
+              <div className="flex flex-wrap gap-2 mb-6 ml-0">
+                <Button variant="gray" size="sm" className="h-8">
+                  <Plus className="h-4 w-4 mr-1.5" />
+                  Add
+                </Button>
+                <ChecklistPopover onAdd={handleAddChecklist}>
+                  <Button variant="gray" size="sm" className="h-8">
+                    <CheckSquare className="h-4 w-4 mr-1.5" />
+                    Checklist
+                  </Button>
+                </ChecklistPopover>
+                <MembersPopover cardMembers={localMembers} onMemberToggle={handleToggleMember}>
+                  <Button variant="gray" size="sm" className="h-8">
+                    <User className="h-4 w-4 mr-1.5" />
+                    Members
+                  </Button>
+                </MembersPopover>
+                <Button 
+                  variant="gray" 
+                  size="sm"
+                  className="h-8"
+                  onClick={() => attachmentRef.current?.openDropzone()}
+                >
+                  <Paperclip className="h-4 w-4 mr-1.5" />
+                  Attachment
+                </Button>
+                <LabelPopover>
+                  <Button variant="gray" size="sm" className="h-8">
+                    <Tag className="h-4 w-4 mr-1.5" />
+                    Labels
+                  </Button>
+                </LabelPopover>
+                <DatePopover>
+                  <Button variant="gray" size="sm" className="h-8">
+                    <Clock className="h-4 w-4 mr-1.5" />
+                    Dates
+                  </Button>
+                </DatePopover>
+                <Button variant="gray" size="sm" className="h-8" onClick={handleCopy}>
+                  <Copy className="h-4 w-4 mr-1.5" />
+                  Copy
+                </Button>
+                <Button variant="gray" size="sm" className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleDelete}>
+                  <Trash className="h-4 w-4 mr-1.5" />
+                  Delete
+                </Button>
+              </div>
               
               <div className="flex flex-wrap gap-6 mb-4 w-full">
                 {/* Members Section */}
@@ -276,7 +441,7 @@ export const CardModal = () => {
                 {/* Dates Section */}
                 {hasDates && (
                   <div>
-                    <p className="text-xs font-semibold text-neutral-700 mb-2">Dates</p>
+                    <p className="text-xs font-semibold text-neutral-700 mb-2">Due date</p>
                     <div className="flex items-center gap-x-2">
                       <input 
                         type="checkbox" 
@@ -308,12 +473,17 @@ export const CardModal = () => {
           <div className="flex items-start gap-x-3 w-full mb-8">
             <AlignLeft className="h-5 w-5 mt-0.5 text-neutral-700" />
             <div className="w-full">
-              <p className="font-semibold text-neutral-700 mb-2">Description</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-semibold text-neutral-800">Description</p>
+                {description && !isEditingDesc && (
+                  <Button variant="gray" size="sm" onClick={() => setIsEditingDesc(true)}>Edit</Button>
+                )}
+              </div>
               {!isEditingDesc ? (
                 <div
                   onClick={() => setIsEditingDesc(true)}
                   role="button"
-                  className="min-h-[78px] bg-neutral-200 text-sm font-medium py-3 px-3.5 rounded-md"
+                  className="min-h-[78px] bg-neutral-200/60 hover:bg-neutral-300/80 transition text-sm font-medium py-3 px-3.5 rounded-md"
                 >
                   {description || "Add a more detailed description..."}
                 </div>
@@ -324,6 +494,7 @@ export const CardModal = () => {
                     onChange={e => setDescription(e.target.value)}
                     className="w-full mt-2"
                     placeholder="Add a more detailed description..."
+                    autoFocus
                   />
                   <div className="flex items-center gap-x-2">
                     <Button onClick={() => {
@@ -341,12 +512,14 @@ export const CardModal = () => {
           <AttachmentSection 
             ref={attachmentRef}
             cardId={cardData._id} 
-            onPreviewImage={(url) => setPreviewImage(url)} 
+            onPreviewImage={(url) => setPreviewImage(url)}
+            coverImageKey={cardData.coverImage}
+            onSetCover={(key) => handleUpdate('coverImage', key)}
           />
 
           {/* Checklists */}
           {localChecklists.length > 0 && (
-            <div className="mb-4">
+            <div className="mb-4 mt-8">
               <DragDropContext onDragEnd={onDragEnd}>
                 {localChecklists.map(checklist => (
                   <Checklist 
@@ -359,85 +532,35 @@ export const CardModal = () => {
               </DragDropContext>
             </div>
           )}
-
-          {/* Activity */}
-          <div className="flex items-start gap-x-3 w-full">
-            <Activity className="h-5 w-5 mt-0.5 text-neutral-700" />
-            <div className="w-full">
-              <p className="font-semibold text-neutral-700 mb-4">Activity</p>
-              <ol className="mt-2 space-y-4">
-                {logs.map((log) => (
-                  <li key={log._id} className="flex items-center gap-x-2">
-                    <div className="w-8 h-8 bg-purple-700 text-white rounded-full flex items-center justify-center text-sm font-semibold shrink-0">
-                      {log.userName.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex flex-col space-y-0.5">
-                      <p className="text-sm text-muted-foreground">
-                        <span className="font-semibold lowercase text-neutral-700 mr-1">{log.userName}</span>
-                        {log.action.toLowerCase()}d card "{log.entityTitle}"
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {format(new Date(log.createdAt), "MMM d, yyyy 'at' h:mm a")}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
         </div>
         
-        <div className="col-span-1 mt-6 md:mt-0 pb-10 md:pb-0">
-          <p className="text-xs font-semibold text-neutral-700 mb-2">Actions</p>
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
-            <MembersPopover cardMembers={localMembers} onMemberToggle={handleToggleMember}>
-              <Button variant="gray" className="w-full justify-start">
-                <User className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Members</span>
-                <span className="sm:hidden text-xs">Members</span>
-              </Button>
-            </MembersPopover>
-            <LabelPopover>
-              <Button variant="gray" className="w-full justify-start">
-                <Tag className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Labels</span>
-                <span className="sm:hidden text-xs">Labels</span>
-              </Button>
-            </LabelPopover>
-            <DatePopover>
-              <Button variant="gray" className="w-full justify-start">
-                <Clock className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Dates</span>
-                <span className="sm:hidden text-xs">Dates</span>
-              </Button>
-            </DatePopover>
-            <ChecklistPopover onAdd={handleAddChecklist}>
-              <Button variant="gray" className="w-full justify-start">
-                <CheckSquare className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Checklist</span>
-                <span className="sm:hidden text-xs">Checklist</span>
-              </Button>
-            </ChecklistPopover>
-            <Button 
-              variant="gray" 
-              className="w-full justify-start"
-              onClick={() => attachmentRef.current?.openDropzone()}
-            >
-              <Paperclip className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Attachment</span>
-              <span className="sm:hidden text-xs">Attachment</span>
-            </Button>
-            <Button variant="gray" className="w-full justify-start" onClick={handleCopy}>
-              <Copy className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Copy</span>
-              <span className="sm:hidden text-xs">Copy</span>
-            </Button>
-            <Button variant="gray" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleDelete}>
-              <Trash className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Delete</span>
-              <span className="sm:hidden text-xs">Delete</span>
+        {/* Right Column: Comments and Activity */}
+        <div className="lg:col-span-2 pb-10 lg:pb-0 h-full flex flex-col overflow-y-auto pr-2 custom-scrollbar min-h-0">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-x-3">
+              <Activity className="h-5 w-5 text-neutral-700" />
+              <h3 className="font-semibold text-neutral-800">Comments and activity</h3>
+            </div>
+            <Button variant="gray" size="sm" onClick={() => setShowDetails(!showDetails)}>
+              {showDetails ? 'Hide details' : 'Show details'}
             </Button>
           </div>
+
+          <CommentInput 
+            cardId={cardData._id}
+            boardMembers={orgMembers}
+            onAddComment={handleAddComment}
+          />
+
+          <ol className="mt-4 space-y-2">
+            {filteredLogs.map((log) => (
+              <ActivityItem 
+                key={log._id} 
+                log={log} 
+                onDelete={handleDeleteComment} 
+              />
+            ))}
+          </ol>
         </div>
       </div>
 

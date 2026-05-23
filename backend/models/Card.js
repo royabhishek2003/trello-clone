@@ -62,6 +62,14 @@ const CardSchema = new mongoose.Schema(
         hasDueTime: { type: Boolean, default: false }
       }]
     }],
+    coverImage: {
+      type: String,
+      default: null
+    },
+    coverColor: {
+      type: String,
+      default: null
+    },
     attachments: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Attachment'
