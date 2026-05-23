@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Navbar } from '../components/common/Navbar';
 import { Sidebar } from '../components/common/Sidebar';
+import { MobileDrawer } from '../components/common/MobileDrawer';
+import { ResponsiveBoardShell } from '../components/common/ResponsiveBoardShell';
 import { Activity } from 'lucide-react';
 import api from '../services/api';
 import { format } from 'date-fns';
@@ -10,6 +12,7 @@ const OrgActivity = () => {
   const { currentOrg } = useSelector(state => state.organizations);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (currentOrg) {
@@ -24,15 +27,28 @@ const OrgActivity = () => {
   if (!currentOrg) return <div className="pt-20 text-center">Loading...</div>;
 
   return (
-    <div className="h-full">
-      <Navbar />
-      <main className="pt-20 md:pt-24 px-4 max-w-6xl 2xl:max-w-screen-xl mx-auto">
-        <div className="flex gap-x-7">
-          <div className="w-64 shrink-0 hidden md:block">
+    <ResponsiveBoardShell
+      header={<Navbar onMenuClick={() => setIsSidebarOpen(prev => !prev)} title="Activity" />}
+      sidebar={
+        <>
+          <div className="hidden md:block pt-24 px-4 h-[100dvh] overflow-y-auto w-64 shrink-0 border-r bg-background">
             <Sidebar />
           </div>
-          
-          <div className="flex-1 space-y-6">
+          <MobileDrawer
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            title="Menu"
+          >
+            <div className="mt-2">
+              <Sidebar />
+            </div>
+          </MobileDrawer>
+        </>
+      }
+    >
+      <div className="h-full overflow-y-auto px-4 md:px-6 pt-20 md:pt-24 pb-10">
+        <div className="max-w-6xl 2xl:max-w-screen-xl mx-auto flex gap-x-7">
+          <div className="flex-1 min-w-0 space-y-6">
             <div className="flex items-center gap-x-4 mb-8">
               <div className="w-[60px] h-[60px] bg-gradient-to-br from-indigo-500 to-purple-500 rounded-md flex items-center justify-center">
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
@@ -81,8 +97,8 @@ const OrgActivity = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </ResponsiveBoardShell>
   );
 };
 

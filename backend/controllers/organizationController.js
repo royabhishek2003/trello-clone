@@ -119,6 +119,36 @@ const updateOrganization = async (req, res) => {
   }
 };
 
+// @desc    Delete organization
+// @route   DELETE /api/orgs/:id
+// @access  Private
+const deleteOrganization = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const org = await Organization.findById(id);
+    if (!org) {
+      return res.status(404).json({ error: 'Organization not found' });
+    }
+
+    const member = org.members.find((m) => m.user.toString() === req.user._id.toString());
+    if (!member || member.role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can delete organization' });
+    }
+
+    const Board = require('../models/Board');
+    await Board.deleteMany({ organizationId: id });
+    await Organization.findByIdAndDelete(id);
+    
+    // Unset activeOrganization for any users who had it
+    await User.updateMany({ activeOrganization: id }, { $unset: { activeOrganization: 1 } });
+
+    res.json({ message: 'Organization deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // @desc    Get organization activity logs
 // @route   GET /api/orgs/:id/activity
 // @access  Private
@@ -295,6 +325,7 @@ module.exports = {
   createOrganization,
   getOrganization,
   updateOrganization,
+  deleteOrganization,
   getActivityLogs,
   inviteMembers,
   revokeInvitation,

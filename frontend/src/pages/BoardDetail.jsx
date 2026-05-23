@@ -87,7 +87,7 @@ const BoardDetail = () => {
       case 'gradient':
         return { backgroundImage: currentBoard.backgroundValue };
       case 'image':
-        return { backgroundImage: `url(${currentBoard.backgroundValue})` };
+        return { backgroundImage: `url(${currentBoard.backgroundValue || currentBoard.imageFullUrl})` };
       default:
         // Fallback to legacy
         return currentBoard.imageFullUrl ? { backgroundImage: `url(${currentBoard.imageFullUrl})` } : { backgroundColor: '#0079bf' };
@@ -117,12 +117,12 @@ const BoardDetail = () => {
 
       {/* Safe Overlay System for readability */}
       {isImageOrGradient && (
-        <div className="absolute inset-0 bg-black/25 pointer-events-none transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-black/30 pointer-events-none transition-opacity duration-300" />
       )}
       
       <main className="relative pt-14 flex-1 flex flex-col h-full min-w-0">
         <BoardHeader board={currentBoard} />
-        <div className="flex-1 overflow-x-auto overflow-y-hidden p-4 touch-pan-x scrollbar-hide">
+        <div className="flex-1 overflow-x-auto overflow-y-hidden p-4 touch-pan-x scrollbar-hide snap-x-mandatory">
           <ListContainer boardId={id} />
         </div>
       </main>

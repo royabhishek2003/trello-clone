@@ -69,8 +69,8 @@ export const CoverPopover = ({ children, onUploadClick }) => {
       <PopoverTrigger asChild>
         {children}
       </PopoverTrigger>
-      <PopoverContent className="w-80 pt-3 max-h-[80vh] overflow-y-auto custom-scrollbar" align="start" side="bottom">
-        <div className="relative flex items-center justify-center pb-2 mb-4 border-b">
+      <PopoverContent className="w-80 pt-3 max-h-[350px] overflow-y-auto custom-scrollbar" align="start" side="bottom" collisionPadding={16}>
+        <div className="sticky top-0 bg-popover z-10 flex items-center justify-center pb-2 mb-4 border-b">
           <span className="font-semibold text-sm text-neutral-700">Cover</span>
           <Button
             className="absolute right-0 top-0 h-auto w-auto p-1 text-neutral-600"

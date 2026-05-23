@@ -56,7 +56,7 @@ export const Sidebar = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`justify-start font-normal ${location.pathname === '/' && currentOrg?._id === org._id ? 'bg-sky-50 text-sky-700' : ''}`}
+                  className={`justify-start font-normal ${location.pathname === '/' && currentOrg?._id === org._id ? 'bg-sky-100 text-sky-900 font-medium' : ''}`}
                   onClick={() => handleNavigation(org, '/')}
                 >
                   <Layout className="w-4 h-4 mr-2" /> Boards
@@ -72,7 +72,7 @@ export const Sidebar = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`justify-start font-normal ${location.pathname.includes('settings') && currentOrg?._id === org._id ? 'bg-sky-50 text-sky-700' : ''}`}
+                  className={`justify-start font-normal ${location.pathname.includes('settings') && currentOrg?._id === org._id ? 'bg-sky-100 text-sky-900 font-medium' : ''}`}
                   onClick={() => handleNavigation(org, `/organization/${org._id}/settings`)}
                 >
                   <Settings className="w-4 h-4 mr-2" /> Settings
@@ -80,7 +80,7 @@ export const Sidebar = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`justify-start font-normal ${location.pathname.includes('billing') && currentOrg?._id === org._id ? 'bg-sky-50 text-sky-700' : ''}`}
+                  className={`justify-start font-normal ${location.pathname.includes('billing') && currentOrg?._id === org._id ? 'bg-sky-100 text-sky-900 font-medium' : ''}`}
                   onClick={() => handleNavigation(org, `/organization/${org._id}/billing`)}
                 >
                   <CreditCard className="w-4 h-4 mr-2" /> Billing

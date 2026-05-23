@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Navbar } from '../components/common/Navbar';
 import { Sidebar } from '../components/common/Sidebar';
+import { MobileDrawer } from '../components/common/MobileDrawer';
+import { ResponsiveBoardShell } from '../components/common/ResponsiveBoardShell';
 import { checkSubscription } from '../redux/slices/subscriptionSlice';
 import { Button } from '../components/ui/button';
 import { openProModal } from '../redux/slices/uiSlice';
-import { fetchOrganizations } from '../redux/slices/organizationSlice';
+import { fetchOrganizations, deleteOrganization, updateOrganization } from '../redux/slices/organizationSlice';
 import { Settings, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import OrgMembers from '../components/organization/OrgMembers';
 import api from '../services/api';
 import { toast } from 'sonner';
@@ -19,6 +22,9 @@ const OrgSettings = () => {
   const [activeView, setActiveView] = useState('members'); // 'members' | 'settings'
   const [orgName, setOrgName] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (currentOrg) {
@@ -32,15 +38,26 @@ const OrgSettings = () => {
     
     try {
       setIsUpdating(true);
-      await api.patch(`/api/orgs/${currentOrg._id}`, { name: orgName });
+      await dispatch(updateOrganization({ id: currentOrg._id, data: { name: orgName } })).unwrap();
       toast.success('Organization updated successfully');
-      // The name might not update globally unless we fetch orgs again or update redux, 
-      // but the user can see the success. Let's trigger a refetch of orgs.
-      dispatch(fetchOrganizations());
     } catch (error) {
-      toast.error('Failed to update organization');
+      toast.error(error || 'Failed to update organization');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to permanently delete this organization? This action cannot be undone.")) return;
+    
+    try {
+      setIsDeleting(true);
+      await dispatch(deleteOrganization(currentOrg._id)).unwrap();
+      toast.success('Organization deleted successfully');
+      navigate('/');
+    } catch (error) {
+      toast.error(error || 'Failed to delete organization');
+      setIsDeleting(false);
     }
   };
 
@@ -51,15 +68,28 @@ const OrgSettings = () => {
   if (!currentOrg) return <div className="pt-20 text-center">Loading...</div>;
 
   return (
-    <div className="h-full">
-      <Navbar />
-      <main className="pt-20 md:pt-24 px-4 max-w-6xl 2xl:max-w-screen-xl mx-auto">
-        <div className="flex gap-x-7">
-          <div className="w-64 shrink-0 hidden md:block">
+    <ResponsiveBoardShell
+      header={<Navbar onMenuClick={() => setIsSidebarOpen(prev => !prev)} title="Settings" />}
+      sidebar={
+        <>
+          <div className="hidden md:block pt-24 px-4 h-[100dvh] overflow-y-auto w-64 shrink-0 border-r bg-background">
             <Sidebar />
           </div>
-          
-          <div className="flex-1 space-y-6">
+          <MobileDrawer
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            title="Menu"
+          >
+            <div className="mt-2">
+              <Sidebar />
+            </div>
+          </MobileDrawer>
+        </>
+      }
+    >
+      <div className="h-full overflow-y-auto px-4 md:px-6 pt-20 md:pt-24 pb-10">
+        <div className="max-w-6xl 2xl:max-w-screen-xl mx-auto flex gap-x-7">
+          <div className="flex-1 min-w-0 space-y-6">
             <div className="bg-white rounded-xl shadow-sm border border-neutral-200 flex min-h-[500px]">
               {/* Inner Sidebar */}
               <div className="w-[280px] p-4 border-r border-neutral-200 flex flex-col gap-y-1">
@@ -117,9 +147,14 @@ const OrgSettings = () => {
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                           LEAVE ORGANIZATION
                         </Button>
-                        <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 text-xs font-semibold px-4 py-2 h-auto" onClick={() => toast.error("Action disabled in this demo")}>
+                        <Button 
+                          variant="outline" 
+                          className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 text-xs font-semibold px-4 py-2 h-auto" 
+                          onClick={handleDelete}
+                          disabled={isDeleting}
+                        >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                          DELETE ORGANIZATION
+                          {isDeleting ? 'DELETING...' : 'DELETE ORGANIZATION'}
                         </Button>
                       </div>
                     </div>
@@ -193,8 +228,8 @@ const OrgSettings = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </ResponsiveBoardShell>
   );
 };
 

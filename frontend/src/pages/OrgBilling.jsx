@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Navbar } from '../components/common/Navbar';
 import { Sidebar } from '../components/common/Sidebar';
+import { MobileDrawer } from '../components/common/MobileDrawer';
+import { ResponsiveBoardShell } from '../components/common/ResponsiveBoardShell';
 import { checkSubscription } from '../redux/slices/subscriptionSlice';
 import { Button } from '../components/ui/button';
 import { openProModal } from '../redux/slices/uiSlice';
@@ -11,6 +13,7 @@ const OrgBilling = () => {
   const dispatch = useDispatch();
   const { currentOrg } = useSelector(state => state.organizations);
   const { isPro, loading } = useSelector(state => state.subscription);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (currentOrg) {
@@ -39,15 +42,28 @@ const OrgBilling = () => {
   ];
 
   return (
-    <div className="h-full">
-      <Navbar />
-      <main className="pt-20 md:pt-24 px-4 max-w-6xl 2xl:max-w-screen-xl mx-auto">
-        <div className="flex gap-x-7">
-          <div className="w-64 shrink-0 hidden md:block">
+    <ResponsiveBoardShell
+      header={<Navbar onMenuClick={() => setIsSidebarOpen(prev => !prev)} title="Billing" />}
+      sidebar={
+        <>
+          <div className="hidden md:block pt-24 px-4 h-[100dvh] overflow-y-auto w-64 shrink-0 border-r bg-background">
             <Sidebar />
           </div>
-          
-          <div className="flex-1 space-y-6">
+          <MobileDrawer
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            title="Menu"
+          >
+            <div className="mt-2">
+              <Sidebar />
+            </div>
+          </MobileDrawer>
+        </>
+      }
+    >
+      <div className="h-full overflow-y-auto px-4 md:px-6 pt-20 md:pt-24 pb-10">
+        <div className="max-w-6xl 2xl:max-w-screen-xl mx-auto flex gap-x-7">
+          <div className="flex-1 min-w-0 space-y-6">
             {/* Header */}
             <div className="flex items-center gap-x-4 pb-6 border-b border-neutral-200">
               <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shrink-0 shadow-sm">
@@ -133,7 +149,7 @@ const OrgBilling = () => {
                         <h3 className="font-bold text-neutral-800">Pro</h3>
                         {isPro && <span className="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-semibold uppercase ml-1">Current</span>}
                       </div>
-                      <p className="text-2xl font-bold text-neutral-900 mb-4">₹100 <span className="text-sm font-normal text-muted-foreground">/ month</span></p>
+                      <p className="text-2xl font-bold text-neutral-900 mb-4">₹1499 <span className="text-sm font-normal text-muted-foreground">/ month</span></p>
                       <ul className="space-y-2.5">
                         {proFeatures.map((f, i) => (
                           <li key={i} className="flex items-start gap-x-2 text-sm text-neutral-600">
@@ -179,8 +195,8 @@ const OrgBilling = () => {
             )}
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </ResponsiveBoardShell>
   );
 };
 

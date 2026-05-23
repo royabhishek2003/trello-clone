@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Button } from '../ui/button';
 import { Type, Bold, Italic, List, Plus, Paperclip, Smile } from 'lucide-react';
 import { useSelector } from 'react-redux';
 
-export const CommentInput = ({ cardId, boardMembers, onAddComment }) => {
+export const CommentInput = forwardRef(({ cardId, boardMembers, onAddComment }, ref) => {
   const [content, setContent] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [mentionSearch, setMentionSearch] = useState('');
@@ -21,6 +21,19 @@ export const CommentInput = ({ cardId, boardMembers, onAddComment }) => {
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   }, [content]);
+
+  useImperativeHandle(ref, () => ({
+    insertText: (text) => {
+      setContent(prev => prev ? `${prev}\n${text}` : text);
+      setIsExpanded(true);
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          textareaRef.current.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
+        }
+      }, 0);
+    }
+  }));
 
   // Handle Mentions Dropdown
   const filteredMembers = boardMembers.filter(m => 
@@ -185,4 +198,4 @@ export const CommentInput = ({ cardId, boardMembers, onAddComment }) => {
       )}
     </div>
   );
-};
+});

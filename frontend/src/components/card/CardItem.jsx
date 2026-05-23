@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { useDispatch } from 'react-redux';
 import { openCardModal } from '../../redux/slices/uiSlice';
@@ -7,7 +7,7 @@ import { CheckSquare, Paperclip } from 'lucide-react';
 import { getAllChecklistsProgress } from '../../utils/checklistUtils';
 import { MemberAvatar } from '../ui/MemberAvatar';
 
-export const CardItem = ({ card, index }) => {
+export const CardItem = memo(({ card, index }) => {
   const dispatch = useDispatch();
   const { percentage, completedCount, totalCount } = getAllChecklistsProgress(card.checklists);
   const showChecklistBadge = totalCount > 0;
@@ -27,7 +27,7 @@ export const CardItem = ({ card, index }) => {
           ref={provided.innerRef}
           onClick={() => dispatch(openCardModal(card))}
           role="button"
-          className="border-2 border-transparent hover:border-sky-600 focus:border-sky-600 flex flex-col text-sm bg-white rounded-md shadow-sm active:scale-[0.98] transition-all touch-manipulation overflow-hidden shrink-0"
+          className="border-2 border-transparent hover:border-sky-600 focus:border-sky-600 flex flex-col text-sm bg-white rounded-md shadow-card hover:shadow-card-hover active:scale-[0.98] transition-all duration-200 hover:-translate-y-[1px] touch-manipulation overflow-hidden shrink-0"
         >
           {(card.coverUrl || card.coverColor) && (
             <div className={`w-full max-h-[260px] shrink-0 flex overflow-hidden border-b border-black/5 ${card.coverColor ? 'h-8 ' + (card.coverColor === 'green' ? 'bg-green-600' : card.coverColor === 'yellow' ? 'bg-yellow-500' : card.coverColor === 'orange' ? 'bg-orange-500' : card.coverColor === 'red' ? 'bg-red-600' : card.coverColor === 'purple' ? 'bg-purple-600' : card.coverColor === 'blue' ? 'bg-blue-600' : card.coverColor === 'sky' ? 'bg-sky-500' : card.coverColor === 'pink' ? 'bg-pink-600' : card.coverColor === 'lime' ? 'bg-lime-500' : 'bg-slate-800') : 'bg-neutral-200'}`}>
@@ -116,4 +116,6 @@ export const CardItem = ({ card, index }) => {
       )}
     </Draggable>
   );
-};
+});
+
+CardItem.displayName = 'CardItem';

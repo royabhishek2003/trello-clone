@@ -54,6 +54,13 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      boxShadow: {
+        card: '0 1px 1px #091e4240, 0 0 1px #091e424f',
+        'card-hover': '0 4px 8px -2px #091e4240, 0 0 1px #091e424f',
+        modal: '0 8px 16px -4px #091e4240, 0 0 1px #091e424f',
+        popover: '0 4px 12px #091e4226, 0 0 1px #091e424f',
+        list: '0 1px 1px #091e4240, 0 0 1px #091e424f',
+      },
       keyframes: {
         'accordion-down': {
           from: { height: 0 },

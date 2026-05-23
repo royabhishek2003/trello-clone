@@ -6,7 +6,7 @@ import { AttachmentDropzone } from './AttachmentDropzone';
 import attachmentService from '../../services/attachmentService';
 import { Button } from '../ui/button';
 
-export const AttachmentSection = forwardRef(({ cardId, onPreviewImage, coverImageKey, onSetCover }, ref) => {
+export const AttachmentSection = forwardRef(({ cardId, onPreviewImage, coverImageKey, onSetCover, onComment }, ref) => {
   const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -176,6 +176,7 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage, coverImag
                 onDelete={handleDelete}
                 onRename={handleRename}
                 onPreview={onPreviewImage}
+                onComment={onComment}
               />
             ))}
           </div>
@@ -194,6 +195,7 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage, coverImag
                 isCover={attachment.storageKey === coverImageKey}
                 onSetCover={() => onSetCover(attachment.storageKey)}
                 onRemoveCover={() => onSetCover(null)}
+                onComment={onComment}
               />
             ))}
           </div>

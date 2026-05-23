@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { useDispatch } from 'react-redux';
 import { Draggable, Droppable } from '@hello-pangea/dnd';
 import { CardItem } from '../card/CardItem';
@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from '../ui/pop
 import { Separator } from '../ui/separator';
 import { toast } from 'sonner';
 
-export const ListCard = ({ list, index }) => {
+export const ListCard = memo(({ list, index }) => {
   const dispatch = useDispatch();
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [cardTitle, setCardTitle] = useState('');
@@ -61,10 +61,10 @@ export const ListCard = ({ list, index }) => {
         <li 
           {...provided.draggableProps}
           ref={provided.innerRef}
-          className="shrink-0 h-full w-[280px] sm:w-[300px] md:w-[320px] select-none"
+          className="shrink-0 h-full w-[280px] sm:w-[300px] md:w-[320px] select-none snap-center"
         >
-          <div {...provided.dragHandleProps} className="w-full rounded-md bg-[#f1f2f4] shadow-md pb-2 max-h-full flex flex-col">
-            <div className="flex justify-between items-start pt-2 px-2 pb-1 sticky top-0 bg-[#f1f2f4] z-10 rounded-t-md">
+          <div {...provided.dragHandleProps} className="w-full rounded-xl bg-[#f1f2f4] shadow-list pb-2 max-h-full flex flex-col">
+            <div className="flex justify-between items-start pt-2 px-2 pb-1 sticky top-0 bg-[#f1f2f4] z-10 rounded-t-xl">
               {!isEditingTitle ? (
                 <div onClick={() => setIsEditingTitle(true)} className="w-full text-sm font-semibold px-2.5 py-1 h-7 border-transparent cursor-pointer">
                   {list.title}
@@ -164,4 +164,6 @@ export const ListCard = ({ list, index }) => {
       )}
     </Draggable>
   );
-};
+});
+
+ListCard.displayName = 'ListCard';

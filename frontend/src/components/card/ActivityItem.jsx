@@ -1,18 +1,38 @@
 import React from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
+import { Skeleton } from '../ui/skeleton';
+
+export const ActivitySkeleton = () => (
+  <li className="flex items-start gap-x-3 w-full mb-4">
+    <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+    <div className="flex flex-col w-full gap-y-2">
+      <div className="flex items-center gap-x-2">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-3 w-16" />
+      </div>
+      <Skeleton className="h-12 w-full rounded-md" />
+    </div>
+  </li>
+);
 
 export const ActivityItem = React.memo(({ log, onDelete, onEdit }) => {
   const isComment = log.isComment || log.action === 'COMMENT';
 
-  // Parse mentions into styled elements
+  // Parse mentions and markdown links into styled elements
   const renderTextWithMentions = (text) => {
     if (!text) return null;
-    const parts = text.split(/(@\w+)/g);
+    // Regex matches [text](url) OR @mention
+    const regex = /(\[[^\]]+\]\(https?:\/\/[^\s)]+\)|@\w+)/g;
+    const parts = text.split(regex);
     return parts.map((part, i) => {
       if (part.startsWith('@')) {
         return <span key={i} className="text-blue-700 bg-blue-50 px-1 py-0.5 rounded-sm font-medium">{part}</span>;
       }
-      return <span key={i}>{part}</span>;
+      const linkMatch = part.match(/^\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)$/);
+      if (linkMatch) {
+        return <a key={i} href={linkMatch[2]} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{linkMatch[1]}</a>;
+      }
+      return <span key={i} className="whitespace-pre-wrap">{part}</span>;
     });
   };
 

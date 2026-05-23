@@ -24,7 +24,7 @@ import { User, Paperclip } from 'lucide-react';
 import { AttachmentSection } from '../attachment/AttachmentSection';
 import { ImagePreviewModal } from '../attachment/ImagePreviewModal';
 import { CommentInput } from './CommentInput';
-import { ActivityItem } from './ActivityItem';
+import { ActivityItem, ActivitySkeleton } from './ActivityItem';
 import { CoverPopover } from './CoverPopover';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 
@@ -45,7 +45,9 @@ export const CardModal = () => {
   const [localChecklists, setLocalChecklists] = useState([]);
   const [localMembers, setLocalMembers] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
+  const [isLoadingLogs, setIsLoadingLogs] = useState(true);
   const attachmentRef = React.useRef(null);
+  const commentInputRef = React.useRef(null);
 
   // Fetch org members for mentions
   useEffect(() => {
@@ -65,9 +67,16 @@ export const CardModal = () => {
       setIsEditingDesc(false);
       setLocalChecklists(cardData.checklists || []);
       setLocalMembers(cardData.cardMembers || []);
+      setIsLoadingLogs(true);
       api.get(`/api/cards/${cardData._id}/activity`)
-        .then(res => setLogs(res.data.data || res.data))
-        .catch(err => console.error("Failed to fetch logs", err));
+        .then(res => {
+          setLogs(res.data.data || res.data);
+          setIsLoadingLogs(false);
+        })
+        .catch(err => {
+          console.error("Failed to fetch logs", err);
+          setIsLoadingLogs(false);
+        });
     }
   }, [cardData, isCardModalOpen]);
 
@@ -260,6 +269,14 @@ export const CardModal = () => {
     }
   };
 
+  const handleAttachmentComment = (attachment) => {
+    const cleanUrl = attachment.fileUrl.split('?')[0];
+    const textToInsert = `[${attachment.fileName}](${cleanUrl})`;
+    if (commentInputRef.current) {
+      commentInputRef.current.insertText(textToInsert);
+    }
+  };
+
   const toggleDateComplete = () => {
     handleUpdate('isDateComplete', !cardData.isDateComplete);
   };
@@ -350,6 +367,9 @@ export const CardModal = () => {
                     if (e.key === 'Enter') {
                       setIsEditingTitle(false);
                       handleUpdate('title', title);
+                    } else if (e.key === 'Escape') {
+                      setIsEditingTitle(false);
+                      setTitle(cardData.title);
                     }
                   }}
                   autoFocus
@@ -521,13 +541,13 @@ export const CardModal = () => {
             </div>
           </div>
 
-          {/* Attachments */}
           <AttachmentSection 
             ref={attachmentRef}
             cardId={cardData._id} 
             onPreviewImage={(url) => setPreviewImage(url)}
             coverImageKey={cardData.coverImage}
             onSetCover={(key) => handleUpdate('coverImage', key)}
+            onComment={handleAttachmentComment}
           />
 
           {/* Checklists */}
@@ -560,13 +580,19 @@ export const CardModal = () => {
           </div>
 
           <CommentInput 
+            ref={commentInputRef}
             cardId={cardData._id}
             boardMembers={orgMembers}
             onAddComment={handleAddComment}
           />
 
           <ol className="mt-4 space-y-2">
-            {filteredLogs.map((log) => (
+            {isLoadingLogs ? (
+              <>
+                <ActivitySkeleton />
+                <ActivitySkeleton />
+              </>
+            ) : filteredLogs.map((log) => (
               <ActivityItem 
                 key={log._id} 
                 log={log} 

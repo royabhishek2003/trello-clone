@@ -5,6 +5,7 @@ const {
   createOrganization,
   getOrganization,
   updateOrganization,
+  deleteOrganization,
   getActivityLogs,
   inviteMembers,
   revokeInvitation,
@@ -32,7 +33,8 @@ router.route('/:id')
     [body('name', 'Organization name is required').notEmpty()],
     validate,
     updateOrganization
-  );
+  )
+  .delete(deleteOrganization);
 
 router.get('/:id/activity', getActivityLogs);
 

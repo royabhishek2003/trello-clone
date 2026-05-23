@@ -27,7 +27,7 @@ const formatBytes = (bytes, decimals = 2) => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 };
 
-export const AttachmentItem = memo(({ attachment, onDelete, onRename, onPreview, isCover, onSetCover, onRemoveCover }) => {
+export const AttachmentItem = memo(({ attachment, onDelete, onRename, onPreview, isCover, onSetCover, onRemoveCover, onComment }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(attachment.fileName);
   const [newUrl, setNewUrl] = useState(attachment.fileUrl || '');
@@ -75,7 +75,7 @@ export const AttachmentItem = memo(({ attachment, onDelete, onRename, onPreview,
         setIsEditing(true);
         break;
       case 'comment':
-        toast.info('Comment feature coming soon!');
+        if (onComment) onComment(attachment);
         break;
       case 'download':
         handleDownload();

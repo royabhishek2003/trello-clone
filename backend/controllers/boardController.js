@@ -87,7 +87,14 @@ const createBoard = async (req, res) => {
       imageThumbUrl,
       imageFullUrl,
       imageUserName,
-      imageLinkHTML
+      imageLinkHTML,
+      backgroundType: 'image',
+      backgroundValue: imageFullUrl,
+      backgroundThumbnail: imageThumbUrl,
+      backgroundMeta: {
+        userName: imageUserName,
+        linkHTML: imageLinkHTML
+      }
     });
 
     await board.save();

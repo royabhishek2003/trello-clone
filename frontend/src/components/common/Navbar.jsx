@@ -22,7 +22,7 @@ export const Navbar = ({ onMenuClick, title }) => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full h-14 border-b shadow-sm bg-white/95 backdrop-blur-md flex items-center px-4 justify-between z-50">
+    <nav className="fixed top-0 left-0 w-full h-14 border-b shadow-sm bg-white/80 backdrop-blur-xl flex items-center px-4 justify-between z-50">
       <div className="flex items-center gap-x-4">
         {/* Mobile Menu Button */}
         <Button variant="ghost" size="icon" onClick={onMenuClick} className="md:hidden shrink-0">
