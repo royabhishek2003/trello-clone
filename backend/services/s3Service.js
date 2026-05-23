@@ -33,9 +33,10 @@ exports.getFileUrl = async (key, download = false, fileName = '') => {
  * @param {Buffer} buffer - File buffer
  * @param {String} mimetype - File mime type
  * @param {String} originalname - Original file name
+ * @param {String} folder - S3 folder prefix (default: 'attachments')
  * @returns {Promise<{ url: String, key: String }>}
  */
-exports.uploadFile = async (buffer, mimetype, originalname) => {
+exports.uploadFile = async (buffer, mimetype, originalname, folder = 'attachments') => {
   if (!bucketName) {
     throw new Error('AWS_S3_BUCKET_NAME is not configured');
   }
@@ -44,7 +45,7 @@ exports.uploadFile = async (buffer, mimetype, originalname) => {
   const sanitizedName = originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
   const timestamp = Date.now();
   const uuid = uuidv4().substring(0, 8);
-  const key = `attachments/${timestamp}-${uuid}-${sanitizedName}`;
+  const key = `${folder}/${timestamp}-${uuid}-${sanitizedName}`;
 
   const command = new PutObjectCommand({
     Bucket: bucketName,

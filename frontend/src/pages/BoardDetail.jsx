@@ -72,10 +72,35 @@ const BoardDetail = () => {
 
   if (!currentBoard) return <div className="h-[100dvh] flex items-center justify-center text-center">Board not found</div>;
 
+  // Calculate dynamic background style
+  const getBackgroundStyle = () => {
+    if (!currentBoard) return {};
+    
+    // Legacy support
+    if (!currentBoard.backgroundType && currentBoard.imageFullUrl) {
+      return { backgroundImage: `url(${currentBoard.imageFullUrl})` };
+    }
+
+    switch (currentBoard.backgroundType) {
+      case 'color':
+        return { backgroundColor: currentBoard.backgroundValue };
+      case 'gradient':
+        return { backgroundImage: currentBoard.backgroundValue };
+      case 'image':
+        return { backgroundImage: `url(${currentBoard.backgroundValue})` };
+      default:
+        // Fallback to legacy
+        return currentBoard.imageFullUrl ? { backgroundImage: `url(${currentBoard.imageFullUrl})` } : { backgroundColor: '#0079bf' };
+    }
+  };
+
+  const bgStyle = getBackgroundStyle();
+  const isImageOrGradient = currentBoard?.backgroundType === 'image' || currentBoard?.backgroundType === 'gradient' || (!currentBoard?.backgroundType && currentBoard?.imageFullUrl);
+
   return (
     <div 
-      className="relative h-[100dvh] w-full bg-no-repeat bg-cover bg-center overflow-hidden flex flex-col"
-      style={{ backgroundImage: `url(${currentBoard.imageFullUrl})` }}
+      className={`relative h-[100dvh] w-full bg-no-repeat bg-cover bg-center overflow-hidden flex flex-col transition-all duration-300`}
+      style={bgStyle}
     >
       <Navbar onMenuClick={() => setIsSidebarOpen(prev => !prev)} title={currentBoard.title} />
       
@@ -90,7 +115,11 @@ const BoardDetail = () => {
         </div>
       </MobileDrawer>
 
-      <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+      {/* Safe Overlay System for readability */}
+      {isImageOrGradient && (
+        <div className="absolute inset-0 bg-black/25 pointer-events-none transition-opacity duration-300" />
+      )}
+      
       <main className="relative pt-14 flex-1 flex flex-col h-full min-w-0">
         <BoardHeader board={currentBoard} />
         <div className="flex-1 overflow-x-auto overflow-y-hidden p-4 touch-pan-x scrollbar-hide">

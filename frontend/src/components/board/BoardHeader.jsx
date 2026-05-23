@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { updateBoard, deleteBoard } from '../../redux/slices/boardSlice';
+import { updateBoard, deleteBoard, updateBoardBackground, uploadBoardBackground, optimisticUpdateBackground } from '../../redux/slices/boardSlice';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { MoreHorizontal, Trash } from 'lucide-react';
+import { MoreHorizontal, Trash, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { BoardFilterPopover } from './BoardFilterPopover';
+import { BoardBackgroundPicker } from './BoardBackgroundPicker';
 
 export const BoardHeader = ({ board }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(board.title);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleUpdate = async () => {
     setIsEditing(false);
@@ -32,6 +35,56 @@ export const BoardHeader = ({ board }) => {
         navigate('/');
       })
       .catch((err) => toast.error(err || "Failed to delete board"));
+  };
+
+  const handleSelectBackground = async (type, value, thumbnail, meta) => {
+    // Optimistic Update
+    const originalBackground = {
+      backgroundType: board.backgroundType,
+      backgroundValue: board.backgroundValue,
+      backgroundThumbnail: board.backgroundThumbnail,
+      backgroundMeta: board.backgroundMeta
+    };
+    
+    dispatch(optimisticUpdateBackground({
+      backgroundType: type,
+      backgroundValue: value,
+      backgroundThumbnail: thumbnail || value,
+      backgroundMeta: meta || {}
+    }));
+
+    try {
+      await dispatch(updateBoardBackground({
+        id: board._id,
+        data: {
+          backgroundType: type,
+          backgroundValue: value,
+          backgroundThumbnail: thumbnail || value,
+          backgroundMeta: meta || {}
+        }
+      })).unwrap();
+      toast.success("Background updated");
+    } catch (err) {
+      // Revert on error
+      dispatch(optimisticUpdateBackground(originalBackground));
+      toast.error(err || "Failed to update background");
+    }
+  };
+
+  const handleUploadBackground = async (file) => {
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    try {
+      await dispatch(uploadBoardBackground({ id: board._id, formData })).unwrap();
+      toast.success("Background uploaded");
+      setIsPickerOpen(false);
+    } catch (err) {
+      toast.error(err || "Failed to upload background");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -55,6 +108,14 @@ export const BoardHeader = ({ board }) => {
       )}
 
       <div className="ml-auto flex items-center gap-x-2">
+        <Button 
+          variant="transparent" 
+          className="h-auto w-auto p-2 hidden sm:flex"
+          onClick={() => setIsPickerOpen(true)}
+        >
+          <ImageIcon className="h-4 w-4 mr-2" />
+          Background
+        </Button>
         <BoardFilterPopover />
         <Popover>
           <PopoverTrigger asChild>
@@ -63,13 +124,32 @@ export const BoardHeader = ({ board }) => {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-56" side="bottom" align="end">
-            <div className="text-sm font-medium text-center text-neutral-600 pb-2">Board actions</div>
+            <div className="text-sm font-medium text-center text-neutral-600 pb-2 border-b mb-2">Board actions</div>
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+                setIsPickerOpen(true);
+              }} 
+              className="w-full justify-start sm:hidden"
+            >
+              <ImageIcon className="h-4 w-4 mr-2" /> Change background
+            </Button>
             <Button variant="ghost" onClick={handleDelete} className="w-full justify-start text-red-600">
               <Trash className="h-4 w-4 mr-2" /> Delete board
             </Button>
           </PopoverContent>
         </Popover>
       </div>
+
+      <BoardBackgroundPicker
+        isOpen={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+        currentBackground={board.backgroundValue || board.imageFullUrl}
+        onSelectBackground={handleSelectBackground}
+        onUploadBackground={handleUploadBackground}
+        isUploading={isUploading}
+      />
     </div>
   );
 };

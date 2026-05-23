@@ -80,6 +80,44 @@ export const reorderBoards = createAsyncThunk(
   }
 );
 
+export const updateBoardBackground = createAsyncThunk(
+  'boards/updateBoardBackground',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(`/api/boards/${id}/background`, data);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to update background');
+    }
+  }
+);
+
+export const uploadBoardBackground = createAsyncThunk(
+  'boards/uploadBoardBackground',
+  async ({ id, formData }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/api/boards/${id}/background/upload`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to upload background');
+    }
+  }
+);
+
+export const removeBoardBackground = createAsyncThunk(
+  'boards/removeBoardBackground',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(`/api/boards/${id}/background`);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to remove background');
+    }
+  }
+);
+
 const boardSlice = createSlice({
   name: 'boards',
   initialState,
@@ -92,6 +130,15 @@ const boardSlice = createSlice({
     },
     setBoardsLocally: (state, action) => {
       state.boards = action.payload;
+    },
+    optimisticUpdateBackground: (state, action) => {
+      if (state.currentBoard) {
+        state.currentBoard = { ...state.currentBoard, ...action.payload };
+      }
+      const index = state.boards.findIndex(b => b._id === state.currentBoard?._id);
+      if (index !== -1) {
+        state.boards[index] = { ...state.boards[index], ...action.payload };
+      }
     }
   },
   extraReducers: (builder) => {
@@ -138,9 +185,36 @@ const boardSlice = createSlice({
       })
       .addCase(reorderBoards.rejected, (state, action) => {
         state.error = action.payload;
+      })
+      .addCase(updateBoardBackground.fulfilled, (state, action) => {
+        const index = state.boards.findIndex(b => b._id === action.payload._id);
+        if (index !== -1) {
+          state.boards[index] = action.payload;
+        }
+        if (state.currentBoard?._id === action.payload._id) {
+          state.currentBoard = action.payload;
+        }
+      })
+      .addCase(uploadBoardBackground.fulfilled, (state, action) => {
+        const index = state.boards.findIndex(b => b._id === action.payload._id);
+        if (index !== -1) {
+          state.boards[index] = action.payload;
+        }
+        if (state.currentBoard?._id === action.payload._id) {
+          state.currentBoard = action.payload;
+        }
+      })
+      .addCase(removeBoardBackground.fulfilled, (state, action) => {
+        const index = state.boards.findIndex(b => b._id === action.payload._id);
+        if (index !== -1) {
+          state.boards[index] = action.payload;
+        }
+        if (state.currentBoard?._id === action.payload._id) {
+          state.currentBoard = action.payload;
+        }
       });
   },
 });
 
-export const { clearBoardError, setCurrentBoard, setBoardsLocally } = boardSlice.actions;
+export const { clearBoardError, setCurrentBoard, setBoardsLocally, optimisticUpdateBackground } = boardSlice.actions;
 export default boardSlice.reducer;

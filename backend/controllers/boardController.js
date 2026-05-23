@@ -8,6 +8,7 @@ const {
   decreaseAvailableCount
 } = require('../services/orgLimitService');
 const { checkSubscription } = require('../services/subscriptionService');
+const { uploadFile, deleteFile } = require('../services/s3Service');
 
 // @desc    Get all boards for organization
 // @route   GET /api/boards
@@ -224,11 +225,150 @@ const reorderBoards = async (req, res) => {
   }
 };
 
+// @desc    Update board background (color, gradient, or unsplash image)
+// @route   PATCH /api/boards/:id/background
+// @access  Private
+const updateBoardBackground = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { backgroundType, backgroundValue, backgroundThumbnail, backgroundMeta } = req.body;
+
+    const board = await Board.findById(id);
+    if (!board) {
+      return res.status(404).json({ error: 'Board not found' });
+    }
+
+    // S3 cleanup if replacing a custom uploaded image
+    if (board.backgroundType === 'image' && board.backgroundValue && board.backgroundValue.includes('amazonaws.com') && board.backgroundValue.includes('/backgrounds/')) {
+      const urlObj = new URL(board.backgroundValue);
+      const key = urlObj.pathname.substring(1); // remove leading slash
+      await deleteFile(key);
+    }
+
+    board.backgroundType = backgroundType || board.backgroundType;
+    board.backgroundValue = backgroundValue || board.backgroundValue;
+    board.backgroundThumbnail = backgroundThumbnail || board.backgroundThumbnail;
+    if (backgroundMeta) board.backgroundMeta = backgroundMeta;
+
+    await board.save();
+
+    await createAuditLog(
+      {
+        entityId: board._id.toString(),
+        entityType: 'BOARD',
+        entityTitle: board.title,
+        action: 'UPDATE'
+      },
+      req.user,
+      board.orgId
+    );
+
+    res.json(board);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// @desc    Upload custom board background to S3
+// @route   POST /api/boards/:id/background/upload
+// @access  Private
+const uploadBoardBackground = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const board = await Board.findById(id);
+    if (!board) {
+      return res.status(404).json({ error: 'Board not found' });
+    }
+
+    // S3 cleanup if replacing an existing custom uploaded image
+    if (board.backgroundType === 'image' && board.backgroundValue && board.backgroundValue.includes('amazonaws.com') && board.backgroundValue.includes('/backgrounds/')) {
+      const urlObj = new URL(board.backgroundValue);
+      const key = urlObj.pathname.substring(1);
+      await deleteFile(key);
+    }
+
+    const { url } = await uploadFile(req.file.buffer, req.file.mimetype, req.file.originalname, 'backgrounds');
+
+    board.backgroundType = 'image';
+    board.backgroundValue = url;
+    board.backgroundThumbnail = url; // No separate thumb generation here for now
+    board.backgroundMeta = {};
+
+    await board.save();
+
+    await createAuditLog(
+      {
+        entityId: board._id.toString(),
+        entityType: 'BOARD',
+        entityTitle: board.title,
+        action: 'UPDATE'
+      },
+      req.user,
+      board.orgId
+    );
+
+    res.json(board);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// @desc    Remove board background (reset to default)
+// @route   DELETE /api/boards/:id/background
+// @access  Private
+const removeBoardBackground = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const board = await Board.findById(id);
+    if (!board) {
+      return res.status(404).json({ error: 'Board not found' });
+    }
+
+    // S3 cleanup if removing a custom uploaded image
+    if (board.backgroundType === 'image' && board.backgroundValue && board.backgroundValue.includes('amazonaws.com') && board.backgroundValue.includes('/backgrounds/')) {
+      const urlObj = new URL(board.backgroundValue);
+      const key = urlObj.pathname.substring(1);
+      await deleteFile(key);
+    }
+
+    // Reset to a default gradient
+    board.backgroundType = 'gradient';
+    board.backgroundValue = 'linear-gradient(to right, #4facfe 0%, #00f2fe 100%)';
+    board.backgroundThumbnail = '';
+    board.backgroundMeta = {};
+
+    await board.save();
+
+    await createAuditLog(
+      {
+        entityId: board._id.toString(),
+        entityType: 'BOARD',
+        entityTitle: board.title,
+        action: 'UPDATE'
+      },
+      req.user,
+      board.orgId
+    );
+
+    res.json(board);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getBoards,
   getBoardById,
   createBoard,
   updateBoard,
   deleteBoard,
-  reorderBoards
+  reorderBoards,
+  updateBoardBackground,
+  uploadBoardBackground,
+  removeBoardBackground
 };

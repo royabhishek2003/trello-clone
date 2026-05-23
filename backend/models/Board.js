@@ -12,25 +12,36 @@ const BoardSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+    // Legacy image fields - kept for backward compatibility
     imageId: {
       type: String,
-      required: true
     },
     imageThumbUrl: {
       type: String,
-      required: true
     },
     imageFullUrl: {
       type: String,
-      required: true
     },
     imageUserName: {
       type: String,
-      required: true
     },
     imageLinkHTML: {
       type: String,
-      required: true
+    },
+    // New Advanced Background System
+    backgroundType: {
+      type: String,
+      enum: ['color', 'gradient', 'image'],
+      default: 'image'
+    },
+    backgroundValue: {
+      type: String
+    },
+    backgroundThumbnail: {
+      type: String
+    },
+    backgroundMeta: {
+      type: Object
     },
     order: {
       type: Number,
