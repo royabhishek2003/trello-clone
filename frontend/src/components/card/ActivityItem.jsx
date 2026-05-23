@@ -39,7 +39,11 @@ export const ActivityItem = React.memo(({ log, onDelete, onEdit }) => {
           </div>
         ) : (
           <p className="text-sm text-neutral-700">
-            {log.action.toLowerCase()}d card <span className="font-medium">"{log.entityTitle}"</span>
+            {log.details ? (
+              <>{log.details} <span className="font-medium">"{log.entityTitle}"</span></>
+            ) : (
+              <>{log.action.toLowerCase()}d card <span className="font-medium">"{log.entityTitle}"</span></>
+            )}
           </p>
         )}
 

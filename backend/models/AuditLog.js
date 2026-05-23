@@ -36,6 +36,10 @@ const AuditLogSchema = new mongoose.Schema(
     userName: {
       type: String,
       required: true
+    },
+    details: {
+      type: String,
+      default: ''
     }
   },
   {

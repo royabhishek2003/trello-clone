@@ -26,6 +26,7 @@ import { ImagePreviewModal } from '../attachment/ImagePreviewModal';
 import { CommentInput } from './CommentInput';
 import { ActivityItem } from './ActivityItem';
 import { CoverPopover } from './CoverPopover';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 
 export const CardModal = () => {
   const dispatch = useDispatch();
@@ -73,7 +74,8 @@ export const CardModal = () => {
   if (!cardData) return null;
 
   // Find the list this card belongs to
-  const listName = lists.find(l => l._id === cardData.listId)?.title || '...';
+  const listIdStr = cardData.listId?._id || cardData.listId;
+  const listName = cardData.listId?.title || lists.find(l => l._id === listIdStr)?.title || '...';
 
   const handleUpdate = async (field, value) => {
     if (cardData[field] === value) return;
@@ -287,9 +289,20 @@ export const CardModal = () => {
             <ImageIcon className="h-4 w-4" />
           </Button>
         </CoverPopover>
-        <Button variant="outline" size="icon" className={`h-8 w-8 rounded-full ${topButtonStyle}`}>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="icon" className={`h-8 w-8 rounded-full ${topButtonStyle}`}>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-60 p-3" align="end">
+            <div className="text-sm font-semibold text-center text-neutral-600 mb-4 pb-2 border-b border-neutral-200">Card Actions</div>
+            <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleDelete}>
+              <Trash className="h-4 w-4 mr-2" />
+              Delete Card
+            </Button>
+          </PopoverContent>
+        </Popover>
         <Button variant="outline" size="icon" className={`h-8 w-8 rounded-full ${topButtonStyle}`} onClick={() => dispatch(closeCardModal())}>
           <X className="h-4 w-4" />
         </Button>

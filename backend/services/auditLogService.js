@@ -2,7 +2,7 @@ const AuditLog = require('../models/AuditLog');
 
 const createAuditLog = async (logData, user, orgId) => {
   try {
-    const { entityId, entityType, entityTitle, action } = logData;
+    const { entityId, entityType, entityTitle, action, details } = logData;
     
     if (!user) {
       console.warn('AuditLog warning: User is required to write an audit log');
@@ -20,7 +20,8 @@ const createAuditLog = async (logData, user, orgId) => {
       entityTitle,
       userId: user._id.toString(),
       userImage,
-      userName
+      userName,
+      details: details || ''
     });
 
     await auditLog.save();

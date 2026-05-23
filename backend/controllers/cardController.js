@@ -169,36 +169,43 @@ const updateCard = async (req, res) => {
 
     const orgId = card.listId.boardId.orgId;
 
-    if (title !== undefined) {
+    let details = '';
+    if (title !== undefined && title !== card.title) {
       card.title = title;
-    }
-    if (description !== undefined) {
+      details = 'renamed the card';
+    } else if (description !== undefined && description !== card.description) {
       card.description = description;
-    }
-    if (startDate !== undefined) {
-      card.startDate = startDate;
-    }
-    if (dueDate !== undefined) {
+      details = 'updated the description of card';
+    } else if (dueDate !== undefined && dueDate !== card.dueDate) {
       card.dueDate = dueDate;
-    }
-    if (isDateComplete !== undefined) {
+      details = 'changed the due date of card';
+    } else if (isDateComplete !== undefined && isDateComplete !== card.isDateComplete) {
       card.isDateComplete = isDateComplete;
-    }
-    if (hasDueTime !== undefined) {
-      card.hasDueTime = hasDueTime;
-    }
-    if (checklists !== undefined) {
+      details = isDateComplete ? 'marked the due date complete on card' : 'marked the due date incomplete on card';
+    } else if (checklists !== undefined) {
       card.checklists = checklists;
-    }
-    if (cardMembers !== undefined) {
-      // Ensure unique IDs
+      details = 'updated checklists on card';
+    } else if (cardMembers !== undefined) {
       card.cardMembers = [...new Set(cardMembers)];
-    }
-    if (coverImage !== undefined) {
+      details = 'updated members on card';
+    } else if (coverImage !== undefined && coverImage !== card.coverImage) {
       card.coverImage = coverImage;
-    }
-    if (coverColor !== undefined) {
+      details = coverImage ? 'added a cover to card' : 'removed the cover from card';
+    } else if (coverColor !== undefined && coverColor !== card.coverColor) {
       card.coverColor = coverColor;
+      details = coverColor ? 'added a cover color to card' : 'removed the cover color from card';
+    } else {
+      // In case we don't match, fallback
+      if (title !== undefined) card.title = title;
+      if (description !== undefined) card.description = description;
+      if (startDate !== undefined) card.startDate = startDate;
+      if (dueDate !== undefined) card.dueDate = dueDate;
+      if (isDateComplete !== undefined) card.isDateComplete = isDateComplete;
+      if (hasDueTime !== undefined) card.hasDueTime = hasDueTime;
+      if (checklists !== undefined) card.checklists = checklists;
+      if (cardMembers !== undefined) card.cardMembers = [...new Set(cardMembers)];
+      if (coverImage !== undefined) card.coverImage = coverImage;
+      if (coverColor !== undefined) card.coverColor = coverColor;
     }
 
     await card.save();
@@ -209,7 +216,8 @@ const updateCard = async (req, res) => {
         entityId: card._id.toString(),
         entityType: 'CARD',
         entityTitle: card.title,
-        action: 'UPDATE'
+        action: 'UPDATE',
+        details: details || 'updated card'
       },
       req.user,
       orgId
