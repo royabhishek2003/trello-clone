@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Navbar } from '../components/common/Navbar';
 import { Sidebar } from '../components/common/Sidebar';
 import { MobileDrawer } from '../components/common/MobileDrawer';
@@ -7,9 +7,12 @@ import { ResponsiveBoardShell } from '../components/common/ResponsiveBoardShell'
 import { Activity } from 'lucide-react';
 import api from '../services/api';
 import { format } from 'date-fns';
+import { checkSubscription } from '../redux/slices/subscriptionSlice';
 
 const OrgActivity = () => {
+  const dispatch = useDispatch();
   const { currentOrg } = useSelector(state => state.organizations);
+  const { isPro } = useSelector(state => state.subscription);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -17,12 +20,13 @@ const OrgActivity = () => {
   useEffect(() => {
     if (currentOrg) {
       setLoading(true);
+      dispatch(checkSubscription(currentOrg._id));
       api.get(`/api/orgs/${currentOrg._id}/activity`)
         .then(res => setLogs(res.data))
         .catch(err => console.error("Failed to fetch organization activity", err))
         .finally(() => setLoading(false));
     }
-  }, [currentOrg]);
+  }, [currentOrg, dispatch]);
 
   if (!currentOrg) return <div className="pt-20 text-center">Loading...</div>;
 
@@ -58,8 +62,7 @@ const OrgActivity = () => {
                 <div className="flex items-center text-xs text-muted-foreground mt-1">
                   <span className="flex items-center gap-x-1">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-                    {/* Assuming we can't easily sync subscription state here without another check, we'll keep it simple or default to Free since OrgSettings handles the actual subscription. For visual match, we just hardcode Free/Pro based on a basic check if possible, or omit. Actually, let's just fetch it or omit it. We'll omit the subscription badge or keep it static. Let's just put Free for now. */}
-                    Free
+                    {isPro ? "Pro" : "Free"}
                   </span>
                 </div>
               </div>
