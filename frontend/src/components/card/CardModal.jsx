@@ -48,6 +48,10 @@ export const CardModal = () => {
   const [isLoadingLogs, setIsLoadingLogs] = useState(true);
   const attachmentRef = React.useRef(null);
   const commentInputRef = React.useRef(null);
+  const leftColumnRef = React.useRef(null);
+  const attachmentScrollRef = React.useRef(null);
+  const checklistsEndRef = React.useRef(null);
+  const checklistsStartRef = React.useRef(null);
 
   // Fetch org members for mentions
   useEffect(() => {
@@ -151,6 +155,9 @@ export const CardModal = () => {
       position: localChecklists.length
     };
     handleUpdateChecklists([...localChecklists, newChecklist]);
+    setTimeout(() => {
+      checklistsEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 100);
   };
 
   const handleUpdateChecklist = (updatedChecklist) => {
@@ -344,7 +351,7 @@ export const CardModal = () => {
       )}
       <div className={`flex flex-col lg:grid lg:grid-cols-5 lg:gap-6 flex-1 min-h-0 overflow-hidden ${!hasCover ? 'pt-8' : ''}`}>
         {/* Left Column */}
-        <div className="lg:col-span-3 pb-8 lg:pb-0 overflow-y-auto pr-2 custom-scrollbar min-h-0 h-full">
+        <div ref={leftColumnRef} className="lg:col-span-3 pb-8 lg:pb-0 overflow-y-auto pr-2 custom-scrollbar min-h-0 h-full">
           <div className="flex items-start gap-x-3 mb-4 w-full">
             <Layout className="h-5 w-5 mt-1 text-muted-foreground" />
             <div className="w-full">
@@ -386,12 +393,26 @@ export const CardModal = () => {
                   <Plus className="h-4 w-4 mr-1.5" />
                   Add
                 </Button>
-                <ChecklistPopover onAdd={handleAddChecklist}>
-                  <Button variant="gray" size="sm" className="h-8">
+                {localChecklists.length > 0 ? (
+                  <Button 
+                    variant="gray" 
+                    size="sm" 
+                    className="h-8"
+                    onClick={() => {
+                      checklistsStartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                  >
                     <CheckSquare className="h-4 w-4 mr-1.5" />
                     Checklist
                   </Button>
-                </ChecklistPopover>
+                ) : (
+                  <ChecklistPopover onAdd={handleAddChecklist}>
+                    <Button variant="gray" size="sm" className="h-8">
+                      <CheckSquare className="h-4 w-4 mr-1.5" />
+                      Checklist
+                    </Button>
+                  </ChecklistPopover>
+                )}
                 <MembersPopover cardMembers={localMembers} onMemberToggle={handleToggleMember}>
                   <Button variant="gray" size="sm" className="h-8">
                     <User className="h-4 w-4 mr-1.5" />
@@ -402,7 +423,12 @@ export const CardModal = () => {
                   variant="gray" 
                   size="sm"
                   className="h-8"
-                  onClick={() => attachmentRef.current?.openDropzone()}
+                  onClick={() => {
+                    attachmentRef.current?.openDropzone();
+                    setTimeout(() => {
+                      attachmentScrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 50);
+                  }}
                 >
                   <Paperclip className="h-4 w-4 mr-1.5" />
                   Attachment
@@ -541,18 +567,20 @@ export const CardModal = () => {
             </div>
           </div>
 
-          <AttachmentSection 
-            ref={attachmentRef}
-            cardId={cardData._id} 
-            onPreviewImage={(url) => setPreviewImage(url)}
-            coverImageKey={cardData.coverImage}
-            onSetCover={(key) => handleUpdate('coverImage', key)}
-            onComment={handleAttachmentComment}
-          />
+          <div ref={attachmentScrollRef}>
+            <AttachmentSection 
+              ref={attachmentRef}
+              cardId={cardData._id} 
+              onPreviewImage={(url) => setPreviewImage(url)}
+              coverImageKey={cardData.coverImage}
+              onSetCover={(key) => handleUpdate('coverImage', key)}
+              onComment={handleAttachmentComment}
+            />
+          </div>
 
           {/* Checklists */}
           {localChecklists.length > 0 && (
-            <div className="mb-4 mt-8">
+            <div className="mb-4 mt-8" ref={checklistsStartRef}>
               <DragDropContext onDragEnd={onDragEnd}>
                 {localChecklists.map(checklist => (
                   <Checklist 
@@ -565,6 +593,7 @@ export const CardModal = () => {
               </DragDropContext>
             </div>
           )}
+          <div ref={checklistsEndRef} />
         </div>
         
         {/* Right Column: Comments and Activity */}

@@ -61,8 +61,8 @@ export const Calendar = ({ selectedDate, onSelect, className }) => {
           <div
             key={day.toString()}
             className={`w-8 h-8 flex items-center justify-center rounded-sm cursor-pointer text-sm
-              ${!isSameMonth(day, monthStart) ? "text-neutral-400" : "text-neutral-700"}
-              ${isSelected ? "bg-blue-600 text-white font-semibold" : "hover:bg-neutral-200"}
+              ${!isSameMonth(day, monthStart) ? "text-neutral-400 dark:text-neutral-600" : "text-neutral-700 dark:text-neutral-200"}
+              ${isSelected ? "bg-blue-600 text-white font-semibold" : "hover:bg-neutral-200 dark:hover:bg-neutral-700"}
               ${isToday(day) && !isSelected ? "underline font-semibold" : ""}
             `}
             onClick={() => onSelect(cloneDay)}
