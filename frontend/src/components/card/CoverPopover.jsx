@@ -70,10 +70,10 @@ export const CoverPopover = ({ children, onUploadClick }) => {
         {children}
       </PopoverTrigger>
       <PopoverContent className="w-80 pt-3 max-h-[350px] overflow-y-auto custom-scrollbar" align="start" side="bottom" collisionPadding={16}>
-        <div className="sticky top-0 bg-popover z-10 flex items-center justify-center pb-2 mb-4 border-b">
-          <span className="font-semibold text-sm text-neutral-700">Cover</span>
+        <div className="sticky top-0 bg-popover z-10 flex items-center justify-center pb-2 mb-4 border-b border-border">
+          <span className="font-semibold text-sm text-foreground">Cover</span>
           <Button
-            className="absolute right-0 top-0 h-auto w-auto p-1 text-neutral-600"
+            className="absolute right-0 top-0 h-auto w-auto p-1 text-muted-foreground hover:bg-hover-bg hover:text-foreground"
             variant="ghost"
             onClick={() => setIsOpen(false)}
           >
@@ -93,7 +93,7 @@ export const CoverPopover = ({ children, onUploadClick }) => {
           )}
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-neutral-700">Colors</label>
+            <label className="text-xs font-semibold text-foreground">Colors</label>
             <div className="grid grid-cols-5 gap-2">
               {COLORS.map(c => (
                 <div
@@ -110,14 +110,14 @@ export const CoverPopover = ({ children, onUploadClick }) => {
 
           {imageAttachments.length > 0 && (
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-neutral-700">Attachments</label>
+              <label className="text-xs font-semibold text-foreground">Attachments</label>
               <div className="grid grid-cols-3 gap-2">
                 {imageAttachments.map(attachment => (
                   <div
                     key={attachment._id}
                     onClick={() => handleUpdateCoverImage(attachment.storageKey)}
                     role="button"
-                    className="h-12 bg-neutral-200 rounded-sm cursor-pointer overflow-hidden relative hover:opacity-80 transition"
+                    className="h-12 bg-muted rounded-sm cursor-pointer overflow-hidden relative hover:opacity-80 transition"
                   >
                     <img 
                       src={attachment.fileUrl} 
@@ -149,14 +149,14 @@ export const CoverPopover = ({ children, onUploadClick }) => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-neutral-700">Photos from Unsplash</label>
+            <label className="text-xs font-semibold text-foreground">Photos from Unsplash</label>
             <div className="grid grid-cols-3 gap-2">
               {UNSPLASH_IMAGES.map((url, i) => (
                 <div
                   key={i}
                   onClick={() => handleUpdateCoverImage(url)}
                   role="button"
-                  className="h-12 bg-neutral-200 rounded-sm cursor-pointer overflow-hidden relative hover:opacity-80 transition"
+                  className="h-12 bg-muted rounded-sm cursor-pointer overflow-hidden relative hover:opacity-80 transition"
                 >
                   <img src={url} alt="Unsplash" className="w-full h-full object-cover" />
                   {cardData?.coverImage === url && (

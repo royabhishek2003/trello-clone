@@ -44,10 +44,10 @@ export const MembersPopover = ({ children, cardMembers = [], onMemberToggle }) =
         collisionPadding={20}
         style={{ maxHeight: 'var(--radix-popover-content-available-height)' }}
       >
-        <div className="relative flex items-center justify-center pb-2 mb-2 border-b border-neutral-200 shrink-0">
-          <span className="font-semibold text-sm text-neutral-700">Members</span>
+        <div className="relative flex items-center justify-center pb-2 mb-2 border-b border-border shrink-0">
+          <span className="font-semibold text-sm text-foreground">Members</span>
           <PopoverClose asChild>
-            <Button variant="ghost" className="h-auto w-auto p-1 absolute right-0 text-neutral-500 hover:text-neutral-800">
+            <Button variant="ghost" className="h-auto w-auto p-1 absolute right-0 text-muted-foreground hover:text-foreground hover:bg-hover-bg">
               <X className="h-4 w-4" />
             </Button>
           </PopoverClose>
@@ -55,22 +55,22 @@ export const MembersPopover = ({ children, cardMembers = [], onMemberToggle }) =
 
         <div className="flex flex-col overflow-hidden h-full">
           <div className="relative mb-3 shrink-0">
-            <Search className="absolute left-2.5 top-2 h-4 w-4 text-neutral-400" />
+            <Search className="absolute left-2.5 top-2 h-4 w-4 text-muted-foreground" />
             <input 
-              className="w-full h-8 pl-8 pr-3 text-sm bg-neutral-100 border-none rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full h-8 pl-8 pr-3 text-sm bg-input text-foreground border-transparent rounded focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Search members"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          <p className="text-xs font-semibold text-neutral-600 mb-2 shrink-0">Workspace members</p>
+          <p className="text-xs font-semibold text-foreground mb-2 shrink-0">Workspace members</p>
           
           <div className="flex-1 overflow-y-auto scrollbar-thin space-y-1 pb-1">
             {loading ? (
-              <p className="text-xs text-neutral-500 py-2 text-center">Loading members...</p>
+              <p className="text-xs text-muted-foreground py-2 text-center">Loading members...</p>
             ) : filteredMembers.length === 0 ? (
-              <p className="text-xs text-neutral-500 py-2 text-center">No members found.</p>
+              <p className="text-xs text-muted-foreground py-2 text-center">No members found.</p>
             ) : (
               filteredMembers.map(m => {
                 const isAssigned = cardMembers.some(cm => cm._id === m.user._id || cm === m.user._id);
@@ -79,15 +79,15 @@ export const MembersPopover = ({ children, cardMembers = [], onMemberToggle }) =
                   <div 
                     key={m.user._id}
                     onClick={() => onMemberToggle(m.user)}
-                    className="flex items-center justify-between p-1.5 hover:bg-neutral-100 rounded cursor-pointer transition-colors"
+                    className="flex items-center justify-between p-1.5 hover:bg-hover-bg rounded cursor-pointer transition-colors"
                   >
                     <div className="flex items-center gap-x-2">
                       <MemberAvatar member={m.user} />
-                      <span className="text-sm text-neutral-700 font-medium">
+                      <span className="text-sm text-foreground font-medium">
                         {m.user.firstName} {m.user.lastName}
                       </span>
                     </div>
-                    {isAssigned && <Check className="h-4 w-4 text-neutral-700" />}
+                    {isAssigned && <Check className="h-4 w-4 text-foreground" />}
                   </div>
                 );
               })

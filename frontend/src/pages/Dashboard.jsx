@@ -32,7 +32,7 @@ const Dashboard = () => {
 
   if (orgLoading && !currentOrg) {
     return (
-      <div className="h-[100dvh] w-full bg-neutral-100 flex flex-col">
+      <div className="h-[100dvh] w-full bg-background flex flex-col">
         <div className="h-14 w-full skeleton rounded-none" />
         <div className="flex-1 p-6 flex gap-6 max-w-6xl 2xl:max-w-screen-xl mx-auto w-full">
           <div className="w-64 h-full skeleton opacity-50 hidden md:block" />
@@ -68,8 +68,8 @@ const Dashboard = () => {
         <div className="max-w-6xl 2xl:max-w-screen-xl mx-auto flex gap-x-7">
           <div className="flex-1 min-w-0">
             {!currentOrg ? (
-              <div className="h-full flex flex-col items-center justify-center p-10 bg-white rounded-lg shadow-sm border">
-                <h2 className="text-xl font-semibold text-neutral-700 mb-2">Welcome to Taskify!</h2>
+              <div className="h-full flex flex-col items-center justify-center p-10 bg-card text-card-foreground rounded-lg shadow-sm border">
+                <h2 className="text-xl font-semibold mb-2">Welcome to Taskify!</h2>
                 <p className="text-muted-foreground mb-6 text-center max-w-sm">
                   It looks like you don't belong to any workspaces yet. Create one to start managing your projects and boards.
                 </p>
@@ -85,7 +85,7 @@ const Dashboard = () => {
                       <span className="text-white text-xl font-bold uppercase">{currentOrg?.name?.charAt(0)}</span>
                     </div>
                     <div>
-                      <p className="font-semibold text-xl truncate max-w-[200px] sm:max-w-[300px] md:max-w-none">{currentOrg?.name}</p>
+                      <p className="font-semibold text-xl truncate max-w-[200px] sm:max-w-[300px] md:max-w-none text-foreground">{currentOrg?.name}</p>
                       <div className="flex items-center text-xs text-muted-foreground">
                         <User2 className="h-3 w-3 mr-1" />
                         {isPro ? "Pro" : "Free"}

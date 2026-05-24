@@ -47,18 +47,18 @@ export const AttachmentDropzone = ({ onUpload, isUploading, progress }) => {
         {...getRootProps()} 
         className={`
           relative overflow-hidden rounded-md border-2 border-dashed transition-colors
-          ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-neutral-300 hover:bg-neutral-50'}
-          ${isUploading ? 'opacity-50 cursor-not-allowed border-neutral-200 bg-neutral-100' : 'cursor-pointer'}
+          ${isDragActive ? 'border-primary bg-primary/10' : 'border-input hover:bg-hover-bg'}
+          ${isUploading ? 'opacity-50 cursor-not-allowed border-border bg-muted' : 'cursor-pointer'}
         `}
       >
         <input {...getInputProps()} />
         
         <div className="p-6 flex flex-col items-center justify-center text-center">
-          <UploadCloud className={`h-8 w-8 mb-2 ${isDragActive ? 'text-blue-500' : 'text-neutral-400'}`} />
-          <p className="text-sm font-medium text-neutral-700">
+          <UploadCloud className={`h-8 w-8 mb-2 ${isDragActive ? 'text-primary' : 'text-muted-foreground'}`} />
+          <p className="text-sm font-medium text-foreground">
             {isDragActive ? 'Drop files here' : 'Click or drag files to upload'}
           </p>
-          <p className="text-xs text-neutral-500 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Supports any file up to 25MB. You can also paste images directly.
           </p>
         </div>
@@ -70,17 +70,17 @@ export const AttachmentDropzone = ({ onUpload, isUploading, progress }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-white/80 flex flex-col items-center justify-center backdrop-blur-[1px]"
+              className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center backdrop-blur-[1px]"
             >
-              <div className="w-3/4 max-w-xs h-2 bg-neutral-200 rounded-full overflow-hidden mb-2">
+              <div className="w-3/4 max-w-xs h-2 bg-muted rounded-full overflow-hidden mb-2">
                 <motion.div 
-                  className="h-full bg-blue-600 rounded-full"
+                  className="h-full bg-primary rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
                   transition={{ ease: "linear", duration: 0.2 }}
                 />
               </div>
-              <span className="text-xs font-semibold text-neutral-700">{progress}% Uploading...</span>
+              <span className="text-xs font-semibold text-foreground">{progress}% Uploading...</span>
             </motion.div>
           )}
         </AnimatePresence>

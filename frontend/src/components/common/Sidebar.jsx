@@ -22,10 +22,10 @@ export const Sidebar = () => {
 
   return (
     <div className="w-full">
-      <div className="font-medium text-xs flex items-center mb-1 justify-between text-neutral-500">
+      <div className="font-medium text-xs flex items-center mb-1 justify-between text-muted-foreground">
         <span className="pl-4">Workspaces</span>
         <CreateOrgModal trigger={
-          <Button asChild type="button" size="icon" variant="ghost" className="ml-auto w-6 h-6 p-0 hover:bg-neutral-200 cursor-pointer">
+          <Button asChild type="button" size="icon" variant="ghost" className="ml-auto w-6 h-6 p-0 hover:bg-hover-bg cursor-pointer">
             <Plus className="w-4 h-4" />
           </Button>
         } />
@@ -43,7 +43,7 @@ export const Sidebar = () => {
       >
         {organizations.map(org => (
           <AccordionItem value={org._id} key={org._id} className="border-none">
-            <AccordionTrigger className="flex items-center gap-x-2 p-1.5 text-neutral-700 rounded-md hover:bg-neutral-50 transition text-start no-underline hover:no-underline">
+            <AccordionTrigger className="flex items-center gap-x-2 p-1.5 text-foreground rounded-md hover:bg-hover-bg transition text-start no-underline hover:no-underline">
               <div className="flex items-center gap-x-2">
                 <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-sm flex items-center justify-center shrink-0">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
@@ -51,12 +51,12 @@ export const Sidebar = () => {
                 <span className="font-medium text-sm">{org.name}</span>
               </div>
             </AccordionTrigger>
-            <AccordionContent className="pt-1 text-neutral-700">
+            <AccordionContent className="pt-1 text-foreground">
               <div className="flex flex-col gap-y-1">
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`justify-start font-normal ${location.pathname === '/' && currentOrg?._id === org._id ? 'bg-sky-100 text-sky-900 font-medium' : ''}`}
+                  className={`justify-start font-normal ${location.pathname === '/' && currentOrg?._id === org._id ? 'bg-sky-500/10 text-sky-700 dark:text-sky-400 font-medium' : 'hover:bg-hover-bg'}`}
                   onClick={() => handleNavigation(org, '/')}
                 >
                   <Layout className="w-4 h-4 mr-2" /> Boards
@@ -64,7 +64,7 @@ export const Sidebar = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="justify-start font-normal"
+                  className={`justify-start font-normal ${location.pathname.includes('activity') && currentOrg?._id === org._id ? 'bg-sky-500/10 text-sky-700 dark:text-sky-400 font-medium' : 'hover:bg-hover-bg'}`}
                   onClick={() => handleNavigation(org, `/organization/${org._id}/activity`)}
                 >
                   <Activity className="w-4 h-4 mr-2" /> Activity
@@ -72,7 +72,7 @@ export const Sidebar = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`justify-start font-normal ${location.pathname.includes('settings') && currentOrg?._id === org._id ? 'bg-sky-100 text-sky-900 font-medium' : ''}`}
+                  className={`justify-start font-normal ${location.pathname.includes('settings') && currentOrg?._id === org._id ? 'bg-sky-500/10 text-sky-700 dark:text-sky-400 font-medium' : 'hover:bg-hover-bg'}`}
                   onClick={() => handleNavigation(org, `/organization/${org._id}/settings`)}
                 >
                   <Settings className="w-4 h-4 mr-2" /> Settings
@@ -80,7 +80,7 @@ export const Sidebar = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`justify-start font-normal ${location.pathname.includes('billing') && currentOrg?._id === org._id ? 'bg-sky-100 text-sky-900 font-medium' : ''}`}
+                  className={`justify-start font-normal ${location.pathname.includes('billing') && currentOrg?._id === org._id ? 'bg-sky-500/10 text-sky-700 dark:text-sky-400 font-medium' : 'hover:bg-hover-bg'}`}
                   onClick={() => handleNavigation(org, `/organization/${org._id}/billing`)}
                 >
                   <CreditCard className="w-4 h-4 mr-2" /> Billing

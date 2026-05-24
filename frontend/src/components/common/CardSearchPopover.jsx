@@ -173,11 +173,11 @@ export const CardSearchPopover = () => {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <div className="relative group w-28 sm:w-48 md:w-64 max-w-sm shrink-0">
-          <Search className="absolute left-2.5 top-[9px] h-4 w-4 text-slate-400 group-hover:text-slate-500 transition" />
+          <Search className="absolute left-2.5 top-[9px] h-4 w-4 text-muted-foreground group-hover:text-foreground transition" />
           <Input 
             ref={inputRef}
             placeholder="Search" 
-            className="pl-8 pr-8 h-8 bg-slate-100 hover:bg-slate-200 focus-visible:ring-1 focus-visible:ring-sky-500 border-none transition-colors w-full"
+            className="pl-8 pr-8 h-8 bg-input text-foreground hover:bg-hover-bg focus-visible:ring-1 focus-visible:ring-primary border-none transition-colors w-full"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -190,7 +190,7 @@ export const CardSearchPopover = () => {
           />
           {query && (
             <X 
-              className="absolute right-2 top-[9px] h-4 w-4 text-slate-400 hover:text-slate-600 cursor-pointer transition" 
+              className="absolute right-2 top-[9px] h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer transition" 
               onClick={(e) => {
                 e.stopPropagation();
                 clearSearch();
@@ -200,26 +200,26 @@ export const CardSearchPopover = () => {
         </div>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-[300px] md:w-[400px] p-2 shadow-xl border-slate-200"
+        className="w-[300px] md:w-[400px] p-2 shadow-xl border-border bg-popover"
         align="start"
         sideOffset={8}
         onOpenAutoFocus={(e) => e.preventDefault()} // prevent popover from stealing focus from input
       >
         <div className="flex flex-col max-h-[60vh] overflow-hidden">
-          <div className="px-2 pb-2 mb-1 border-b text-xs font-semibold text-slate-500 flex justify-between shrink-0">
+          <div className="px-2 pb-2 mb-1 border-b border-border text-xs font-semibold text-muted-foreground flex justify-between shrink-0">
             <span>CARDS</span>
             {loading && <span className="text-sky-600 animate-pulse">Searching...</span>}
           </div>
 
           <div className="overflow-y-auto scrollbar-thin py-1">
             {query.trim().length > 0 && query.trim().length < 2 && (
-              <div className="px-3 py-4 text-sm text-center text-slate-500">
+              <div className="px-3 py-4 text-sm text-center text-muted-foreground">
                 Type at least 2 characters to search...
               </div>
             )}
             
             {query.trim().length >= 2 && results.length === 0 && !loading && (
-              <div className="px-3 py-8 text-center text-sm text-slate-500">
+              <div className="px-3 py-8 text-center text-sm text-muted-foreground">
                 No cards match your search.
               </div>
             )}
@@ -233,16 +233,16 @@ export const CardSearchPopover = () => {
               return (
                 <div 
                   key={card._id}
-                  className={`flex items-start gap-x-3 p-2 rounded-md cursor-pointer transition-colors ${isSelected ? 'bg-sky-50' : 'hover:bg-slate-100'}`}
+                  className={`flex items-start gap-x-3 p-2 rounded-md cursor-pointer transition-colors ${isSelected ? 'bg-primary/20' : 'hover:bg-hover-bg'}`}
                   onClick={() => handleSelect(card)}
                   onMouseEnter={() => setSelectedIndex(idx)}
                 >
-                  <CreditCard className={`h-5 w-5 mt-0.5 shrink-0 ${isSelected ? 'text-sky-600' : 'text-slate-400'}`} />
+                  <CreditCard className={`h-5 w-5 mt-0.5 shrink-0 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
                   <div className="flex flex-col min-w-0">
-                    <span className="text-sm font-medium text-slate-800 truncate block">
+                    <span className="text-sm font-medium text-foreground truncate block">
                       {renderHighlightedText(card.title, query)}
                     </span>
-                    <span className="text-xs text-slate-500 truncate block">
+                    <span className="text-xs text-muted-foreground truncate block">
                       {locationStr}
                     </span>
                   </div>

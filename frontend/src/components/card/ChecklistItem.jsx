@@ -65,12 +65,12 @@ export const ChecklistItem = ({ item, index, onUpdate, onDelete }) => {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSave();
                 }}
-                className="h-8 text-sm bg-white"
+                className="h-8 text-sm bg-input text-foreground focus-visible:bg-input focus-visible:border-primary border-transparent hover:border-input"
               />
             ) : (
               <div 
                 onClick={() => setIsEditing(true)}
-                className={`text-sm py-1 px-1 cursor-pointer rounded-sm hover:bg-neutral-200 min-h-[32px] break-words ${item.isCompleted ? 'line-through text-neutral-500' : 'text-neutral-700'}`}
+                className={`text-sm py-1 px-1 cursor-pointer rounded-sm hover:bg-hover-bg min-h-[32px] break-words ${item.isCompleted ? 'line-through text-muted-foreground' : 'text-foreground'}`}
               >
                 {item.text}
               </div>
@@ -107,7 +107,7 @@ export const ChecklistItem = ({ item, index, onUpdate, onDelete }) => {
             >
               <div 
                 role="button"
-                className="flex-shrink-0 h-8 w-8 rounded-sm flex items-center justify-center hover:bg-neutral-200 cursor-pointer text-neutral-500 mr-1"
+                className="flex-shrink-0 h-8 w-8 rounded-sm flex items-center justify-center hover:bg-hover-bg cursor-pointer text-muted-foreground mr-1 hover:text-foreground"
                 title="Set due date"
               >
                 <Clock className="h-4 w-4" />
@@ -117,7 +117,7 @@ export const ChecklistItem = ({ item, index, onUpdate, onDelete }) => {
             <div 
               role="button"
               onClick={onDelete}
-              className="flex-shrink-0 h-8 w-8 rounded-sm flex items-center justify-center hover:bg-neutral-200 cursor-pointer text-neutral-500"
+              className="flex-shrink-0 h-8 w-8 rounded-sm flex items-center justify-center hover:bg-hover-bg cursor-pointer text-muted-foreground hover:text-foreground"
               title="Delete item"
             >
               <Trash className="h-4 w-4" />

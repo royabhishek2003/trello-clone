@@ -102,27 +102,27 @@ const OrgMembers = () => {
     return (
       <div className="w-full">
         <div className="flex items-center text-sm text-muted-foreground mb-6">
-          <button onClick={() => setIsInviting(false)} className="hover:text-neutral-700">Members</button>
+          <button onClick={() => setIsInviting(false)} className="hover:text-neutral-700 dark:hover:text-neutral-300">Members</button>
           <span className="mx-2">/</span>
-          <span className="text-neutral-700 font-medium">Invite members</span>
+          <span className="text-neutral-700 dark:text-neutral-200 font-medium">Invite members</span>
         </div>
         
-        <h2 className="text-2xl font-bold text-neutral-700">Invite members</h2>
+        <h2 className="text-2xl font-bold text-neutral-700 dark:text-neutral-200">Invite members</h2>
         <p className="text-muted-foreground mt-1 mb-8">Invite new members to this organization</p>
         
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">Email addresses</label>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2">Email addresses</label>
             <p className="text-xs text-muted-foreground mb-2">Enter or paste one or more email addresses, separated by spaces or commas</p>
             <textarea 
-              className="w-full min-h-[100px] p-3 border rounded-md shadow-sm resize-y focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+              className="w-full min-h-[100px] p-3 border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white rounded-md shadow-sm resize-y focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               value={inviteEmails}
               onChange={(e) => setInviteEmails(e.target.value)}
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">Role</label>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2">Role</label>
             <select 
               value={inviteRole} 
               onChange={(e) => setInviteRole(e.target.value)}
@@ -150,7 +150,7 @@ const OrgMembers = () => {
     <div className="w-full">
       <div className="flex flex-col md:flex-row md:items-start justify-between mb-6 gap-y-4">
         <div>
-          <h2 className="text-2xl font-bold text-neutral-700">Members</h2>
+          <h2 className="text-2xl font-bold text-neutral-700 dark:text-neutral-200">Members</h2>
           <p className="text-muted-foreground mt-1">View and manage organization members</p>
         </div>
         {isAdmin && (
@@ -161,15 +161,15 @@ const OrgMembers = () => {
         )}
       </div>
       
-      <div className="flex items-center border-b border-neutral-200 mb-6">
+      <div className="flex items-center border-b border-neutral-200 dark:border-neutral-800 mb-6">
         <button 
-          className={`pb-2 px-4 text-sm font-medium ${activeTab === 'members' ? 'border-b-2 border-indigo-500 text-indigo-700' : 'text-neutral-500 hover:text-neutral-700'}`}
+          className={`pb-2 px-4 text-sm font-medium ${activeTab === 'members' ? 'border-b-2 border-indigo-500 text-indigo-700 dark:text-indigo-400' : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'}`}
           onClick={() => setActiveTab('members')}
         >
           Members
         </button>
         <button 
-          className={`pb-2 px-4 text-sm font-medium ${activeTab === 'invitations' ? 'border-b-2 border-indigo-500 text-indigo-700' : 'text-neutral-500 hover:text-neutral-700'}`}
+          className={`pb-2 px-4 text-sm font-medium ${activeTab === 'invitations' ? 'border-b-2 border-indigo-500 text-indigo-700 dark:text-indigo-400' : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'}`}
           onClick={() => setActiveTab('invitations')}
         >
           Invitations
@@ -178,7 +178,7 @@ const OrgMembers = () => {
       
       {activeTab === 'members' && (
         <div className="w-full">
-          <div className="grid grid-cols-12 text-sm font-semibold text-neutral-500 pb-3 border-b mb-3">
+          <div className="grid grid-cols-12 text-sm font-semibold text-neutral-500 pb-3 border-b border-b-neutral-200 dark:border-b-neutral-800 mb-3">
             <div className="col-span-6">User</div>
             <div className="col-span-3">Joined</div>
             <div className="col-span-3">Role</div>
@@ -190,23 +190,23 @@ const OrgMembers = () => {
               const isOwner = orgData.owner?._id === member.user._id || orgData.owner === member.user._id;
               
               return (
-                <div key={member.user._id} className="grid grid-cols-12 items-center py-3 border-b border-neutral-100 last:border-0">
+                <div key={member.user._id} className="grid grid-cols-12 items-center py-3 border-b border-neutral-100 dark:border-neutral-800 last:border-0">
                   <div className="col-span-6 flex items-center gap-x-3">
                     <div className="w-9 h-9 bg-purple-700 text-white rounded-full flex items-center justify-center font-bold">
                       {member.user.firstName.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-medium text-sm text-neutral-700 flex items-center gap-x-2">
+                      <p className="font-medium text-sm text-neutral-700 dark:text-neutral-200 flex items-center gap-x-2">
                         {member.user.firstName} {member.user.lastName}
                         {isYou && (
-                          <span className="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-semibold uppercase">You</span>
+                          <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded font-semibold uppercase">You</span>
                         )}
                       </p>
                       <p className="text-xs text-muted-foreground">{member.user.email}</p>
                     </div>
                   </div>
                   
-                  <div className="col-span-3 text-sm text-neutral-600">
+                  <div className="col-span-3 text-sm text-neutral-600 dark:text-neutral-400">
                     {/* Assuming member object doesn't have joinedAt populated explicitly, we fallback to user creation or default */}
                     {member.joinedAt ? format(new Date(member.joinedAt), "dd/MM/yyyy") : format(new Date(orgData.createdAt), "dd/MM/yyyy")}
                   </div>
@@ -223,7 +223,7 @@ const OrgMembers = () => {
                         <option value="member">Member</option>
                       </select>
                     ) : (
-                      <span className="text-sm text-neutral-600 capitalize">{member.role}</span>
+                      <span className="text-sm text-neutral-600 dark:text-neutral-400 capitalize">{member.role}</span>
                     )}
                     
                     {isAdmin && !isOwner && (
@@ -258,10 +258,10 @@ const OrgMembers = () => {
           </div>
           
           <div className="mt-6 flex items-center justify-between text-sm text-neutral-500">
-            <p>Displaying <span className="font-bold text-neutral-700">{orgData.members.length}</span> of <span className="font-bold text-neutral-700">{orgData.members.length}</span></p>
+            <p>Displaying <span className="font-bold text-neutral-700 dark:text-neutral-200">{orgData.members.length}</span> of <span className="font-bold text-neutral-700 dark:text-neutral-200">{orgData.members.length}</span></p>
             <div className="flex gap-x-4">
               <button disabled className="text-neutral-400">Previous</button>
-              <button className="font-medium text-neutral-700">1</button>
+              <button className="font-medium text-neutral-700 dark:text-neutral-200">1</button>
               <button disabled className="text-neutral-400">Next</button>
             </div>
           </div>
@@ -272,40 +272,40 @@ const OrgMembers = () => {
         <div className="w-full">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <h3 className="text-sm font-semibold text-neutral-700">Individual invitations</h3>
+              <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Individual invitations</h3>
               <p className="text-sm text-muted-foreground mt-1">Manage pending invitations sent to users.</p>
             </div>
           </div>
           
-          <div className="grid grid-cols-12 text-sm font-semibold text-neutral-500 pb-3 border-b mb-3">
+          <div className="grid grid-cols-12 text-sm font-semibold text-neutral-500 pb-3 border-b border-b-neutral-200 dark:border-b-neutral-800 mb-3">
             <div className="col-span-6">User</div>
             <div className="col-span-4">Invited</div>
             <div className="col-span-2">Role</div>
           </div>
           
           {(!orgData.invitations || orgData.invitations.length === 0) ? (
-            <div className="py-6 text-center text-sm font-medium text-neutral-700">
+            <div className="py-6 text-center text-sm font-medium text-neutral-700 dark:text-neutral-300">
               No invitations to display
             </div>
           ) : (
             <div className="space-y-1">
               {orgData.invitations.map((inv) => (
-                <div key={inv._id || inv.email} className="grid grid-cols-12 items-center py-3 border-b border-neutral-100 last:border-0">
+                <div key={inv._id || inv.email} className="grid grid-cols-12 items-center py-3 border-b border-neutral-100 dark:border-neutral-800 last:border-0">
                   <div className="col-span-6 flex items-center gap-x-3">
-                    <div className="w-9 h-9 bg-neutral-200 text-neutral-500 rounded-full flex items-center justify-center font-bold">
+                    <div className="w-9 h-9 bg-neutral-200 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 rounded-full flex items-center justify-center font-bold">
                       {inv.email.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-medium text-sm text-neutral-700">{inv.email}</p>
+                      <p className="font-medium text-sm text-neutral-700 dark:text-neutral-200">{inv.email}</p>
                     </div>
                   </div>
                   
-                  <div className="col-span-4 text-sm text-neutral-600">
+                  <div className="col-span-4 text-sm text-neutral-600 dark:text-neutral-400">
                     {format(new Date(inv.invitedAt || Date.now()), "dd/MM/yyyy")}
                   </div>
                   
                   <div className="col-span-2 flex items-center justify-between pr-2">
-                    <span className="text-sm text-neutral-600 capitalize">{inv.role}</span>
+                    <span className="text-sm text-neutral-600 dark:text-neutral-400 capitalize">{inv.role}</span>
                     {isAdmin && (
                       <Popover>
                         <PopoverTrigger asChild>
@@ -332,11 +332,11 @@ const OrgMembers = () => {
             </div>
           )}
           
-          <div className="mt-6 flex items-center justify-between text-sm text-neutral-500 border-t pt-4">
-            <p>Displaying <span className="font-bold text-neutral-700">{orgData.invitations?.length || 0}</span> of <span className="font-bold text-neutral-700">{orgData.invitations?.length || 0}</span></p>
+          <div className="mt-6 flex items-center justify-between text-sm text-neutral-500 border-t dark:border-t-neutral-800 pt-4">
+            <p>Displaying <span className="font-bold text-neutral-700 dark:text-neutral-200">{orgData.invitations?.length || 0}</span> of <span className="font-bold text-neutral-700 dark:text-neutral-200">{orgData.invitations?.length || 0}</span></p>
             <div className="flex gap-x-4">
               <button disabled className="text-neutral-400">Previous</button>
-              <button className="font-medium text-neutral-700">1</button>
+              <button className="font-medium text-neutral-700 dark:text-neutral-200">1</button>
               <button disabled className="text-neutral-400">Next</button>
             </div>
           </div>

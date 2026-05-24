@@ -103,11 +103,11 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage, coverImag
   if (loading && attachments.length === 0) {
     return (
       <div className="flex items-start gap-x-3 w-full mb-8">
-        <Paperclip className="h-5 w-5 mt-0.5 text-neutral-400" />
+        <Paperclip className="h-5 w-5 mt-0.5 text-muted-foreground" />
         <div className="w-full">
-          <p className="font-semibold text-neutral-400 mb-4">Attachments</p>
+          <p className="font-semibold text-muted-foreground mb-4">Attachments</p>
           <div className="space-y-3">
-            <div className="w-full h-[80px] bg-neutral-200 animate-pulse rounded-md" />
+            <div className="w-full h-[80px] bg-muted animate-pulse rounded-md" />
           </div>
         </div>
       </div>
@@ -120,10 +120,10 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage, coverImag
 
   return (
     <div className="flex items-start gap-x-3 w-full mb-8">
-      <Paperclip className="h-5 w-5 mt-0.5 text-neutral-700" />
+      <Paperclip className="h-5 w-5 mt-0.5 text-muted-foreground" />
       <div className="w-full">
         <div className="flex items-center justify-between mb-4">
-          <p className="font-semibold text-neutral-700">Attachments</p>
+          <p className="font-semibold text-foreground">Attachments</p>
           {!showDropzone && (
             <Button variant="gray" size="sm" onClick={() => setShowDropzone(true)}>
               Add
@@ -132,23 +132,23 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage, coverImag
         </div>
 
         {showDropzone && (
-          <div className="mb-4 bg-neutral-50 p-3 border border-neutral-200 rounded-md shadow-sm">
+          <div className="mb-4 bg-muted/50 p-3 border border-border rounded-md shadow-sm">
             <div className="mb-3">
-              <label className="text-xs font-semibold text-neutral-700 mb-1 block">Search or paste a link*</label>
+              <label className="text-xs font-semibold text-foreground mb-1 block">Search or paste a link*</label>
               <input 
                 value={linkUrl} 
                 onChange={(e) => setLinkUrl(e.target.value)} 
                 placeholder="Find recent links or paste a new link" 
-                className="w-full h-8 px-2 text-sm border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full h-8 px-2 text-sm bg-input text-foreground border border-input rounded focus:outline-none focus:ring-2 focus:ring-primary" 
               />
             </div>
             <div className="mb-4">
-              <label className="text-xs font-semibold text-neutral-700 mb-1 block">Display text (optional)</label>
+              <label className="text-xs font-semibold text-foreground mb-1 block">Display text (optional)</label>
               <input 
                 value={linkTitle} 
                 onChange={(e) => setLinkTitle(e.target.value)} 
                 placeholder="Text to display" 
-                className="w-full h-8 px-2 text-sm border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full h-8 px-2 text-sm bg-input text-foreground border border-input rounded focus:outline-none focus:ring-2 focus:ring-primary" 
               />
             </div>
             <div className="flex items-center gap-x-2 mb-4">
@@ -156,8 +156,8 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage, coverImag
               <Button variant="ghost" onClick={() => setShowDropzone(false)}>Cancel</Button>
             </div>
             
-            <hr className="mb-4 border-neutral-200" />
-            <p className="text-xs font-semibold text-neutral-700 mb-2">Or choose a file</p>
+            <hr className="mb-4 border-border" />
+            <p className="text-xs font-semibold text-foreground mb-2">Or choose a file</p>
             <AttachmentDropzone 
               onUpload={handleUpload} 
               isUploading={uploading} 
@@ -168,7 +168,7 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage, coverImag
 
         {links.length > 0 && (
           <div className="mb-6">
-            <p className="text-sm font-semibold text-neutral-700 mb-2">Links</p>
+            <p className="text-sm font-semibold text-foreground mb-2">Links</p>
             {links.map(attachment => (
               <AttachmentItem 
                 key={attachment._id} 
@@ -184,7 +184,7 @@ export const AttachmentSection = forwardRef(({ cardId, onPreviewImage, coverImag
 
         {files.length > 0 && (
           <div className="mt-2">
-            <p className="text-sm font-semibold text-neutral-700 mb-2">Files</p>
+            <p className="text-sm font-semibold text-foreground mb-2">Files</p>
             {files.map(attachment => (
               <AttachmentItem 
                 key={attachment._id} 

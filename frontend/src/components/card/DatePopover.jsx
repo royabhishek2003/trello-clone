@@ -157,12 +157,12 @@ export const DatePopover = ({ children }) => {
         collisionPadding={20}
         style={{ maxHeight: 'var(--radix-popover-content-available-height)' }}
       >
-        <div className="relative flex items-center justify-center pb-2 mb-4 border-b border-neutral-200">
-          <span className="font-semibold text-sm text-neutral-700">
+        <div className="relative flex items-center justify-center pb-2 mb-4 border-b border-border">
+          <span className="font-semibold text-sm text-foreground">
             Dates
           </span>
           <Button
-            className="absolute right-0 top-0 h-auto w-auto p-1 text-neutral-600 hover:bg-neutral-200"
+            className="absolute right-0 top-0 h-auto w-auto p-1 text-muted-foreground hover:bg-hover-bg hover:text-foreground"
             variant="ghost"
             onClick={() => setIsOpen(false)}
           >
@@ -178,10 +178,10 @@ export const DatePopover = ({ children }) => {
 
         <div className="flex flex-col gap-y-4">
           <div className="flex flex-col gap-y-1.5">
-            <label className="text-xs font-bold text-neutral-700">Start date</label>
+            <label className="text-xs font-bold text-foreground">Start date</label>
             <div className="flex items-center gap-x-2">
               <div 
-                className={`w-4 h-4 rounded-sm flex items-center justify-center cursor-pointer transition-colors ${enableStartDate ? 'bg-blue-500 text-white' : 'bg-neutral-100 border-2 border-neutral-300'}`}
+                className={`w-4 h-4 rounded-sm flex items-center justify-center cursor-pointer transition-colors ${enableStartDate ? 'bg-primary text-primary-foreground' : 'bg-input border-2 border-input'}`}
                 onClick={() => {
                   const newState = !enableStartDate;
                   setEnableStartDate(newState);
@@ -199,17 +199,17 @@ export const DatePopover = ({ children }) => {
                 onFocus={() => setActiveField('startDate')}
                 onChange={(e) => setStartDate(e.target.value)}
                 placeholder="M/D/YYYY"
-                className={`text-sm h-9 bg-neutral-100 transition-all ${!enableStartDate ? 'opacity-50 cursor-not-allowed border-transparent' : 'border-neutral-300 focus:border-blue-500'} ${activeField === 'startDate' ? 'border-blue-500 ring-1 ring-blue-500' : ''}`}
+                className={`text-sm h-9 bg-input text-foreground transition-all ${!enableStartDate ? 'opacity-50 cursor-not-allowed border-transparent' : 'border-input focus:border-primary'} ${activeField === 'startDate' ? 'border-primary ring-1 ring-primary' : ''}`}
                 disabled={!enableStartDate}
               />
             </div>
           </div>
 
           <div className="flex flex-col gap-y-1.5">
-            <label className="text-xs font-bold text-neutral-700">Due date</label>
+            <label className="text-xs font-bold text-foreground">Due date</label>
             <div className="flex items-center gap-x-2">
               <div 
-                className={`w-4 h-4 rounded-sm flex items-center justify-center cursor-pointer transition-colors ${enableDueDate ? 'bg-blue-500 text-white' : 'bg-neutral-100 border-2 border-neutral-300'}`}
+                className={`w-4 h-4 rounded-sm flex items-center justify-center cursor-pointer transition-colors ${enableDueDate ? 'bg-primary text-primary-foreground' : 'bg-input border-2 border-input'}`}
                 onClick={() => {
                   const newState = !enableDueDate;
                   setEnableDueDate(newState);
@@ -227,7 +227,7 @@ export const DatePopover = ({ children }) => {
                 onFocus={() => setActiveField('dueDate')}
                 onChange={(e) => setDueDate(e.target.value)}
                 placeholder="M/D/YYYY"
-                className={`w-28 text-sm h-9 bg-neutral-100 transition-all ${!enableDueDate ? 'opacity-50 cursor-not-allowed border-transparent' : 'border-neutral-300 focus:border-blue-500'} ${activeField === 'dueDate' ? 'border-blue-500 ring-1 ring-blue-500' : ''}`}
+                className={`w-28 text-sm h-9 bg-input text-foreground transition-all ${!enableDueDate ? 'opacity-50 cursor-not-allowed border-transparent' : 'border-input focus:border-primary'} ${activeField === 'dueDate' ? 'border-primary ring-1 ring-primary' : ''}`}
                 disabled={!enableDueDate}
               />
               <div className="relative flex-1" ref={timeDropdownRef}>
@@ -237,19 +237,19 @@ export const DatePopover = ({ children }) => {
                     value={dueTime}
                     onChange={(e) => setDueTime(e.target.value)}
                     placeholder="h:mm a"
-                    className={`w-full pr-8 text-sm h-9 bg-neutral-100 transition-opacity cursor-pointer ${!enableDueDate ? 'opacity-50 cursor-not-allowed border-transparent' : 'border-neutral-300 focus:border-blue-500'}`}
+                    className={`w-full pr-8 text-sm h-9 bg-input text-foreground transition-opacity cursor-pointer ${!enableDueDate ? 'opacity-50 cursor-not-allowed border-transparent' : 'border-input focus:border-primary'}`}
                     disabled={!enableDueDate}
                     readOnly
                   />
-                  <ChevronDown className={`absolute right-2 top-2.5 h-4 w-4 ${!enableDueDate ? 'text-neutral-400' : 'text-neutral-600 cursor-pointer'}`} />
+                  <ChevronDown className={`absolute right-2 top-2.5 h-4 w-4 ${!enableDueDate ? 'text-muted-foreground' : 'text-foreground cursor-pointer'}`} />
                 </div>
                 
                 {isTimeDropdownOpen && enableDueDate && (
-                  <div className="absolute top-full left-0 mt-1 w-full max-h-48 overflow-y-auto bg-white border border-neutral-200 rounded-sm shadow-lg z-50 py-1 scrollbar-thin">
+                  <div className="absolute top-full left-0 mt-1 w-full max-h-48 overflow-y-auto bg-popover border border-border rounded-sm shadow-lg z-50 py-1 scrollbar-thin">
                     {TIME_OPTIONS.map((time, idx) => (
                       <div 
                         key={idx}
-                        className={`px-3 py-1.5 text-sm cursor-pointer hover:bg-blue-50 ${time === dueTime ? 'bg-blue-100 text-blue-700 font-medium' : 'text-neutral-700'}`}
+                        className={`px-3 py-1.5 text-sm cursor-pointer hover:bg-hover-bg ${time === dueTime ? 'bg-primary/20 text-primary font-medium' : 'text-foreground'}`}
                         onClick={() => {
                           setDueTime(time);
                           setIsTimeDropdownOpen(false);
@@ -264,15 +264,15 @@ export const DatePopover = ({ children }) => {
             </div>
           </div>
 
-          <div className="bg-neutral-100 p-2 text-xs text-neutral-600 rounded-sm mb-1 mt-1 leading-relaxed">
+          <div className="bg-muted p-2 text-xs text-muted-foreground rounded-sm mb-1 mt-1 leading-relaxed">
             Reminders will be sent to all members and watchers of this card.
           </div>
 
           <div className="flex flex-col gap-y-2">
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold" onClick={handleSave}>
+            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold" onClick={handleSave}>
               Save
             </Button>
-            <Button className="w-full bg-neutral-200 hover:bg-neutral-300 text-neutral-800 font-semibold" onClick={handleRemove}>
+            <Button className="w-full bg-muted hover:bg-hover-bg text-foreground font-semibold" onClick={handleRemove}>
               Remove
             </Button>
           </div>

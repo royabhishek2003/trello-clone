@@ -28,10 +28,10 @@ export const ChecklistPopover = ({ children, onAdd }) => {
         collisionPadding={20}
         style={{ maxHeight: 'var(--radix-popover-content-available-height)' }}
       >
-        <div className="relative flex items-center justify-center pb-2 mb-4 border-b border-neutral-200">
-          <span className="font-semibold text-sm text-neutral-700">Add checklist</span>
+        <div className="relative flex items-center justify-center pb-2 mb-4 border-b border-border">
+          <span className="font-semibold text-sm text-foreground">Add checklist</span>
           <Button
-            className="absolute right-0 top-0 h-auto w-auto p-1 text-neutral-600 hover:bg-neutral-200"
+            className="absolute right-0 top-0 h-auto w-auto p-1 text-muted-foreground hover:bg-hover-bg hover:text-foreground"
             variant="ghost"
             onClick={() => setIsOpen(false)}
           >
@@ -41,11 +41,11 @@ export const ChecklistPopover = ({ children, onAdd }) => {
 
         <div className="flex flex-col gap-y-3">
           <div>
-            <label className="text-xs font-bold text-neutral-700 mb-1 block">Title</label>
+            <label className="text-xs font-bold text-foreground mb-1 block">Title</label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="text-sm h-9 bg-neutral-100 border-2 border-transparent focus:border-blue-500 focus:bg-white"
+              className="text-sm h-9 bg-input text-foreground border-transparent hover:border-input focus:border-primary"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleAdd();

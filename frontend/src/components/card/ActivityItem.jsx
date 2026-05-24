@@ -47,18 +47,18 @@ export const ActivityItem = React.memo(({ log, onDelete, onEdit }) => {
       </div>
       <div className="flex flex-col w-full">
         <div className="flex items-center gap-x-2 mb-1">
-          <span className="font-semibold text-sm text-neutral-800">{log.userName}</span>
-          <span className="text-xs text-neutral-500 hover:underline cursor-pointer" title={format(new Date(log.createdAt), "MMM d, yyyy 'at' h:mm a")}>
+          <span className="font-semibold text-sm text-foreground">{log.userName}</span>
+          <span className="text-xs text-muted-foreground hover:underline cursor-pointer" title={format(new Date(log.createdAt), "MMM d, yyyy 'at' h:mm a")}>
             {formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}
           </span>
         </div>
         
         {isComment ? (
-          <div className="bg-white border rounded-md shadow-sm px-3 py-2 text-sm text-neutral-700 w-full mb-1">
+          <div className="bg-card border-border border rounded-md shadow-sm px-3 py-2 text-sm text-card-foreground w-full mb-1">
             {renderTextWithMentions(log.text)}
           </div>
         ) : (
-          <p className="text-sm text-neutral-700">
+          <p className="text-sm text-foreground">
             {log.details ? (
               <>{log.details} <span className="font-medium">"{log.entityTitle}"</span></>
             ) : (
@@ -68,10 +68,10 @@ export const ActivityItem = React.memo(({ log, onDelete, onEdit }) => {
         )}
 
         {isComment && onDelete && (
-          <div className="flex items-center gap-x-2 text-xs text-neutral-500 font-medium">
-            <button className="hover:underline hover:text-neutral-700">Edit</button>
+          <div className="flex items-center gap-x-2 text-xs text-muted-foreground font-medium">
+            <button className="hover:underline hover:text-foreground">Edit</button>
             <span>•</span>
-            <button className="hover:underline hover:text-neutral-700" onClick={() => onDelete(log._id)}>Delete</button>
+            <button className="hover:underline hover:text-foreground" onClick={() => onDelete(log._id)}>Delete</button>
           </div>
         )}
       </div>

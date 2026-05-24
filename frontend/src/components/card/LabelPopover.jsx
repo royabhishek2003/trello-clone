@@ -116,23 +116,23 @@ export const LabelPopover = ({ children }) => {
         {children}
       </PopoverTrigger>
       <PopoverContent className="w-80 pt-3 max-h-[300px] overflow-y-auto" align="start" side="bottom">
-        <div className="relative flex items-center justify-center pb-2 mb-4 border-b">
+        <div className="relative flex items-center justify-center pb-2 mb-4 border-b border-border">
           {view !== 'list' && (
             <Button
-              className="absolute left-0 top-0 h-auto w-auto p-1 text-neutral-600"
+              className="absolute left-0 top-0 h-auto w-auto p-1 text-muted-foreground hover:bg-hover-bg hover:text-foreground"
               variant="ghost"
               onClick={() => setView('list')}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
           )}
-          <span className="font-semibold text-sm text-neutral-700">
+          <span className="font-semibold text-sm text-foreground">
             {view === 'list' && 'Labels'}
             {view === 'create' && 'Create label'}
             {view === 'edit' && 'Edit label'}
           </span>
           <Button
-            className="absolute right-0 top-0 h-auto w-auto p-1 text-neutral-600"
+            className="absolute right-0 top-0 h-auto w-auto p-1 text-muted-foreground hover:bg-hover-bg hover:text-foreground"
             variant="ghost"
             onClick={() => setIsOpen(false)}
           >
@@ -142,11 +142,11 @@ export const LabelPopover = ({ children }) => {
 
         {view === 'list' && (
           <div className="flex flex-col gap-y-2">
-            <p className="text-xs font-semibold text-neutral-700">Labels</p>
+            <p className="text-xs font-semibold text-foreground">Labels</p>
             {loading ? (
-              <p className="text-sm text-neutral-500">Loading...</p>
+              <p className="text-sm text-muted-foreground">Loading...</p>
             ) : labels.length === 0 ? (
-              <p className="text-sm text-neutral-500 mb-2">No labels found.</p>
+              <p className="text-sm text-muted-foreground mb-2">No labels found.</p>
             ) : (
               <ul className="flex flex-col gap-y-1 mb-2">
                 {labels.map(label => {
@@ -164,7 +164,7 @@ export const LabelPopover = ({ children }) => {
                       </div>
                       <Button
                         variant="ghost"
-                        className="h-8 w-8 p-0 shrink-0 rounded-sm hover:bg-neutral-200"
+                        className="h-8 w-8 p-0 shrink-0 rounded-sm hover:bg-hover-bg"
                         onClick={() => {
                           setEditingLabel(label);
                           setTitle(label.title);
@@ -172,7 +172,7 @@ export const LabelPopover = ({ children }) => {
                           setView('edit');
                         }}
                       >
-                        <Edit2 className="h-4 w-4 text-neutral-600" />
+                        <Edit2 className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     </li>
                   );
@@ -180,7 +180,7 @@ export const LabelPopover = ({ children }) => {
               </ul>
             )}
             <Button
-              className="w-full bg-neutral-200 text-neutral-700 hover:bg-neutral-300 transition"
+              className="w-full bg-muted text-foreground hover:bg-hover-bg transition"
               onClick={() => {
                 resetForm();
                 setView('create');
@@ -201,17 +201,17 @@ export const LabelPopover = ({ children }) => {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-neutral-700">Title</label>
+              <label className="text-xs font-semibold text-foreground">Title</label>
               <Input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 placeholder="Label name"
-                className="h-8 text-sm"
+                className="h-8 text-sm bg-input text-foreground border-transparent focus:border-primary"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-neutral-700">Select a color</label>
+              <label className="text-xs font-semibold text-foreground">Select a color</label>
               <div className="grid grid-cols-5 gap-2">
                 {COLORS.map(c => (
                   <div

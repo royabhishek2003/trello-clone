@@ -13,6 +13,8 @@ import { useNavigate } from 'react-router-dom';
 import OrgMembers from '../components/organization/OrgMembers';
 import api from '../services/api';
 import { toast } from 'sonner';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../components/ui/dialog';
 
 const OrgSettings = () => {
   const dispatch = useDispatch();
@@ -23,6 +25,7 @@ const OrgSettings = () => {
   const [orgName, setOrgName] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -48,12 +51,11 @@ const OrgSettings = () => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to permanently delete this organization? This action cannot be undone.")) return;
-    
     try {
       setIsDeleting(true);
       await dispatch(deleteOrganization(currentOrg._id)).unwrap();
       toast.success('Organization deleted successfully');
+      setIsDeleteDialogOpen(false);
       navigate('/');
     } catch (error) {
       toast.error(error || 'Failed to delete organization');
@@ -90,19 +92,19 @@ const OrgSettings = () => {
       <div className="h-full overflow-y-auto px-4 md:px-6 pt-20 md:pt-24 pb-10">
         <div className="max-w-6xl 2xl:max-w-screen-xl mx-auto flex gap-x-7">
           <div className="flex-1 min-w-0 space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border border-neutral-200 flex min-h-[500px]">
+            <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800 flex flex-col md:flex-row min-h-[500px]">
               {/* Inner Sidebar */}
-              <div className="w-[280px] p-4 border-r border-neutral-200 flex flex-col gap-y-1">
-                <div className="flex items-center gap-x-3 p-3 mb-2">
+              <div className="w-full md:w-[280px] p-2 md:p-4 border-b md:border-b-0 md:border-r border-neutral-200 dark:border-neutral-800 flex flex-row md:flex-col gap-x-2 md:gap-y-1 overflow-x-auto">
+                <div className="hidden md:flex items-center gap-x-3 p-3 mb-2">
                   <div className="w-9 h-9 bg-indigo-500 rounded flex items-center justify-center shrink-0">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
                   </div>
-                  <p className="font-semibold text-sm text-neutral-700 truncate">{currentOrg.name}</p>
+                  <p className="font-semibold text-sm text-neutral-700 dark:text-neutral-200 truncate">{currentOrg.name}</p>
                 </div>
                 
                 <button 
                   onClick={() => setActiveView('members')}
-                  className={`flex items-center gap-x-3 px-3 py-2 rounded-md text-sm font-medium w-full text-left transition-colors ${activeView === 'members' ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-100/50 hover:text-neutral-900'}`}
+                  className={`flex items-center justify-center md:justify-start gap-x-2 md:gap-x-3 px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap md:w-full text-left transition-colors ${activeView === 'members' ? 'bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-white' : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100/50 hover:dark:bg-neutral-800/50 hover:text-neutral-900 hover:dark:text-white'}`}
                 >
                   <User className="h-4 w-4" />
                   Members
@@ -110,7 +112,7 @@ const OrgSettings = () => {
                 
                 <button 
                   onClick={() => setActiveView('settings_overview')}
-                  className={`flex items-center gap-x-3 px-3 py-2 rounded-md text-sm font-medium w-full text-left transition-colors ${activeView.startsWith('settings') || activeView === 'organization_profile' ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-100/50 hover:text-neutral-900'}`}
+                  className={`flex items-center justify-center md:justify-start gap-x-2 md:gap-x-3 px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap md:w-full text-left transition-colors ${activeView.startsWith('settings') || activeView === 'organization_profile' ? 'bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-white' : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100/50 hover:dark:bg-neutral-800/50 hover:text-neutral-900 hover:dark:text-white'}`}
                 >
                   <Settings className="h-4 w-4" />
                   Settings
@@ -118,59 +120,68 @@ const OrgSettings = () => {
               </div>
               
               {/* Main Content Area */}
-              <div className="flex-1 p-8">
+              <div className="flex-1 p-4 md:p-8">
                 {activeView === 'members' ? (
                   <OrgMembers />
                 ) : activeView === 'settings_overview' ? (
                   <div className="max-w-2xl">
-                    <h2 className="text-3xl font-bold text-neutral-900 mb-1">Settings</h2>
+                    <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mb-1">Settings</h2>
                     <p className="text-muted-foreground mb-8 text-sm">Manage organization settings</p>
                     
-                    <h3 className="text-sm font-semibold text-neutral-900 mb-3">Organization Profile</h3>
+                    <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-3">Organization Profile</h3>
                     <div 
-                      className="flex items-center justify-between p-4 bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 rounded-md cursor-pointer transition-colors"
+                      className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-800/50 hover:bg-neutral-100 hover:dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-md cursor-pointer transition-colors"
                       onClick={() => setActiveView('organization_profile')}
                     >
                       <div className="flex items-center gap-x-4">
                         <div className="w-12 h-12 bg-indigo-500 rounded-md flex items-center justify-center shrink-0 shadow-sm">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
                         </div>
-                        <p className="font-medium text-neutral-700">{currentOrg.name}</p>
+                        <p className="font-medium text-neutral-700 dark:text-neutral-200">{currentOrg.name}</p>
                       </div>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-400"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-400 dark:text-neutral-500"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                     </div>
 
                     <div className="mt-10">
-                      <h3 className="text-sm font-semibold text-neutral-900 mb-3">Danger</h3>
-                      <div className="border border-neutral-200 bg-white rounded-md flex items-center gap-x-4 p-4 border-t border-t-red-100/50">
-                        <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 text-xs font-semibold px-4 py-2 h-auto" onClick={() => toast.error("Action disabled in this demo")}>
+                      <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-3">Danger</h3>
+                      <div className="border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800/50 rounded-md flex items-center gap-x-4 p-4 border-t border-t-red-100/50 dark:border-t-red-900/50">
+                        <Button variant="outline" className="text-red-600 border-red-200 dark:border-red-900 hover:bg-red-50 hover:dark:bg-red-900/20 hover:text-red-700 dark:hover:text-red-500 text-xs font-semibold px-4 py-2 h-auto" onClick={() => toast.error("Action disabled in this demo")}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                           LEAVE ORGANIZATION
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 text-xs font-semibold px-4 py-2 h-auto" 
-                          onClick={handleDelete}
-                          disabled={isDeleting}
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                          {isDeleting ? 'DELETING...' : 'DELETE ORGANIZATION'}
-                        </Button>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                className="text-red-600 border-red-200 dark:border-red-900 hover:bg-red-50 hover:dark:bg-red-900/20 hover:text-red-700 dark:hover:text-red-500 text-xs font-semibold px-4 py-2 h-auto" 
+                                onClick={() => setIsDeleteDialogOpen(true)}
+                                disabled={isDeleting}
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                {isDeleting ? 'DELETING...' : 'DELETE ORGANIZATION'}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="bg-red-600 text-white border-red-600">
+                              <p>Danger you will lost all your data of this organization</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     </div>
                   </div>
                 ) : (
                   <div className="max-w-2xl">
                     <div className="flex items-center text-sm text-muted-foreground mb-6">
-                      <button onClick={() => setActiveView('settings_overview')} className="flex items-center hover:text-neutral-700 transition-colors">
+                      <button onClick={() => setActiveView('settings_overview')} className="flex items-center hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors">
                         <Settings className="h-4 w-4 mr-2" />
                         Settings
                       </button>
                       <span className="mx-2">/</span>
-                      <span className="text-neutral-700 font-medium">Organization Profile</span>
+                      <span className="text-neutral-700 dark:text-neutral-200 font-medium">Organization Profile</span>
                     </div>
                     
-                    <h2 className="text-3xl font-bold text-neutral-900 mb-1">Organization Profile</h2>
+                    <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mb-1">Organization Profile</h2>
                     <p className="text-muted-foreground mb-8 text-sm">Manage organization profile</p>
                     
                     <div className="flex items-center gap-x-4 mb-8">
@@ -178,29 +189,29 @@ const OrgSettings = () => {
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
                       </div>
                       <div>
-                        <p className="font-semibold text-sm text-neutral-700">Profile image</p>
-                        <button className="text-sm text-indigo-600 hover:text-indigo-700 font-medium mt-1">Upload image</button>
+                        <p className="font-semibold text-sm text-neutral-700 dark:text-neutral-200">Profile image</p>
+                        <button className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium mt-1">Upload image</button>
                       </div>
                     </div>
                     
                     <div className="space-y-6">
                       <div>
-                        <label className="block text-sm font-semibold text-neutral-900 mb-2">Organization name</label>
+                        <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">Organization name</label>
                         <input 
                           type="text" 
                           value={orgName}
                           onChange={(e) => setOrgName(e.target.value)}
-                          className="w-full px-3 py-2 border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-semibold text-neutral-900 mb-2">Slug URL</label>
+                        <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">Slug URL</label>
                         <input 
                           type="text" 
                           value={generateSlug(orgName) + '-'}
                           disabled
-                          className="w-full px-3 py-2 border border-neutral-200 bg-neutral-50 text-neutral-500 rounded-md shadow-sm sm:text-sm"
+                          className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 rounded-md shadow-sm sm:text-sm"
                         />
                       </div>
                       
@@ -229,6 +240,23 @@ const OrgSettings = () => {
           </div>
         </div>
       </div>
+      
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Organization</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to permanently delete this organization? This action cannot be undone. All boards and cards will be lost.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4 gap-2">
+            <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)} disabled={isDeleting}>Cancel</Button>
+            <Button variant="primary" className="bg-red-600 hover:bg-red-700 shadow-none border-none text-white font-semibold" onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting ? 'Deleting...' : 'Delete Organization'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </ResponsiveBoardShell>
   );
 };

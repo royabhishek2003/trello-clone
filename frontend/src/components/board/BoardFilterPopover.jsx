@@ -64,8 +64,8 @@ export const BoardFilterPopover = () => {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-3 shadow-xl" align="end" sideOffset={10}>
-        <div className="flex items-center justify-between border-b pb-2 mb-3">
-          <span className="font-semibold text-sm text-slate-700">Filter</span>
+        <div className="flex items-center justify-between border-b border-border pb-2 mb-3">
+          <span className="font-semibold text-sm text-foreground">Filter</span>
           {activeFilterCount > 0 && (
             <Button variant="ghost" size="sm" onClick={handleClearAll} className="h-auto py-1 px-2 text-xs text-sky-600 hover:text-sky-700 hover:bg-sky-50">
               Clear all
@@ -77,16 +77,16 @@ export const BoardFilterPopover = () => {
           
           {/* Members */}
           <div className="flex flex-col gap-y-2">
-            <h4 className="text-xs font-semibold text-slate-500 flex items-center gap-x-2">
+            <h4 className="text-xs font-semibold text-muted-foreground flex items-center gap-x-2">
               <User className="h-3 w-3" /> Members
             </h4>
             <div className="flex flex-col gap-y-1">
               {user && (
                 <div 
-                  className="flex items-center gap-x-2 p-1.5 rounded-md hover:bg-slate-100 cursor-pointer"
+                  className="flex items-center gap-x-2 p-1.5 rounded-md hover:bg-hover-bg cursor-pointer"
                   onClick={() => handleToggle('members', user._id)}
                 >
-                  <div className={`h-4 w-4 border rounded-sm flex items-center justify-center ${filters.members.includes(user._id) ? 'bg-sky-600 border-sky-600' : 'border-slate-300'}`}>
+                  <div className={`h-4 w-4 border rounded-sm flex items-center justify-center ${filters.members.includes(user._id) ? 'bg-sky-600 border-sky-600' : 'border-input'}`}>
                     {filters.members.includes(user._id) && <Check className="h-3 w-3 text-white" />}
                   </div>
                   <Avatar className="h-6 w-6">
@@ -102,10 +102,10 @@ export const BoardFilterPopover = () => {
                 return (
                   <div 
                     key={member._id}
-                    className="flex items-center gap-x-2 p-1.5 rounded-md hover:bg-slate-100 cursor-pointer"
+                    className="flex items-center gap-x-2 p-1.5 rounded-md hover:bg-hover-bg cursor-pointer"
                     onClick={() => handleToggle('members', member._id)}
                   >
-                    <div className={`h-4 w-4 border rounded-sm flex items-center justify-center ${isSelected ? 'bg-sky-600 border-sky-600' : 'border-slate-300'}`}>
+                    <div className={`h-4 w-4 border rounded-sm flex items-center justify-center ${isSelected ? 'bg-sky-600 border-sky-600' : 'border-input'}`}>
                       {isSelected && <Check className="h-3 w-3 text-white" />}
                     </div>
                     <Avatar className="h-6 w-6">
@@ -121,7 +121,7 @@ export const BoardFilterPopover = () => {
 
           {/* Due Dates */}
           <div className="flex flex-col gap-y-2">
-            <h4 className="text-xs font-semibold text-slate-500 flex items-center gap-x-2">
+            <h4 className="text-xs font-semibold text-muted-foreground flex items-center gap-x-2">
               <Clock className="h-3 w-3" /> Due date
             </h4>
             <div className="flex flex-col gap-y-1">
@@ -130,10 +130,10 @@ export const BoardFilterPopover = () => {
                 return (
                   <div 
                     key={option.id}
-                    className="flex items-center gap-x-2 p-1.5 rounded-md hover:bg-slate-100 cursor-pointer"
+                    className="flex items-center gap-x-2 p-1.5 rounded-md hover:bg-hover-bg cursor-pointer"
                     onClick={() => handleToggle('due', option.id)}
                   >
-                    <div className={`h-4 w-4 border rounded-sm flex items-center justify-center ${isSelected ? 'bg-sky-600 border-sky-600' : 'border-slate-300'}`}>
+                    <div className={`h-4 w-4 border rounded-sm flex items-center justify-center ${isSelected ? 'bg-sky-600 border-sky-600' : 'border-input'}`}>
                       {isSelected && <Check className="h-3 w-3 text-white" />}
                     </div>
                     <span className={`text-xs px-2 py-0.5 rounded-sm ${option.color}`}>
@@ -148,7 +148,7 @@ export const BoardFilterPopover = () => {
           {/* Labels */}
           {labels.length > 0 && (
             <div className="flex flex-col gap-y-2">
-              <h4 className="text-xs font-semibold text-slate-500 flex items-center gap-x-2">
+              <h4 className="text-xs font-semibold text-muted-foreground flex items-center gap-x-2">
                 <Tag className="h-3 w-3" /> Labels
               </h4>
               <div className="flex flex-col gap-y-1">
@@ -157,10 +157,10 @@ export const BoardFilterPopover = () => {
                   return (
                     <div 
                       key={label._id}
-                      className="flex items-center gap-x-2 p-1.5 rounded-md hover:bg-slate-100 cursor-pointer"
+                      className="flex items-center gap-x-2 p-1.5 rounded-md hover:bg-hover-bg cursor-pointer"
                       onClick={() => handleToggle('labels', label._id)}
                     >
-                      <div className={`h-4 w-4 border rounded-sm flex items-center justify-center shrink-0 ${isSelected ? 'bg-sky-600 border-sky-600' : 'border-slate-300'}`}>
+                      <div className={`h-4 w-4 border rounded-sm flex items-center justify-center shrink-0 ${isSelected ? 'bg-sky-600 border-sky-600' : 'border-input'}`}>
                         {isSelected && <Check className="h-3 w-3 text-white" />}
                       </div>
                       <div 

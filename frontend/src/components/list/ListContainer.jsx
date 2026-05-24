@@ -195,23 +195,23 @@ export const ListContainer = ({ boardId }) => {
               {!isAdding ? (
                 <button
                   onClick={() => setIsAdding(true)}
-                  className="w-full rounded-md bg-white/80 hover:bg-white/50 transition p-3 flex items-center font-medium text-sm text-neutral-800 backdrop-blur-sm"
+                  className="w-full rounded-md bg-white/80 dark:bg-black/50 hover:bg-white/60 dark:hover:bg-black/40 transition p-3 flex items-center font-medium text-sm text-slate-800 dark:text-slate-200 backdrop-blur-sm"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add a list
                 </button>
               ) : (
-                <form onSubmit={handleAddList} className="w-full bg-white rounded-md p-3 space-y-2 shadow-md">
+                <form onSubmit={handleAddList} className="w-full bg-list rounded-md p-3 space-y-2 shadow-md">
                   <Input 
                     value={title} 
                     onChange={e => setTitle(e.target.value)} 
                     placeholder="Enter list title..."
                     autoFocus
-                    className="text-sm px-2 py-1 h-7 border-none"
+                    className="text-sm px-2 py-1 h-7 border-transparent focus:border-input hover:border-input bg-input text-foreground transition"
                   />
                   <div className="flex items-center gap-x-1">
                     <Button type="submit" size="sm" variant="primary">Add list</Button>
-                    <Button type="button" onClick={() => setIsAdding(false)} size="sm" variant="ghost">
+                    <Button type="button" onClick={() => setIsAdding(false)} size="sm" variant="ghost" className="hover:bg-hover-bg text-muted-foreground">
                       <X className="h-4 w-4" />
                     </Button>
                   </div>

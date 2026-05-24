@@ -73,7 +73,7 @@ export const Checklist = ({ checklist, onUpdate, onDelete }) => {
       {/* Header */}
       <div className="flex items-start justify-between w-full mb-4">
         <div className="flex items-center gap-x-3 flex-1 min-w-0">
-          <CheckSquare className="h-5 w-5 text-neutral-700 flex-shrink-0" />
+          <CheckSquare className="h-5 w-5 text-muted-foreground flex-shrink-0" />
           {isEditingTitle ? (
             <Input
               value={title}
@@ -83,12 +83,12 @@ export const Checklist = ({ checklist, onUpdate, onDelete }) => {
                 if (e.key === 'Enter') handleSaveTitle();
               }}
               autoFocus
-              className="font-semibold text-lg px-1 text-neutral-700 h-8 flex-1"
+              className="font-semibold text-lg px-1 text-foreground h-8 flex-1 focus-visible:bg-input focus-visible:border-primary"
             />
           ) : (
             <div 
               onClick={() => setIsEditingTitle(true)}
-              className="font-semibold text-lg cursor-pointer hover:bg-neutral-200 py-0.5 px-1 rounded-sm break-words flex-1 min-w-0"
+              className="font-semibold text-lg cursor-pointer hover:bg-hover-bg py-0.5 px-1 rounded-sm break-words flex-1 min-w-0 text-foreground"
             >
               {checklist.title}
             </div>
@@ -117,12 +117,12 @@ export const Checklist = ({ checklist, onUpdate, onDelete }) => {
 
       {/* Progress Bar */}
       <div className="flex items-center gap-x-3 mb-4 w-full">
-        <div className="text-xs text-neutral-600 font-medium w-8 text-right">
+        <div className="text-xs text-muted-foreground font-medium w-8 text-right">
           {percentage}%
         </div>
-        <div className="flex-1 h-2 bg-neutral-200 rounded-full overflow-hidden">
+        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
           <div 
-            className={`h-full transition-all duration-300 ${percentage === 100 ? 'bg-green-600' : 'bg-blue-600'}`}
+            className={`h-full transition-all duration-300 ${percentage === 100 ? 'bg-green-600' : 'bg-primary'}`}
             style={{ width: `${percentage}%` }}
           />
         </div>

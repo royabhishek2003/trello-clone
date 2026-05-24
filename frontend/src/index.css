@@ -10,71 +10,106 @@ body,
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --background: 210 20% 98%; /* #fafbfc */
+    --foreground: 210 20% 15%; /* #172b4d */
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card: 0 0% 100%; /* #ffffff */
+    --card-foreground: 210 20% 15%;
  
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
+    --popover-foreground: 210 20% 15%;
  
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 212 100% 40%; /* #0052cc */
+    --primary-foreground: 0 0% 100%;
  
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 210 15% 94%; /* #ebecf0 */
+    --secondary-foreground: 210 20% 15%;
  
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 15% 94%;
+    --muted-foreground: 210 15% 45%; /* #5e6c84 */
  
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 210 15% 94%;
+    --accent-foreground: 210 20% 15%;
  
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 354 70% 54%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --border: 210 15% 88%; /* #dfe1e6 */
+    --input: 0 0% 100%;
+    --ring: 212 100% 40%;
+    
+    /* Custom Semantic Layers */
+    --navbar: 0 0% 100%;
+    --sidebar: 210 15% 96%;
+    --list: 210 15% 94%; /* #ebecf0 */
+    
+    /* States */
+    --hover-bg: 210 20% 15% 0.08;
+    --active-bg: 210 20% 15% 0.12;
+    --drag-bg: 210 20% 15% 0.15;
+    
+    --skeleton: 210 15% 90%;
+    --overlay: 0 0% 0% 0.4;
  
     --radius: 0.375rem;
   }
  
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 210 12% 13%; /* #1d2125 */
+    --foreground: 212 15% 75%; /* #b6c2cf */
  
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 210 11% 15%; /* #22272b */
+    --card-foreground: 212 15% 75%;
  
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 207 12% 18%; /* #282e33 */
+    --popover-foreground: 212 15% 75%;
  
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 215 100% 67%; /* #579dff */
+    --primary-foreground: 210 12% 13%;
  
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 210 11% 22%; /* #323940 */
+    --secondary-foreground: 212 15% 75%;
  
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 210 11% 22%;
+    --muted-foreground: 212 15% 60%;
  
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 210 11% 22%;
+    --accent-foreground: 212 15% 75%;
  
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 354 70% 65%;
+    --destructive-foreground: 210 12% 13%;
  
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --border: 210 11% 22%; /* #323940 */
+    --input: 210 11% 15%; /* #22272b */
+    --ring: 215 100% 67%;
+    
+    /* Custom Semantic Layers */
+    --navbar: 210 12% 13%;
+    --sidebar: 210 12% 11%;
+    --list: 205 13% 10%; /* #161a1d */
+    
+    /* States */
+    --hover-bg: 212 15% 75% 0.1;
+    --active-bg: 212 15% 75% 0.2;
+    --drag-bg: 212 15% 75% 0.25;
+    
+    --skeleton: 210 11% 22%;
+    --overlay: 0 0% 0% 0.65;
   }
 }
  
 @layer base {
   * {
     @apply border-border;
+  }
+
+  /* Smooth theme transitions */
+  *, ::before, ::after {
+    @media (prefers-reduced-motion: no-preference) {
+      transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 200ms;
+    }
   }
   html, body {
     min-height: 100dvh;

@@ -65,12 +65,12 @@ const OrgBilling = () => {
         <div className="max-w-6xl 2xl:max-w-screen-xl mx-auto flex gap-x-7">
           <div className="flex-1 min-w-0 space-y-6">
             {/* Header */}
-            <div className="flex items-center gap-x-4 pb-6 border-b border-neutral-200">
+            <div className="flex items-center gap-x-4 pb-6 border-b border-neutral-200 dark:border-neutral-800">
               <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shrink-0 shadow-sm">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
               </div>
               <div>
-                <h1 className="font-bold text-xl text-neutral-900">{currentOrg.name}</h1>
+                <h1 className="font-bold text-xl text-neutral-900 dark:text-white">{currentOrg.name}</h1>
                 <p className="text-sm text-muted-foreground flex items-center mt-1">
                   <CreditCard className="h-3.5 w-3.5 mr-1.5" />
                   {isPro ? "Pro" : "Free"}
@@ -84,15 +84,15 @@ const OrgBilling = () => {
               <div className="space-y-8">
                 {/* Current Plan */}
                 <div>
-                  <h2 className="text-lg font-semibold text-neutral-800 mb-4">Current Plan</h2>
-                  <div className={`rounded-lg border-2 p-6 ${isPro ? 'border-indigo-200 bg-indigo-50/30' : 'border-neutral-200 bg-neutral-50/50'}`}>
+                  <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">Current Plan</h2>
+                  <div className={`rounded-lg border-2 p-6 ${isPro ? 'border-indigo-200 dark:border-indigo-900/50 bg-indigo-50/30 dark:bg-indigo-900/10' : 'border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/50'}`}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-x-3">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isPro ? 'bg-indigo-500' : 'bg-neutral-400'}`}>
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isPro ? 'bg-indigo-500' : 'bg-neutral-400 dark:bg-neutral-700'}`}>
                           {isPro ? <Zap className="h-5 w-5 text-white" /> : <Shield className="h-5 w-5 text-white" />}
                         </div>
                         <div>
-                          <h3 className="font-bold text-neutral-900">{isPro ? 'Taskify Pro' : 'Taskify Free'}</h3>
+                          <h3 className="font-bold text-neutral-900 dark:text-white">{isPro ? 'Taskify Pro' : 'Taskify Free'}</h3>
                           <p className="text-sm text-muted-foreground">
                             {isPro ? 'Full access to all features' : 'Basic features for personal use'}
                           </p>
@@ -122,19 +122,19 @@ const OrgBilling = () => {
 
                 {/* Plan Comparison */}
                 <div>
-                  <h2 className="text-lg font-semibold text-neutral-800 mb-4">Plan Comparison</h2>
+                  <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">Plan Comparison</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Free Plan */}
-                    <div className={`rounded-lg border p-5 ${!isPro ? 'border-indigo-300 ring-1 ring-indigo-100' : 'border-neutral-200'}`}>
+                    <div className={`rounded-lg border p-5 ${!isPro ? 'border-indigo-300 dark:border-indigo-700 ring-1 ring-indigo-100 dark:ring-indigo-900/50' : 'border-neutral-200 dark:border-neutral-800'}`}>
                       <div className="flex items-center gap-x-2 mb-1">
-                        <Shield className="h-5 w-5 text-neutral-500" />
-                        <h3 className="font-bold text-neutral-800">Free</h3>
-                        {!isPro && <span className="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-semibold uppercase ml-1">Current</span>}
+                        <Shield className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
+                        <h3 className="font-bold text-neutral-800 dark:text-white">Free</h3>
+                        {!isPro && <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-1.5 py-0.5 rounded font-semibold uppercase ml-1">Current</span>}
                       </div>
-                      <p className="text-2xl font-bold text-neutral-900 mb-4">$0 <span className="text-sm font-normal text-muted-foreground">/ month</span></p>
+                      <p className="text-2xl font-bold text-neutral-900 dark:text-white mb-4">$0 <span className="text-sm font-normal text-muted-foreground">/ month</span></p>
                       <ul className="space-y-2.5">
                         {freeFeatures.map((f, i) => (
-                          <li key={i} className="flex items-start gap-x-2 text-sm text-neutral-600">
+                          <li key={i} className="flex items-start gap-x-2 text-sm text-neutral-600 dark:text-neutral-400">
                             <Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
                             {f}
                           </li>
@@ -143,16 +143,16 @@ const OrgBilling = () => {
                     </div>
 
                     {/* Pro Plan */}
-                    <div className={`rounded-lg border p-5 ${isPro ? 'border-indigo-300 ring-1 ring-indigo-100' : 'border-neutral-200'}`}>
+                    <div className={`rounded-lg border p-5 ${isPro ? 'border-indigo-300 dark:border-indigo-700 ring-1 ring-indigo-100 dark:ring-indigo-900/50' : 'border-neutral-200 dark:border-neutral-800'}`}>
                       <div className="flex items-center gap-x-2 mb-1">
                         <Zap className="h-5 w-5 text-indigo-500" />
-                        <h3 className="font-bold text-neutral-800">Pro</h3>
-                        {isPro && <span className="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-semibold uppercase ml-1">Current</span>}
+                        <h3 className="font-bold text-neutral-800 dark:text-white">Pro</h3>
+                        {isPro && <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-1.5 py-0.5 rounded font-semibold uppercase ml-1">Current</span>}
                       </div>
-                      <p className="text-2xl font-bold text-neutral-900 mb-4">₹1499 <span className="text-sm font-normal text-muted-foreground">/ month</span></p>
+                      <p className="text-2xl font-bold text-neutral-900 dark:text-white mb-4">₹1499 <span className="text-sm font-normal text-muted-foreground">/ month</span></p>
                       <ul className="space-y-2.5">
                         {proFeatures.map((f, i) => (
-                          <li key={i} className="flex items-start gap-x-2 text-sm text-neutral-600">
+                          <li key={i} className="flex items-start gap-x-2 text-sm text-neutral-600 dark:text-neutral-400">
                             <Check className="h-4 w-4 text-indigo-500 shrink-0 mt-0.5" />
                             {f}
                           </li>
@@ -164,27 +164,27 @@ const OrgBilling = () => {
 
                 {/* Billing Info */}
                 <div className="pb-8">
-                  <h2 className="text-lg font-semibold text-neutral-800 mb-4">Billing Information</h2>
-                  <div className="rounded-lg border border-neutral-200 p-5 bg-neutral-50/50">
+                  <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">Billing Information</h2>
+                  <div className="rounded-lg border border-neutral-200 dark:border-neutral-800 p-5 bg-neutral-50/50 dark:bg-neutral-800/50">
                     <div className="grid grid-cols-2 gap-y-4 text-sm">
                       <div>
                         <p className="text-muted-foreground">Payment method</p>
-                        <p className="font-medium text-neutral-700 mt-1">{isPro ? 'Razorpay' : 'None'}</p>
+                        <p className="font-medium text-neutral-700 dark:text-neutral-300 mt-1">{isPro ? 'Razorpay' : 'None'}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Billing cycle</p>
-                        <p className="font-medium text-neutral-700 mt-1">{isPro ? 'Monthly' : '—'}</p>
+                        <p className="font-medium text-neutral-700 dark:text-neutral-300 mt-1">{isPro ? 'Monthly' : '—'}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Workspace</p>
-                        <p className="font-medium text-neutral-700 mt-1">{currentOrg.name}</p>
+                        <p className="font-medium text-neutral-700 dark:text-neutral-300 mt-1">{currentOrg.name}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Status</p>
                         <p className="font-medium mt-1">
                           {isPro 
-                            ? <span className="text-green-600 bg-green-50 px-2 py-0.5 rounded text-xs font-semibold">Active</span>
-                            : <span className="text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded text-xs font-semibold">Free Tier</span>
+                            ? <span className="text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded text-xs font-semibold">Active</span>
+                            : <span className="text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-xs font-semibold">Free Tier</span>
                           }
                         </p>
                       </div>

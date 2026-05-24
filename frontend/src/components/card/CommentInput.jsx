@@ -126,7 +126,7 @@ export const CommentInput = forwardRef(({ cardId, boardMembers, onAddComment }, 
           user?.firstName?.charAt(0).toUpperCase()
         )}
       </div>
-      <div className="flex-1 border rounded-xl overflow-hidden bg-white shadow-sm transition focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500">
+      <div className="flex-1 border border-border rounded-xl overflow-hidden bg-card text-card-foreground shadow-sm transition focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary">
         <textarea
           ref={textareaRef}
           value={content}
@@ -134,33 +134,33 @@ export const CommentInput = forwardRef(({ cardId, boardMembers, onAddComment }, 
           onKeyDown={handleKeyDown}
           onFocus={() => setIsExpanded(true)}
           placeholder="Write a comment..."
-          className="w-full text-sm resize-none px-3 py-2.5 outline-none bg-transparent min-h-[40px] max-h-[300px]"
+          className="w-full text-sm resize-none px-3 py-2.5 outline-none bg-transparent min-h-[40px] max-h-[300px] text-foreground placeholder:text-muted-foreground"
           rows={1}
         />
         
         {isExpanded && (
-          <div className="flex items-center justify-between px-2 py-2 bg-neutral-50/50 border-t">
-            <div className="flex items-center gap-x-0.5 text-neutral-500">
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-neutral-200">
+          <div className="flex items-center justify-between px-2 py-2 bg-muted/30 border-t border-border">
+            <div className="flex items-center gap-x-0.5 text-muted-foreground">
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-hover-bg text-muted-foreground hover:text-foreground">
                 <Type className="h-3.5 w-3.5" />
               </Button>
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-neutral-200">
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-hover-bg text-muted-foreground hover:text-foreground">
                 <Bold className="h-3.5 w-3.5" />
               </Button>
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-neutral-200">
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-hover-bg text-muted-foreground hover:text-foreground">
                 <Italic className="h-3.5 w-3.5" />
               </Button>
-              <div className="w-px h-4 bg-neutral-300 mx-1" />
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-neutral-200">
+              <div className="w-px h-4 bg-border mx-1" />
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-hover-bg text-muted-foreground hover:text-foreground">
                 <List className="h-3.5 w-3.5" />
               </Button>
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-neutral-200">
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-hover-bg text-muted-foreground hover:text-foreground">
                 <Plus className="h-3.5 w-3.5" />
               </Button>
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-neutral-200">
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-hover-bg text-muted-foreground hover:text-foreground">
                 <Smile className="h-3.5 w-3.5" />
               </Button>
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-neutral-200">
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm hover:bg-hover-bg text-muted-foreground hover:text-foreground">
                 <Paperclip className="h-3.5 w-3.5" />
               </Button>
             </div>
@@ -174,14 +174,14 @@ export const CommentInput = forwardRef(({ cardId, boardMembers, onAddComment }, 
       </div>
 
       {showMentions && filteredMembers.length > 0 && (
-        <div className="absolute top-10 left-11 w-64 bg-white border shadow-lg rounded-md z-50 overflow-hidden">
+        <div className="absolute top-10 left-11 w-64 bg-popover text-popover-foreground border-border shadow-lg rounded-md z-50 overflow-hidden">
           {filteredMembers.map((member, i) => (
             <div
               key={member._id}
-              className={`flex items-center gap-x-2 px-3 py-2 cursor-pointer ${i === selectedMentionIndex ? 'bg-blue-50' : 'hover:bg-neutral-100'}`}
+              className={`flex items-center gap-x-2 px-3 py-2 cursor-pointer ${i === selectedMentionIndex ? 'bg-primary/10' : 'hover:bg-hover-bg'}`}
               onClick={() => selectMention(member)}
             >
-              <div className="w-6 h-6 bg-neutral-300 text-white rounded-full flex items-center justify-center text-xs font-semibold">
+              <div className="w-6 h-6 bg-muted text-muted-foreground rounded-full flex items-center justify-center text-xs font-semibold">
                 {member.imageUrl ? (
                   <img src={member.imageUrl} className="w-full h-full rounded-full object-cover" />
                 ) : (
@@ -189,8 +189,8 @@ export const CommentInput = forwardRef(({ cardId, boardMembers, onAddComment }, 
                 )}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-semibold">{member.firstName} {member.lastName}</span>
-                <span className="text-xs text-neutral-500">@{member.firstName}{member.lastName}</span>
+                <span className="text-sm font-semibold text-foreground">{member.firstName} {member.lastName}</span>
+                <span className="text-xs text-muted-foreground">@{member.firstName}{member.lastName}</span>
               </div>
             </div>
           ))}

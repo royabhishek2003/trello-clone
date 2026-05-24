@@ -290,7 +290,7 @@ export const CardModal = () => {
   const hasCover = cardData?.coverUrl || cardData?.coverColor;
   const topButtonStyle = hasCover 
     ? "bg-black/30 text-white hover:bg-black/50 border-none"
-    : "bg-transparent text-neutral-600 hover:bg-neutral-200 border-none";
+    : "bg-transparent text-muted-foreground hover:bg-hover-bg border-none";
   const coverColorClass = cardData?.coverColor ? COLORS.find(c => c.id === cardData.coverColor)?.color.split(' ')[0] : '';
 
   return (
@@ -313,8 +313,8 @@ export const CardModal = () => {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-60 p-3" align="end">
-            <div className="text-sm font-semibold text-center text-neutral-600 mb-4 pb-2 border-b border-neutral-200">Card Actions</div>
-            <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleDelete}>
+            <div className="text-sm font-semibold text-center text-muted-foreground mb-4 pb-2 border-b border-border">Card Actions</div>
+            <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-500/10" onClick={handleDelete}>
               <Trash className="h-4 w-4 mr-2" />
               Delete Card
             </Button>
@@ -326,7 +326,7 @@ export const CardModal = () => {
       </div>
 
       {hasCover && (
-        <div className={`w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] -mx-4 md:-mx-6 -mt-4 md:-mt-6 mb-4 h-[160px] shrink-0 relative group ${coverColorClass || 'bg-neutral-200'}`}>
+        <div className={`w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] -mx-4 md:-mx-6 -mt-4 md:-mt-6 mb-4 h-[160px] shrink-0 relative group ${coverColorClass || 'bg-muted'}`}>
           {cardData.coverUrl && (
             <img 
               src={cardData.coverUrl} 
@@ -346,12 +346,12 @@ export const CardModal = () => {
         {/* Left Column */}
         <div className="lg:col-span-3 pb-8 lg:pb-0 overflow-y-auto pr-2 custom-scrollbar min-h-0 h-full">
           <div className="flex items-start gap-x-3 mb-4 w-full">
-            <Layout className="h-5 w-5 mt-1 text-neutral-700" />
+            <Layout className="h-5 w-5 mt-1 text-muted-foreground" />
             <div className="w-full">
               {!isEditingTitle ? (
                 <div 
                   onClick={() => setIsEditingTitle(true)}
-                  className="font-semibold text-xl mb-1 cursor-pointer text-neutral-800"
+                  className="font-semibold text-xl mb-1 cursor-pointer text-foreground"
                 >
                   {title}
                 </div>
@@ -373,10 +373,10 @@ export const CardModal = () => {
                     }
                   }}
                   autoFocus
-                  className="font-semibold text-xl px-1 text-neutral-800 mb-0.5 border-transparent focus-visible:bg-white focus-visible:border-input"
+                  className="font-semibold text-xl px-1 text-foreground mb-0.5 border-transparent focus-visible:bg-input focus-visible:border-primary"
                 />
               )}
-              <p className="text-sm text-neutral-500 mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 in list <span className="underline">{listName}</span>
               </p>
 
@@ -423,7 +423,7 @@ export const CardModal = () => {
                   <Copy className="h-4 w-4 mr-1.5" />
                   Copy
                 </Button>
-                <Button variant="gray" size="sm" className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleDelete}>
+                <Button variant="gray" size="sm" className="h-8 text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20" onClick={handleDelete}>
                   <Trash className="h-4 w-4 mr-1.5" />
                   Delete
                 </Button>
@@ -433,13 +433,13 @@ export const CardModal = () => {
                 {/* Members Section */}
                 {localMembers && localMembers.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-neutral-700 mb-2">Members</p>
+                    <p className="text-xs font-semibold text-foreground mb-2">Members</p>
                     <div className="flex flex-wrap gap-1">
                       {localMembers.map(m => (
                         <MemberAvatar key={m._id || m} member={m} />
                       ))}
                       <MembersPopover cardMembers={localMembers} onMemberToggle={handleToggleMember}>
-                        <div role="button" className="w-7 h-7 bg-neutral-200/60 hover:bg-neutral-300 rounded-full flex items-center justify-center transition cursor-pointer text-neutral-600">
+                        <div role="button" className="w-7 h-7 bg-muted hover:bg-hover-bg rounded-full flex items-center justify-center transition cursor-pointer text-muted-foreground">
                           <span className="font-medium text-sm">+</span>
                         </div>
                       </MembersPopover>
@@ -450,7 +450,7 @@ export const CardModal = () => {
                 {/* Labels Section */}
                 {cardData.labels && cardData.labels.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-neutral-700 mb-2">Labels</p>
+                    <p className="text-xs font-semibold text-foreground mb-2">Labels</p>
                     <div className="flex flex-wrap gap-2">
                       {cardData.labels.map(label => {
                         const l = typeof label === 'object' ? label : null;
@@ -463,7 +463,7 @@ export const CardModal = () => {
                         );
                       })}
                       <LabelPopover>
-                        <div role="button" className="h-8 w-10 bg-neutral-200/60 hover:bg-neutral-300 rounded-sm flex items-center justify-center transition cursor-pointer text-neutral-600">
+                        <div role="button" className="h-8 w-10 bg-muted hover:bg-hover-bg rounded-sm flex items-center justify-center transition cursor-pointer text-muted-foreground">
                           <span className="font-medium text-lg mb-0.5">+</span>
                         </div>
                       </LabelPopover>
@@ -474,7 +474,7 @@ export const CardModal = () => {
                 {/* Dates Section */}
                 {hasDates && (
                   <div>
-                    <p className="text-xs font-semibold text-neutral-700 mb-2">Due date</p>
+                    <p className="text-xs font-semibold text-foreground mb-2">Due date</p>
                     <div className="flex items-center gap-x-2">
                       <input 
                         type="checkbox" 
@@ -483,7 +483,7 @@ export const CardModal = () => {
                         onChange={toggleDateComplete}
                       />
                       <DatePopover>
-                        <div role="button" className="h-8 px-3 bg-neutral-200/60 hover:bg-neutral-300 rounded-sm flex items-center justify-center transition cursor-pointer text-neutral-800 text-sm font-semibold">
+                        <div role="button" className="h-8 px-3 bg-muted hover:bg-hover-bg rounded-sm flex items-center justify-center transition cursor-pointer text-foreground text-sm font-semibold">
                           {formatCardDate(cardData.startDate, cardData.dueDate, cardData.hasDueTime)}
                           {cardData.dueDate && (
                             <span className={`ml-2 px-1.5 py-0.5 rounded-sm text-xs ${badgeColor} flex items-center gap-x-1`}>
@@ -504,10 +504,10 @@ export const CardModal = () => {
 
           {/* Description */}
           <div className="flex items-start gap-x-3 w-full mb-8">
-            <AlignLeft className="h-5 w-5 mt-0.5 text-neutral-700" />
+            <AlignLeft className="h-5 w-5 mt-0.5 text-muted-foreground" />
             <div className="w-full">
               <div className="flex items-center justify-between mb-2">
-                <p className="font-semibold text-neutral-800">Description</p>
+                <p className="font-semibold text-foreground">Description</p>
                 {description && !isEditingDesc && (
                   <Button variant="gray" size="sm" onClick={() => setIsEditingDesc(true)}>Edit</Button>
                 )}
@@ -516,7 +516,7 @@ export const CardModal = () => {
                 <div
                   onClick={() => setIsEditingDesc(true)}
                   role="button"
-                  className="min-h-[78px] bg-neutral-200/60 hover:bg-neutral-300/80 transition text-sm font-medium py-3 px-3.5 rounded-md"
+                  className="min-h-[78px] bg-muted hover:bg-hover-bg transition text-sm font-medium py-3 px-3.5 rounded-md"
                 >
                   {description || "Add a more detailed description..."}
                 </div>
@@ -571,8 +571,8 @@ export const CardModal = () => {
         <div className="lg:col-span-2 pb-10 lg:pb-0 h-full flex flex-col overflow-y-auto pr-2 custom-scrollbar min-h-0">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-x-3">
-              <Activity className="h-5 w-5 text-neutral-700" />
-              <h3 className="font-semibold text-neutral-800">Comments and activity</h3>
+              <Activity className="h-5 w-5 text-muted-foreground" />
+              <h3 className="font-semibold text-foreground">Comments and activity</h3>
             </div>
             <Button variant="gray" size="sm" onClick={() => setShowDetails(!showDetails)}>
               {showDetails ? 'Hide details' : 'Show details'}

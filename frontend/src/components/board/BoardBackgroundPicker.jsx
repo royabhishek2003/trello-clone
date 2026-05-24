@@ -98,16 +98,16 @@ export const BoardBackgroundPicker = ({
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: '100%', opacity: 0.5 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-0 top-14 right-0 z-50 w-full md:w-[350px] bg-white shadow-2xl flex flex-col sm:rounded-tl-2xl md:rounded-none text-slate-800"
+            className="fixed bottom-0 top-14 right-0 z-50 w-full md:w-[350px] bg-card shadow-2xl flex flex-col sm:rounded-tl-2xl md:rounded-none text-card-foreground"
             role="dialog"
             aria-label="Board background picker"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-semibold text-slate-800">Board Background</h2>
+              <h2 className="text-lg font-semibold text-foreground">Board Background</h2>
               <button 
                 onClick={onClose}
-                className="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="p-2 text-muted-foreground hover:bg-hover-bg rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
                 aria-label="Close picker"
               >
                 <X className="w-5 h-5" />
@@ -115,7 +115,7 @@ export const BoardBackgroundPicker = ({
             </div>
 
             {/* Tabs */}
-            <div className="flex p-2 gap-1 bg-slate-50 border-b">
+            <div className="flex p-2 gap-1 bg-muted/30 border-b">
               {[
                 { id: 'photos', icon: ImageIcon, label: 'Photos' },
                 { id: 'colors', icon: Droplet, label: 'Colors' },
@@ -127,7 +127,7 @@ export const BoardBackgroundPicker = ({
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-colors ${
-                      activeTab === tab.id ? 'bg-white shadow-sm text-blue-600' : 'text-slate-600 hover:bg-slate-200/50'
+                      activeTab === tab.id ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:bg-hover-bg'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -144,11 +144,11 @@ export const BoardBackgroundPicker = ({
               {activeTab === 'photos' && (
                 <div className="space-y-4">
                   <div className="relative">
-                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     <input
                       type="text"
                       placeholder="Search photos..."
-                      className="w-full pl-9 pr-4 py-2 bg-slate-100 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-md outline-none transition-all text-sm text-slate-800 placeholder:text-slate-400"
+                      className="w-full pl-9 pr-4 py-2 bg-input border-transparent focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-md outline-none transition-all text-sm text-foreground placeholder:text-muted-foreground"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -164,7 +164,7 @@ export const BoardBackgroundPicker = ({
                           <button
                             key={photo.id}
                             onClick={() => handlePhotoSelect(photo)}
-                            className="group relative w-full h-24 rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            className="group relative w-full h-24 rounded-md overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
                           >
                             <img 
                               src={photo.urls.thumb} 
@@ -191,7 +191,7 @@ export const BoardBackgroundPicker = ({
                         );
                       })
                     ) : (
-                      <div className="col-span-2 text-center text-sm text-slate-500 py-8">
+                      <div className="col-span-2 text-center text-sm text-muted-foreground py-8">
                         No photos found
                       </div>
                     )}
@@ -203,13 +203,13 @@ export const BoardBackgroundPicker = ({
               {activeTab === 'colors' && (
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-3">Colors</h3>
+                    <h3 className="text-sm font-semibold text-foreground mb-3">Colors</h3>
                     <div className="grid grid-cols-3 gap-2">
                       {SOLID_COLORS.map(color => (
                         <button
                           key={color}
                           onClick={() => handleStyleSelect('color', color)}
-                          className="h-16 rounded-md relative focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                          className="h-16 rounded-md relative focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
                           style={{ backgroundColor: color }}
                           aria-label={`Select color ${color}`}
                         >
@@ -224,13 +224,13 @@ export const BoardBackgroundPicker = ({
                   </div>
                   
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-3">Gradients</h3>
+                    <h3 className="text-sm font-semibold text-foreground mb-3">Gradients</h3>
                     <div className="grid grid-cols-3 gap-2">
                       {GRADIENTS.map(gradient => (
                         <button
                           key={gradient}
                           onClick={() => handleStyleSelect('gradient', gradient)}
-                          className="h-16 rounded-md relative focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                          className="h-16 rounded-md relative focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
                           style={{ backgroundImage: gradient }}
                           aria-label="Select gradient"
                         >
@@ -249,7 +249,7 @@ export const BoardBackgroundPicker = ({
               {/* Upload Tab */}
               {activeTab === 'upload' && (
                 <div className="pt-2">
-                  <h3 className="text-sm font-semibold text-slate-700 mb-3">Custom Background</h3>
+                  <h3 className="text-sm font-semibold text-foreground mb-3">Custom Background</h3>
                   <BackgroundUpload 
                     onUpload={onUploadBackground} 
                     isUploading={isUploading} 

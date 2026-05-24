@@ -58,7 +58,7 @@ export const CreateBoardPopover = ({ children, side = 'bottom', sideOffset = 18 
         {children}
       </PopoverTrigger>
       <PopoverContent className="w-80 pt-3" side={side} sideOffset={sideOffset}>
-        <div className="text-sm font-medium text-center text-neutral-600 pb-4">
+        <div className="text-sm font-medium text-center text-foreground pb-4">
           Create board
         </div>
         <form onSubmit={handleCreateBoard} className="space-y-4">
@@ -73,7 +73,7 @@ export const CreateBoardPopover = ({ children, side = 'bottom', sideOffset = 18 
               required
             />
           </div>
-          <Button type="submit" disabled={isSubmitting} className="w-full bg-sky-700 hover:bg-sky-800 text-white">
+          <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
             {isSubmitting ? "Creating..." : "Create"}
           </Button>
         </form>

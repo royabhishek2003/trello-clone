@@ -59,7 +59,7 @@ const BoardDetail = () => {
 
   if (loading && !currentBoard) {
     return (
-      <div className="h-[100dvh] w-full bg-neutral-100 flex flex-col">
+      <div className="h-[100dvh] w-full bg-background flex flex-col">
         <div className="h-14 w-full skeleton rounded-none" />
         <div className="flex-1 p-4 flex gap-4">
           <div className="w-[280px] h-full skeleton opacity-50" />
@@ -70,7 +70,7 @@ const BoardDetail = () => {
     );
   }
 
-  if (!currentBoard) return <div className="h-[100dvh] flex items-center justify-center text-center">Board not found</div>;
+  if (!currentBoard) return <div className="h-[100dvh] flex items-center justify-center text-center text-foreground bg-background">Board not found</div>;
 
   // Calculate dynamic background style
   const getBackgroundStyle = () => {
@@ -99,7 +99,7 @@ const BoardDetail = () => {
 
   return (
     <div 
-      className={`relative h-[100dvh] w-full bg-no-repeat bg-cover bg-center overflow-hidden flex flex-col transition-all duration-300`}
+      className={`relative h-[100dvh] w-full bg-no-repeat bg-cover bg-center overflow-hidden flex flex-col transition-all duration-300 ${!isImageOrGradient ? 'bg-background' : ''}`}
       style={bgStyle}
     >
       <Navbar onMenuClick={() => setIsSidebarOpen(prev => !prev)} title={currentBoard.title} />
@@ -117,7 +117,7 @@ const BoardDetail = () => {
 
       {/* Safe Overlay System for readability */}
       {isImageOrGradient && (
-        <div className="absolute inset-0 bg-black/30 pointer-events-none transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-overlay pointer-events-none transition-colors duration-300" />
       )}
       
       <main className="relative pt-14 flex-1 flex flex-col h-full min-w-0">
