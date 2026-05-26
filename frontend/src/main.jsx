@@ -13,14 +13,12 @@ import { ThemeProvider } from './components/providers/ThemeProvider';
 import { Toaster } from 'sonner';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'no-client-id'}>
-        <ThemeProvider>
-          <App />
-          <Toaster position="bottom-right" />
-        </ThemeProvider>
-      </GoogleOAuthProvider>
-    </Provider>
-  </React.StrictMode>,
+  <Provider store={store}>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'no-client-id'}>
+      <ThemeProvider>
+        <App />
+        <Toaster position="bottom-right" />
+      </ThemeProvider>
+    </GoogleOAuthProvider>
+  </Provider>,
 );

@@ -57,13 +57,14 @@ export const ListCard = memo(({ list, index }) => {
 
   return (
     <Draggable draggableId={list._id} index={index}>
-      {(provided) => (
+      {(provided, snapshot) => (
         <li 
           {...provided.draggableProps}
           ref={provided.innerRef}
-          className="shrink-0 h-full w-[280px] sm:w-[300px] md:w-[320px] select-none snap-center"
+          style={provided.draggableProps.style}
+          className={`shrink-0 h-full w-[280px] sm:w-[300px] md:w-[320px] select-none snap-center ${snapshot.isDragging ? 'z-50' : ''}`}
         >
-          <div {...provided.dragHandleProps} className="w-full rounded-xl bg-list shadow-list pb-2 max-h-full flex flex-col text-foreground">
+          <div {...provided.dragHandleProps} className={`w-full rounded-xl bg-list shadow-list pb-2 max-h-full flex flex-col text-foreground ${snapshot.isDragging ? 'shadow-2xl rotate-2 scale-[1.02] cursor-grabbing opacity-90' : 'cursor-grab'}`}>
             <div className="flex justify-between items-start pt-2 px-2 pb-1 sticky top-0 bg-list z-10 rounded-t-xl">
               {!isEditingTitle ? (
                 <div onClick={() => setIsEditingTitle(true)} className="w-full text-sm font-semibold px-2.5 py-1 h-7 border-transparent cursor-pointer">

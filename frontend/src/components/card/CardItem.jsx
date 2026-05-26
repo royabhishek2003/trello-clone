@@ -20,15 +20,23 @@ export const CardItem = memo(({ card, index }) => {
 
   return (
     <Draggable draggableId={card._id} index={index}>
-      {(provided) => (
+      {(provided, snapshot) => (
         <div
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           ref={provided.innerRef}
-          onClick={() => dispatch(openCardModal(card))}
-          role="button"
-          className="border-2 border-transparent hover:border-primary focus:border-primary flex flex-col text-sm bg-card text-card-foreground rounded-md shadow-card hover:shadow-card-hover active:scale-[0.98] transition-all duration-200 hover:-translate-y-[1px] touch-manipulation overflow-hidden shrink-0"
+          style={provided.draggableProps.style}
+          className={`shrink-0 touch-manipulation ${snapshot.isDragging ? 'z-50' : ''}`}
         >
+          <div
+            onClick={() => dispatch(openCardModal(card))}
+            role="button"
+            className={`border-2 flex flex-col text-sm bg-card text-card-foreground rounded-md overflow-hidden ${
+              snapshot.isDragging 
+                ? 'border-primary shadow-xl rotate-3 scale-105 cursor-grabbing' 
+                : 'border-transparent hover:border-primary focus:border-primary shadow-card hover:shadow-card-hover active:scale-[0.98] transition-all duration-200 hover:-translate-y-[1px] cursor-grab'
+            }`}
+          >
           {(card.coverUrl || card.coverColor) && (
             <div className={`w-full max-h-[260px] shrink-0 flex overflow-hidden border-b border-border ${!card.coverUrl && card.coverColor ? 'h-8 ' + (card.coverColor === 'green' ? 'bg-green-600' : card.coverColor === 'yellow' ? 'bg-yellow-500' : card.coverColor === 'orange' ? 'bg-orange-500' : card.coverColor === 'red' ? 'bg-red-600' : card.coverColor === 'purple' ? 'bg-purple-600' : card.coverColor === 'blue' ? 'bg-blue-600' : card.coverColor === 'sky' ? 'bg-sky-500' : card.coverColor === 'pink' ? 'bg-pink-600' : card.coverColor === 'lime' ? 'bg-lime-500' : 'bg-slate-800') : 'bg-muted'}`}>
               {card.coverUrl && <img src={card.coverUrl} alt="Cover" className="w-full object-cover" style={{ maxHeight: '260px' }} />}
@@ -111,6 +119,7 @@ export const CardItem = memo(({ card, index }) => {
                 )}
               </div>
             )}
+          </div>
           </div>
         </div>
       )}
