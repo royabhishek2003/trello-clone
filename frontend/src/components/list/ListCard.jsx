@@ -62,7 +62,7 @@ export const ListCard = memo(({ list, index }) => {
           {...provided.draggableProps}
           ref={provided.innerRef}
           style={provided.draggableProps.style}
-          className={`shrink-0 h-full w-[280px] sm:w-[300px] md:w-[320px] select-none snap-center ${snapshot.isDragging ? 'z-50' : ''}`}
+          className={`shrink-0 h-full w-[280px] sm:w-[300px] md:w-[320px] select-none mr-3 ${snapshot.isDragging ? 'z-50' : ''}`}
         >
           <div {...provided.dragHandleProps} className={`w-full rounded-xl bg-list shadow-list pb-2 max-h-full flex flex-col text-foreground ${snapshot.isDragging ? 'shadow-2xl rotate-2 scale-[1.02] cursor-grabbing opacity-90' : 'cursor-grab'}`}>
             <div className="flex justify-between items-start pt-2 px-2 pb-1 sticky top-0 bg-list z-10 rounded-t-xl">
@@ -123,7 +123,7 @@ export const ListCard = memo(({ list, index }) => {
                 <ol
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="mx-1 px-1 py-0.5 flex flex-col gap-y-2 min-h-[2px] overflow-y-auto flex-1 touch-pan-y"
+                  className="mx-1 px-1 py-0.5 flex flex-col min-h-[100px] overflow-y-auto flex-1 touch-pan-y"
                 >
                   {list.cards?.map((card, idx) => (
                     <CardItem key={card._id} card={card} index={idx} />

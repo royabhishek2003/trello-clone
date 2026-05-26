@@ -26,7 +26,7 @@ export const CardItem = memo(({ card, index }) => {
           {...provided.dragHandleProps}
           ref={provided.innerRef}
           style={provided.draggableProps.style}
-          className={`shrink-0 touch-manipulation ${snapshot.isDragging ? 'z-50' : ''}`}
+          className={`shrink-0 touch-manipulation mb-2 ${snapshot.isDragging ? 'z-50' : ''}`}
         >
           <div
             onClick={() => dispatch(openCardModal(card))}

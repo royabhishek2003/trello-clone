@@ -182,12 +182,10 @@ export const ListContainer = ({ boardId }) => {
           <ol
             {...provided.droppableProps}
             ref={provided.innerRef}
-            className="flex gap-x-3 h-full pb-4 items-start snap-x-mandatory touch-pan-x"
+            className="flex h-full pb-4 items-start touch-pan-x"
           >
             {filteredLists.map((list, index) => (
-              <div key={list._id} className="h-full shrink-0">
-                <ListCard list={list} index={index} />
-              </div>
+              <ListCard key={list._id} list={list} index={index} />
             ))}
             {provided.placeholder}
             
