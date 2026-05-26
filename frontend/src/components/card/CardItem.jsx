@@ -18,15 +18,6 @@ export const CardItem = memo(({ card, index }) => {
   const visibleMembers = members.slice(0, MAX_MEMBERS_VISIBLE);
   const remainingMembersCount = members.length - MAX_MEMBERS_VISIBLE;
   
-  const getStyle = (style, snapshot) => {
-    if (!snapshot.isDragging) return style;
-    if (!style?.transform) return style;
-    return {
-      ...style,
-      transform: `${style.transform} rotate(4deg)`
-    };
-  };
-
   return (
     <Draggable draggableId={card._id} index={index}>
       {(provided, snapshot) => (
@@ -34,15 +25,18 @@ export const CardItem = memo(({ card, index }) => {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           ref={provided.innerRef}
-          style={getStyle(provided.draggableProps.style, snapshot)}
-          onClick={() => dispatch(openCardModal(card))}
-          role="button"
-          className={`border-2 flex flex-col text-sm bg-card text-card-foreground rounded-md overflow-hidden shrink-0 touch-manipulation select-none mb-2 ${
-            snapshot.isDragging 
-              ? 'border-primary shadow-2xl opacity-90 cursor-grabbing z-50' 
-              : 'border-transparent hover:border-primary focus:border-primary shadow-card hover:shadow-card-hover transition-colors duration-200 cursor-grab'
-          }`}
+          style={provided.draggableProps.style}
+          className={`shrink-0 touch-manipulation mb-2 select-none ${snapshot.isDragging ? 'z-50' : ''}`}
         >
+          <div
+            onClick={() => dispatch(openCardModal(card))}
+            role="button"
+            className={`border-2 flex flex-col text-sm bg-card text-card-foreground rounded-md overflow-hidden ${
+              snapshot.isDragging 
+                ? 'border-primary shadow-2xl rotate-[3deg] scale-[1.02] transform-gpu will-change-transform cursor-grabbing opacity-90' 
+                : 'border-transparent hover:border-primary focus:border-primary shadow-card hover:shadow-card-hover active:scale-[0.98] transition-colors duration-200 hover:-translate-y-[1px] cursor-grab'
+            }`}
+          >
           {(card.coverUrl || card.coverColor) && (
             <div className={`w-full max-h-[260px] shrink-0 flex overflow-hidden border-b border-border ${!card.coverUrl && card.coverColor ? 'h-8 ' + (card.coverColor === 'green' ? 'bg-green-600' : card.coverColor === 'yellow' ? 'bg-yellow-500' : card.coverColor === 'orange' ? 'bg-orange-500' : card.coverColor === 'red' ? 'bg-red-600' : card.coverColor === 'purple' ? 'bg-purple-600' : card.coverColor === 'blue' ? 'bg-blue-600' : card.coverColor === 'sky' ? 'bg-sky-500' : card.coverColor === 'pink' ? 'bg-pink-600' : card.coverColor === 'lime' ? 'bg-lime-500' : 'bg-slate-800') : 'bg-muted'}`}>
               {card.coverUrl && <img src={card.coverUrl} alt="Cover" draggable="false" className="w-full object-cover select-none" style={{ maxHeight: '260px' }} />}
@@ -125,6 +119,7 @@ export const CardItem = memo(({ card, index }) => {
                 )}
               </div>
             )}
+            </div>
           </div>
         </div>
       )}
