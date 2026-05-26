@@ -122,7 +122,7 @@ const BoardDetail = () => {
       
       <main className="relative pt-14 flex-1 flex flex-col h-full min-w-0">
         <BoardHeader board={currentBoard} />
-        <div className="flex-1 overflow-x-auto overflow-y-hidden p-4 touch-pan-x scrollbar-hide snap-x-mandatory">
+        <div className="flex-1 overflow-x-auto overflow-y-hidden p-4 touch-pan-x scrollbar-hide">
           <ListContainer boardId={id} />
         </div>
       </main>
