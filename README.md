@@ -97,3 +97,8 @@ Visit `http://localhost:5173` in your browser.
 2. **Mock Subscriptions:** The Razorpay integration is currently using test keys. When upgrading to "Pro", the system mocks the payment verification endpoint to automatically grant Pro status to the organization without requiring real cryptographic signatures.
 3. **Environment Isolation:** The backend runs on port 5000 and the frontend on port 5173. The frontend `VITE_API_URL` must match the backend's port.
 4. **Unsplash API Limits:** The Unsplash free tier has rate limits (50 requests/hour). If images fail to load during board creation, it is likely due to hitting this development limit.
+
+
+
+
+mongodb+srv://kishanabhishek2003_db_user:UQd5ObQkuSmICl7f@cluster0.5usyeea.mongodb.net/courseHub
