@@ -101,4 +101,3 @@ Visit `http://localhost:5173` in your browser.
 
 
 
-mongodb+srv://kishanabhishek2003_db_user:UQd5ObQkuSmICl7f@cluster0.5usyeea.mongodb.net/courseHub
